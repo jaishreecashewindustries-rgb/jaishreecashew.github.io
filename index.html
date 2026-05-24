@@ -31,6 +31,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
 body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--text);overflow-x:hidden;line-height:1.65}
+#page-home{width:100%;overflow-x:hidden}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--gold)}
 img,video{display:block;max-width:100%}
 
@@ -69,7 +70,7 @@ nav{position:sticky;top:0;z-index:1000;background:rgba(253,250,245,.97);backdrop
 .mob-btns{padding:20px 24px;display:flex;flex-direction:column;gap:10px}
 
 /* HERO VIDEO */
-.hero{min-height:100vh;position:relative;overflow:hidden;display:flex;align-items:center}
+.hero{min-height:100vh;position:relative;overflow:hidden;display:flex;align-items:center;width:100vw;margin-left:calc(-50vw + 50%)}
 .hero-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
 .hero-ov{position:absolute;inset:0;background:linear-gradient(110deg,rgba(38,24,16,.85) 0%,rgba(38,24,16,.65) 45%,rgba(38,24,16,.25) 100%)}
 .hero-c{position:relative;z-index:2;max-width:1440px;margin:0 auto;padding:0 56px;width:100%}
@@ -852,7 +853,7 @@ footer{background:var(--brown);padding:72px 0 0}
     <div class="adm-tab-panel" id="admSettings">
       <div class="adm-settings">
         <h4 style="font-size:18px;font-weight:700;color:var(--brown);margin-bottom:24px">Website Settings</h4>
-        <div class="fg"><label>Razorpay Key ID</label><input type="text" id="setRzpKey" placeholder="rzp_live_XXXXXXXXXXXX" value="rzp_test_YourKeyHere"></div>
+        <div class="fg"><label>Razorpay Key ID</label><input type="text" id="setRzpKey" placeholder="rzp_live_XXXXXXXXXXXX" value="rzp_live_StJcfZp5KQLYuY"></div>
         <div class="fg"><label>Primary WhatsApp Number</label><input type="tel" id="setWA" placeholder="+917568577968" value="+917568577968"></div>
         <div class="fg"><label>Announcement Bar Text</label><input type="text" id="setAnn" placeholder="Free Shipping above ₹999..." value="Free Shipping on orders above ₹999"></div>
         <div class="fg"><label>Admin Username</label><input type="text" id="setUser" placeholder="admin" value="admin"></div>
@@ -968,9 +969,9 @@ function initiateRazorpay(){
   var ship=sub>=999?0:SHIPPING;
   var total=(sub+ship)*100; // Razorpay takes paise
 
-  // Replace 'rzp_test_YourKeyHere' with your actual Razorpay Key ID
+  // Replace 'rzp_live_StJcfZp5KQLYuY' with your actual Razorpay Key ID
   var options={
-    key:'rzp_test_YourKeyHere',
+    key:'rzp_live_StJcfZp5KQLYuY',
     amount:total,
     currency:'INR',
     name:'Jai Shree Cashew',
