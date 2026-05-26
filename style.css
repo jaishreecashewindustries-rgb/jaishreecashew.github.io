@@ -4111,113 +4111,240 @@ footer .brand-link:hover{
 /* ── Hide hero-bg elements (video replaces them) ── */
 .hero-bg,#heroBg,#heroBgNext{display:none !important}
 
-/* ── Mobile: immersive portrait composition ── */
+/* ════════════════════════════════════════════════════════════
+   MOBILE HERO — DEDICATED ART DIRECTION
+   Analysis: nuts cascade diagonally from upper-center-right →
+   lower-center. Left 30% of frame is consistently clear/clean.
+   Strategy: shift viewport RIGHT so the clean left margin fills
+   the left half of portrait screen — text on clean zone, nuts right.
+   DO NOT change anything above this comment (desktop untouched).
+════════════════════════════════════════════════════════════ */
 @media(max-width:768px){
+
+  /* ── Container: full portrait viewport ── */
   .hero{
     min-height:100svh;
-    align-items:flex-end;
+    min-height:100dvh;          /* dynamic viewport — accounts for browser chrome */
+    align-items:flex-end;       /* text block anchors to bottom */
   }
 
-  /* On portrait mobile, shift focus slightly right to keep subject visible */
+  /* ── VIDEO CROP: the key art-direction decision ──
+     The video is 16:9 (1920×1080). On a 9:16 portrait phone,
+     object-fit:cover crops ~60% of the horizontal width.
+     Default "center center" pulls the middle of the frame —
+     which is exactly where the nuts are most dense (bad).
+
+     Shifting to "82% center" moves the crop window rightward:
+     → right edge of video = right edge of screen
+     → left ~38% of video (the clean beige zone) fills left of screen
+     → nuts remain on the right half, text on clean left ✓
+  ── */
   .hero-video{
-    object-position:65% center;
+    object-fit:cover;
+    object-position:82% center;   /* pull right: clean left zone shows */
+    transform:scale(1.005);       /* prevent hairline edge gap */
+    height:100%;
+    width:100%;
   }
 
-  /* Stronger bottom gradient for small screens */
+  /* ── Overlay: mobile-tuned gradients ──
+     Bottom: strong dark zone for text legibility
+     Left: lighter than desktop — left side of video is already
+           clean beige, so we don't need heavy darkening there.
+     Right: slightly darker to push nuts into background.
+  ── */
   .hero-overlay{
     background:
       linear-gradient(
         to top,
-        rgba(10,6,3,.92) 0%,
-        rgba(10,6,3,.65) 28%,
-        rgba(10,6,3,.22) 56%,
-        rgba(10,6,3,.04) 100%
+        rgba(8,4,1,.90) 0%,
+        rgba(8,4,1,.62) 25%,
+        rgba(8,4,1,.28) 52%,
+        rgba(8,4,1,.06) 78%,
+        transparent 100%
       );
   }
+  /* Right-side scrim: keeps nuts as texture, not distraction */
   .hero-overlay::after{
-    background:linear-gradient(
-      to right,
-      rgba(10,6,3,.50) 0%,
-      rgba(10,6,3,.20) 50%,
-      transparent 80%
-    );
+    content:'';
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(
+        to left,
+        rgba(8,4,1,.45) 0%,
+        rgba(8,4,1,.15) 45%,
+        transparent 70%
+      );
   }
 
+  /* ── Content: left-aligned, occupies bottom-left safe zone ──
+     Width capped at 78% so it never enters the nut zone on right.
+     Padding-bottom uses env(safe-area-inset-bottom) for notched phones.
+  ── */
   .hero-content{
-    padding:0 5% max(48px, env(safe-area-inset-bottom, 48px));
-    max-width:100%;
-    padding-top:0;
+    position:relative;
+    z-index:3;
+    width:78%;                   /* text stays left, nuts stay right */
+    max-width:340px;             /* hard cap for very large phones */
+    padding:0 0 max(52px, env(safe-area-inset-bottom, 52px)) 5%;
+    animation:heroReveal .85s cubic-bezier(.4,0,.2,1) both;
   }
 
-  /* Badge */
+  /* ── Badge: small, premium ── */
   .hero-badge{
-    font-size:8.5px;letter-spacing:3px;padding:6px 12px;margin-bottom:14px;
-    background:rgba(198,161,91,.12);border:1px solid rgba(198,161,91,.32);
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-size:8px;
+    letter-spacing:3px;
+    padding:5px 11px;
+    margin-bottom:16px;
+    background:rgba(198,161,91,.13);
+    border:1px solid rgba(198,161,91,.30);
+    color:var(--gold2);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  .hero-badge::before{
+    width:4px;height:4px;
+    background:var(--gold);
+    border-radius:50%;
+    flex-shrink:0;
+    animation:heroPulse 2s ease-in-out infinite;
   }
 
-  /* Headline */
+  /* ── Headline: large serif, tight, impactful ── */
   .hero h1{
-    font-size:clamp(34px,10vw,50px);
-    line-height:1.0;letter-spacing:-.5px;
-    margin-bottom:12px;color:#fff;
+    font-family:var(--font-serif);
+    font-size:clamp(32px,9.5vw,46px);
+    font-weight:300;
+    line-height:1.0;
+    letter-spacing:-.5px;
+    color:#fff;
+    margin-bottom:10px;
   }
-  .hero h1 em{display:block;color:var(--gold2);font-style:italic;}
+  .hero h1 em{
+    display:block;
+    font-style:italic;
+    color:var(--gold2);
+    line-height:1.1;
+  }
 
-  /* Subtitle — 2 lines max on mobile */
+  /* ── Subtitle: compact, 2 lines max ── */
   .hero-sub{
-    font-size:13px;line-height:1.6;
-    color:rgba(255,255,255,.65);
-    max-width:100%;margin-bottom:16px;
-    display:-webkit-box;-webkit-line-clamp:2;
-    -webkit-box-orient:vertical;overflow:hidden;
+    font-family:var(--font-sans);
+    font-size:12.5px;
+    font-weight:300;
+    line-height:1.58;
+    color:rgba(255,255,255,.62);
+    margin-bottom:15px;
+    max-width:100%;
+    /* Hard clamp to 2 lines — prevents overflow into CTA area */
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
   }
 
-  /* Trust items */
+  /* ── Trust items: horizontal row, tight ── */
   .hero-trust{
-    display:flex;flex-wrap:wrap;gap:5px 12px;margin-bottom:20px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 10px;
+    margin-bottom:18px;
   }
   .hero-trust-item{
-    font-size:9px;letter-spacing:.8px;
-    color:rgba(255,255,255,.5);
-    display:flex;align-items:center;gap:4px;white-space:nowrap;
+    font-family:var(--font-sans);
+    font-size:8.5px;
+    letter-spacing:.7px;
+    color:rgba(255,255,255,.46);
+    display:flex;
+    align-items:center;
+    gap:3px;
+    white-space:nowrap;
+    text-transform:uppercase;
   }
-  .hero-trust-item::before{content:'✓';color:var(--gold);font-size:8.5px;font-weight:700;}
+  .hero-trust-item::before{
+    content:'✓';
+    color:var(--gold);
+    font-size:8px;
+    font-weight:700;
+  }
 
-  /* CTAs */
-  .hero-btns{display:flex;gap:9px;flex-wrap:nowrap;}
+  /* ── CTAs: stacked for narrow text column ── */
+  .hero-btns{
+    display:flex;
+    flex-direction:column;       /* stack vertically in narrow column */
+    gap:8px;
+  }
   .hero-btns .btn-gold{
-    flex:1;text-align:center;justify-content:center;
-    padding:13px 14px;font-size:10.5px;letter-spacing:1.8px;white-space:nowrap;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:13px 20px;
+    font-size:10.5px;
+    letter-spacing:2px;
+    font-weight:600;
+    width:100%;
+    text-align:center;
+    white-space:nowrap;
   }
   .hero-btns .btn-outline{
-    flex:1;text-align:center;justify-content:center;
-    padding:12px 12px;font-size:10px;letter-spacing:1.5px;white-space:nowrap;
-    border-color:rgba(255,255,255,.38);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:11px 18px;
+    font-size:10px;
+    letter-spacing:1.5px;
+    width:100%;
+    text-align:center;
+    white-space:nowrap;
+    border-color:rgba(255,255,255,.32);
+    color:rgba(255,255,255,.80);
   }
 
-  .hero-scroll{display:none;}
-  .hero-dots{display:none;}   /* no slideshow dots needed with video */
+  /* ── Hide scroll + dots (not needed on mobile) ── */
+  .hero-scroll{display:none !important}
+  .hero-dots{display:none !important}
 }
 
-/* Very small phones */
+/* ── Very small phones (≤380px) ── */
 @media(max-width:380px){
-  .hero-content{padding:0 4% max(44px,env(safe-area-inset-bottom,44px))}
-  .hero h1{font-size:30px}
-  .hero-sub{font-size:12px}
-  .hero-btns .btn-gold,.hero-btns .btn-outline{
-    padding:12px 10px;font-size:9.5px;letter-spacing:1px;
+  .hero-content{
+    width:82%;
+    padding:0 0 max(44px,env(safe-area-inset-bottom,44px)) 4%;
+  }
+  .hero h1{font-size:29px;line-height:1.0}
+  .hero-sub{font-size:11.5px}
+  .hero-btns .btn-gold{padding:12px 16px;font-size:10px;letter-spacing:1.8px}
+  .hero-btns .btn-outline{padding:10px 14px;font-size:9.5px;letter-spacing:1.3px}
+  .hero-trust{gap:3px 8px;margin-bottom:14px}
+}
+
+/* ── Tablets (769–1023px): in-between composition ── */
+@media(min-width:769px) and (max-width:1023px){
+  .hero-video{
+    object-position:70% center;  /* partial shift — not fully right */
+  }
+  .hero-content{
+    max-width:520px;
+    padding-left:6%;
   }
 }
 
-/* ── Desktop: widescreen cinematic ── */
+/* ── Desktop: widescreen cinematic — UNCHANGED ── */
 @media(min-width:1024px){
+  .hero-video{
+    object-position:center center;  /* full landscape: center is correct */
+  }
   .hero-content{
     padding-left:8%;
     max-width:700px;
   }
-  /* Desktop: centered focal point works for most food/product videos */
-  .hero-video{
-    object-position:center center;
+  .hero-btns{
+    flex-direction:row;   /* restore side-by-side on desktop */
+    gap:14px;
   }
 }
 
