@@ -169,30 +169,35 @@ const heroImages = [
 ];
 let heroIdx = 0;
 
-// ── HERO SLIDER with crossfade ──
+// ── HERO SLIDER with smooth crossfade ──
 function setHero(idx) {
   heroIdx = idx;
   const bg = $('heroBg');
   const bgNext = $('heroBgNext');
   if(bg && bgNext) {
     bgNext.style.backgroundImage = 'url('+heroImages[idx]+')';
-    bgNext.style.opacity = '0';
     bgNext.style.transition = 'none';
-    // Force reflow
-    void bgNext.offsetHeight;
+    bgNext.style.opacity = '0';
+    void bgNext.offsetWidth;
     bgNext.style.transition = 'opacity 1.4s ease';
     bgNext.style.opacity = '1';
     setTimeout(() => {
       bg.style.backgroundImage = 'url('+heroImages[idx]+')';
-      bgNext.style.opacity = '0';
       bgNext.style.transition = 'none';
+      bgNext.style.opacity = '0';
     }, 1450);
   } else if(bg) {
     bg.style.backgroundImage = 'url('+heroImages[idx]+')';
   }
   document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
 }
-setInterval(() => setHero((heroIdx+1) % heroImages.length), 5000);
+setInterval(() => setHero((heroIdx+1) % heroImages.length), 5500);
+
+// ── NAVBAR SCROLL CLASS ──
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if(nav) nav.classList.toggle('scrolled', window.scrollY > 40);
+}, {passive:true});
 
 // ── RENDER PRODUCTS ──
 function renderProducts() {

@@ -224,18 +224,29 @@
   </div>
 </nav>
 
-<!-- Mobile Menu -->
+<!-- Mobile Menu — Luxury Fullscreen Overlay -->
 <div class="mobile-menu" id="mobileMenu">
   <button class="mobile-close" onclick="toggleMobile()">✕</button>
-  <a href="#" onclick="showPage('home');toggleMobile();return false;">Home</a>
-  <a href="#" onclick="showPage('shop');toggleMobile();return false;">Shop</a>
-  <a href="#" onclick="showPage('grades');toggleMobile();return false;">Grades</a>
-  <a href="#" onclick="showPage('about');toggleMobile();return false;">About</a>
-  <a href="#" onclick="showPage('contact');toggleMobile();return false;">Enquire Now</a>
+  <div class="mobile-menu-inner">
+    <div class="mobile-logo">Jai Shree <em>Cashew</em></div>
+    <a class="mob-link" href="#" onclick="showPage('home');toggleMobile();return false;">Home</a>
+    <a class="mob-link" href="#" onclick="showPage('shop');toggleMobile();return false;">Shop</a>
+    <a class="mob-link" href="#" onclick="showPage('grades');toggleMobile();return false;">Grades</a>
+    <a class="mob-link" href="#" onclick="showPage('about');toggleMobile();return false;">About</a>
+    <div class="mob-divider"></div>
+    <a class="mob-secondary" href="#" onclick="showPage('contact');toggleMobile();return false;">Bulk Order Enquiry</a>
+    <a class="mob-secondary" href="#" onclick="showPage('contact');toggleMobile();return false;">Export Inquiry</a>
+    <a class="mob-secondary" href="https://wa.me/917568577968" target="_blank">WhatsApp Us</a>
+    <a class="mob-cta" href="#" onclick="showPage('contact');toggleMobile();return false;">✦ &nbsp;GET A QUOTE</a>
+    <div class="mob-contact">
+      📍 RIICO Industrial Area, Kaladera, Jaipur<br>
+      📞 +91 75685 77968 &nbsp;·&nbsp; GSTIN: 08ADJPP5115H1ZH
+    </div>
+  </div>
 </div>
 
 <div id="page-home" class="page-section active">
-<!-- HERO SECTION -->
+<!-- HERO SECTION — CINEMATIC -->
 <section id="home" class="hero">
   <div class="hero-bg" id="heroBg" style="background-image:url('images/hero-cashews.webp')"></div>
   <div class="hero-bg" id="heroBgNext" style="opacity:0;"></div>
@@ -245,8 +256,14 @@
     <div class="hero-badge">EST. 2016 · KALADERA, JAIPUR</div>
     <h1>India's Finest<br><em>Cashew Kernels</em></h1>
     <p class="hero-sub">Premium W180 · W240 · W320 grades processed with international standards. Trusted by 500+ buyers across India and beyond.</p>
+    <div class="hero-trust">
+      <div class="hero-trust-item">FSSAI Certified</div>
+      <div class="hero-trust-item">Vacuum Packed</div>
+      <div class="hero-trust-item">Export Quality</div>
+      <div class="hero-trust-item">Free Delivery ₹2000+</div>
+    </div>
     <div class="hero-btns">
-      <a href="#" onclick="showPage('shop');return false;" class="btn-gold">SHOP NOW</a>
+      <a href="#" onclick="showPage('shop');return false;" class="btn-gold">SHOP NOW →</a>
       <a href="#" onclick="showPage('contact');return false;" class="btn-outline">GET BULK QUOTE</a>
     </div>
   </div>
@@ -269,6 +286,17 @@
     <div class="stat-item fade-up stagger-1"><div class="stat-num">50+</div><div class="stat-label">Cashew Grades</div></div>
     <div class="stat-item fade-up stagger-2"><div class="stat-num">500+</div><div class="stat-label">Happy Clients</div></div>
     <div class="stat-item fade-up stagger-3"><div class="stat-num">8</div><div class="stat-label">Export Countries</div></div>
+  </div>
+</div>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="trust-strip-inner">
+    <div class="trust-item"><div class="trust-icon">🏅</div><div class="trust-label"><strong>FSSAI Certified</strong>Lic. No. 1203500000XXXXX</div></div>
+    <div class="trust-item"><div class="trust-icon">🌍</div><div class="trust-label"><strong>Export Quality</strong>FOB Mundra Ready</div></div>
+    <div class="trust-item"><div class="trust-icon">📦</div><div class="trust-label"><strong>Vacuum Packed</strong>12-Month Shelf Life</div></div>
+    <div class="trust-item"><div class="trust-icon">🚚</div><div class="trust-label"><strong>Free Delivery</strong>On Orders ₹2000+</div></div>
+    <div class="trust-item"><div class="trust-icon">🌿</div><div class="trust-label"><strong>100% Natural</strong>No Preservatives</div></div>
   </div>
 </div>
 
@@ -314,42 +342,67 @@
   </div>
 </section>
 
-<!-- FOOTER ON HOME PAGE -->
+<!-- FOOTER — LUXURY INTERNATIONAL -->
 <footer>
   <div class="footer-grid">
     <div>
       <div class="footer-brand">Jai Shree Cashew <span>Industries</span></div>
-      <p class="footer-desc">Premium cashew kernel processor and exporter from Kaladera, Jaipur. Serving domestic and international buyers since 2016.</p>
-    </div>
-    <div>
-      <div class="footer-title">Quick Links</div>
-      <ul class="footer-links">
-        <li><a href="#" onclick="showPage('grades');return false;">Our Grades</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">Shop</a></li>
-        <li><a href="#" onclick="showPage('about');return false;">About Us</a></li>
-        <li><a href="#" onclick="showPage('contact');return false;">Contact</a></li>
-      </ul>
+      <p class="footer-desc">India's premium cashew kernel processor and exporter from Kaladera, Jaipur, Rajasthan. Serving 500+ domestic and international buyers since 2016.</p>
+      <div class="footer-social">
+        <a href="https://wa.me/917568577968" target="_blank" title="WhatsApp">💬</a>
+        <a href="mailto:info@jaishreecashew.com" title="Email">✉</a>
+        <a href="#" title="Instagram">📷</a>
+      </div>
+      <div class="footer-cert">
+        <span class="footer-cert-badge">FSSAI</span>
+        <span class="footer-cert-badge">Export Ready</span>
+        <span class="footer-cert-badge">RIICO Facility</span>
+      </div>
     </div>
     <div>
       <div class="footer-title">Products</div>
       <ul class="footer-links">
-        <li><a href="#" onclick="showPage('shop');return false;">W180 Jumbo</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">W240 Large</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">W320 Classic</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">W180 Jumbo Whole</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">W240 Large Whole</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">W320 Classic Whole</a></li>
         <li><a href="#" onclick="showPage('shop');return false;">Roasted Cashews</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">Cashew Pieces</a></li>
+        <li><a href="#" onclick="showPage('grades');return false;">All Grades →</a></li>
       </ul>
     </div>
     <div>
-      <div class="footer-title">Contact</div>
+      <div class="footer-title">Company</div>
       <ul class="footer-links">
-        <li><a href="#" onclick="showPage('contact');return false;">Get a Quote</a></li>
-        <li><a href="#" onclick="showPage('contact');return false;">Export Enquiry</a></li>
+        <li><a href="#" onclick="showPage('about');return false;">About Us</a></li>
+        <li><a href="#" onclick="showPage('about');return false;">Our Story</a></li>
+        <li><a href="#" onclick="showPage('about');return false;">Factory Gallery</a></li>
+        <li><a href="#" onclick="showPage('contact');return false;">Bulk Order Enquiry</a></li>
+        <li><a href="#" onclick="showPage('contact');return false;">Export Inquiry</a></li>
+        <li><a href="https://wa.me/917568577968" target="_blank">WhatsApp Us</a></li>
       </ul>
+    </div>
+    <div>
+      <div class="footer-title">Stay Updated</div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7;margin-bottom:16px;font-weight:300;">Get cashew market updates, seasonal pricing &amp; export news.</p>
+      <div class="footer-newsletter">
+        <div class="footer-nl-row">
+          <input type="email" class="footer-nl-input" placeholder="Your email address">
+          <button class="footer-nl-btn">JOIN</button>
+        </div>
+      </div>
+      <div style="margin-top:24px">
+        <div class="footer-title" style="margin-bottom:12px">Contact</div>
+        <ul class="footer-links">
+          <li><a href="tel:+917568577968">+91 75685 77968</a></li>
+          <li><a href="mailto:info@jaishreecashew.com">info@jaishreecashew.com</a></li>
+          <li style="color:rgba(255,255,255,0.3);font-size:12px;cursor:default">G1-160 RIICO, Kaladera, Jaipur</li>
+        </ul>
+      </div>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>&#169; 2025 Jai Shree Cashew Industries. All rights reserved.</span>
-    <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH &middot; Kaladera, Jaipur</span>
+    <span>© 2025 Jai Shree Cashew Industries. All rights reserved.</span>
+    <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH · Kaladera, Jaipur — 303801</span>
   </div>
 </footer>
 
@@ -709,44 +762,67 @@
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- FOOTER — CONTACT PAGE -->
 <footer>
   <div class="footer-grid">
     <div>
       <div class="footer-brand">Jai Shree Cashew <span>Industries</span></div>
-      <p class="footer-desc">Premium cashew kernel processor and exporter from Kaladera, Jaipur. Serving domestic and international buyers since 2016.</p>
-    </div>
-    <div>
-      <div class="footer-title">Quick Links</div>
-      <ul class="footer-links">
-        <li><a href="#" onclick="showPage('grades');return false;">Our Grades</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">Shop</a></li>
-        <li><a href="#" onclick="showPage('about');return false;">About Us</a></li>
-        <li><a href="#" onclick="showPage('about');return false;">Gallery</a></li>
-      </ul>
+      <p class="footer-desc">India's premium cashew kernel processor and exporter from Kaladera, Jaipur, Rajasthan. Serving 500+ domestic and international buyers since 2016.</p>
+      <div class="footer-social">
+        <a href="https://wa.me/917568577968" target="_blank" title="WhatsApp">💬</a>
+        <a href="mailto:info@jaishreecashew.com" title="Email">✉</a>
+        <a href="#" title="Instagram">📷</a>
+      </div>
+      <div class="footer-cert">
+        <span class="footer-cert-badge">FSSAI</span>
+        <span class="footer-cert-badge">Export Ready</span>
+        <span class="footer-cert-badge">RIICO Facility</span>
+      </div>
     </div>
     <div>
       <div class="footer-title">Products</div>
       <ul class="footer-links">
-        <li><a href="#" onclick="showPage('shop');return false;">W180 Jumbo</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">W240 Large</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">W320 Classic</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">W180 Jumbo Whole</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">W240 Large Whole</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">W320 Classic Whole</a></li>
         <li><a href="#" onclick="showPage('shop');return false;">Roasted Cashews</a></li>
         <li><a href="#" onclick="showPage('shop');return false;">Cashew Pieces</a></li>
+        <li><a href="#" onclick="showPage('grades');return false;">All Grades →</a></li>
       </ul>
     </div>
     <div>
-      <div class="footer-title">Contact</div>
+      <div class="footer-title">Company</div>
       <ul class="footer-links">
-        <li><a href="#" onclick="showPage('contact');return false;">Get a Quote</a></li>
-        <li><a href="#" onclick="showPage('contact');return false;">Export Enquiry</a></li>
-        <li><a href="https://wa.me/917568577968">WhatsApp Us</a></li>
+        <li><a href="#" onclick="showPage('about');return false;">About Us</a></li>
+        <li><a href="#" onclick="showPage('about');return false;">Our Story</a></li>
+        <li><a href="#" onclick="showPage('about');return false;">Factory Gallery</a></li>
+        <li><a href="#" onclick="showPage('contact');return false;">Bulk Order Enquiry</a></li>
+        <li><a href="#" onclick="showPage('contact');return false;">Export Inquiry</a></li>
+        <li><a href="https://wa.me/917568577968" target="_blank">WhatsApp Us</a></li>
       </ul>
+    </div>
+    <div>
+      <div class="footer-title">Stay Updated</div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7;margin-bottom:16px;font-weight:300;">Get cashew market updates, seasonal pricing &amp; export news.</p>
+      <div class="footer-newsletter">
+        <div class="footer-nl-row">
+          <input type="email" class="footer-nl-input" placeholder="Your email address">
+          <button class="footer-nl-btn">JOIN</button>
+        </div>
+      </div>
+      <div style="margin-top:24px">
+        <div class="footer-title" style="margin-bottom:12px">Contact</div>
+        <ul class="footer-links">
+          <li><a href="tel:+917568577968">+91 75685 77968</a></li>
+          <li><a href="mailto:info@jaishreecashew.com">info@jaishreecashew.com</a></li>
+          <li style="color:rgba(255,255,255,0.3);font-size:12px;cursor:default">G1-160 RIICO, Kaladera, Jaipur</li>
+        </ul>
+      </div>
     </div>
   </div>
   <div class="footer-bottom">
     <span>© 2025 Jai Shree Cashew Industries. All rights reserved.</span>
-    <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH · Kaladera, Jaipur</span>
+    <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH · Kaladera, Jaipur — 303801</span>
   </div>
 </footer>
 
