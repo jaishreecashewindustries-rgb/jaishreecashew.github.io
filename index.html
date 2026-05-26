@@ -617,6 +617,62 @@
   </div>
 </div>
 
+<!-- CHECKOUT ADDRESS MODAL -->
+<div class="admin-modal-overlay" id="checkoutModal">
+  <div class="admin-modal-box" style="max-width:520px">
+    <button class="admin-modal-close" onclick="closeCheckoutModal()">✕</button>
+    <div class="admin-modal-title">Delivery Details</div>
+    <div class="admin-form-row">
+      <div class="admin-form-group">
+        <label>Full Name *</label>
+        <input type="text" id="co-name" placeholder="Your full name" required>
+      </div>
+      <div class="admin-form-group">
+        <label>Phone / WhatsApp *</label>
+        <input type="tel" id="co-phone" placeholder="10-digit mobile number" required>
+      </div>
+    </div>
+    <div class="admin-form-group">
+      <label>Email (optional)</label>
+      <input type="email" id="co-email" placeholder="For order confirmation">
+    </div>
+    <div class="admin-form-group">
+      <label>Full Address *</label>
+      <textarea id="co-address" rows="2" placeholder="House / Flat, Street, Area" style="width:100%;padding:10px;border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical" required></textarea>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-group">
+        <label>City *</label>
+        <input type="text" id="co-city" placeholder="City" required>
+      </div>
+      <div class="admin-form-group">
+        <label>Pincode *</label>
+        <input type="number" id="co-pincode" placeholder="6-digit pincode" required>
+      </div>
+    </div>
+    <div class="admin-form-group">
+      <label>State</label>
+      <select id="co-state" style="width:100%;padding:10px;border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:13px">
+        <option value="Rajasthan" selected>Rajasthan</option>
+        <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+        <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option>
+        <option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option>
+        <option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option>
+        <option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option>
+        <option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option>
+        <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+        <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+        <option>West Bengal</option><option>Delhi</option>
+      </select>
+    </div>
+    <div class="admin-form-group">
+      <label>Order Notes (optional)</label>
+      <textarea id="co-notes" rows="2" placeholder="Special instructions for delivery" style="width:100%;padding:10px;border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical"></textarea>
+    </div>
+    <button class="admin-form-save-btn" onclick="proceedToPayment()">PROCEED TO PAYMENT</button>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -1007,6 +1063,7 @@
       <button class="admin-tab" onclick="adminSwitchTab('products',this)">🛍️ PRODUCTS</button>
       <button class="admin-tab" onclick="adminSwitchTab('payments',this)">💰 PAYMENTS</button>
       <button class="admin-tab" onclick="adminSwitchTab('reviews',this)">⭐ REVIEWS</button>
+      <button class="admin-tab" onclick="adminSwitchTab('coupons',this)">🎟️ COUPONS</button>
     </div>
 
     <!-- TAB: ENQUIRIES -->
@@ -1101,6 +1158,43 @@
         <div id="adminReviewsContainer"><div class="admin-loading">Loading reviews...</div></div>
       </div>
     </div>
+
+    <!-- TAB: COUPONS -->
+    <div class="admin-tab-content" id="admintab-coupons">
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-title">Promo Coupons</div>
+          <button class="admin-add-product-btn" onclick="openCouponModal(null)">+ ADD COUPON</button>
+        </div>
+        <div id="adminCouponsContainer"><div class="admin-loading">Loading coupons...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADMIN COUPON MODAL ── -->
+<div class="admin-modal-overlay" id="adminCouponModal">
+  <div class="admin-modal-box" style="max-width:480px">
+    <button class="admin-modal-close" onclick="closeCouponModal()">✕</button>
+    <div class="admin-modal-title" id="couponModalTitle">Add Coupon</div>
+    <input type="hidden" id="editCouponId">
+    <div class="admin-form-row">
+      <div class="admin-form-group"><label>Coupon Code</label><input type="text" id="cp-code" placeholder="CASHEW10" style="text-transform:uppercase"></div>
+      <div class="admin-form-group"><label>Discount %</label><input type="number" id="cp-discount" placeholder="10"></div>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-group"><label>Min Order (₹)</label><input type="number" id="cp-minorder" placeholder="0 = no minimum"></div>
+      <div class="admin-form-group"><label>Max Uses</label><input type="number" id="cp-maxuses" placeholder="0 = unlimited"></div>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-group"><label>Active?</label>
+        <select id="cp-active"><option value="true">Yes</option><option value="false">No</option></select>
+      </div>
+      <div class="admin-form-group"><label>Expiry Date</label>
+        <input type="date" id="cp-expiry">
+      </div>
+    </div>
+    <button class="admin-form-save-btn" onclick="saveCoupon()">SAVE COUPON</button>
   </div>
 </div>
 
@@ -1135,6 +1229,19 @@
       <div class="admin-form-group"><label>Badge Text (e.g. BESTSELLER)</label><input type="text" id="ap-badge" placeholder="Leave blank for none"></div>
       <div class="admin-form-group"><label>Show in Featured?</label>
         <select id="ap-featured"><option value="true">Yes</option><option value="false">No</option></select>
+      </div>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-group">
+        <label>Stock Quantity</label>
+        <input type="number" id="ap-stock" placeholder="999 = unlimited">
+      </div>
+      <div class="admin-form-group">
+        <label>Track Stock?</label>
+        <select id="ap-track-stock">
+          <option value="false">No (unlimited)</option>
+          <option value="true">Yes (track quantity)</option>
+        </select>
       </div>
     </div>
     <div class="admin-form-group">

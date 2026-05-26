@@ -111,6 +111,8 @@ function _docToProduct(docSnap) {
     img: d.img || '',
     imgs: Array.isArray(d.imgs) ? d.imgs : (d.img ? [d.img] : []),
     sortOrder: Number(d.sortOrder) || 999,
+    stock: d.stock !== undefined ? Number(d.stock) : 999,
+    trackStock: d.trackStock === true,
   };
 }
 
@@ -187,10 +189,16 @@ function renderProducts() {
   grid.innerHTML = filtered.map(p => {
     const hasDiscount = p.origPrice && p.origPrice > p.price;
     const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
+    const outOfStock = p.stock === 0;
+    const lowStock = p.stock > 0 && p.stock <= 10;
+    const stockBadge = outOfStock
+      ? `<div class="badge-new" style="background:#e74c3c">OUT OF STOCK</div>`
+      : lowStock ? `<div class="badge-new" style="background:#f39c12">ONLY ${p.stock} LEFT</div>` : '';
     return `
     <div class="product-card" style="cursor:pointer">
       ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
       ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
+      ${stockBadge}
       <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
         <img src="${p.img}" alt="${p.name}" loading="lazy">
         <div class="prod-overlay"></div>
@@ -205,7 +213,9 @@ function renderProducts() {
           ${hasDiscount ? `<span class="prod-price-original">₹${p.origPrice}</span><span class="prod-discount">−${discPct}%</span>` : ''}
         </div>
         <div class="prod-btns">
-          <button class="btn-cart" onclick="addToCart('${p.id}')">ADD TO CART</button>
+          <button class="btn-cart" onclick="addToCart('${p.id}')" ${outOfStock ? 'disabled style="background:#aaa;cursor:not-allowed"' : ''}>
+            ${outOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
+          </button>
           <button class="btn-wish" onclick="toggleWish(this)">♡</button>
         </div>
       </div>
@@ -231,6 +241,7 @@ function addToCart(id) {
   id = String(id);
   const p = PRODUCTS.find(x => String(x.id)===id);
   if(!p) return;
+  if(p.stock === 0) { alert('This product is currently out of stock.'); return; }
   const ex = cart.find(x => String(x.id)===id);
   if(ex) ex.qty++; else cart.push({...p, qty:1});
   saveCart(); renderCart(); openCart();
@@ -294,30 +305,70 @@ function renderCart() {
 }
 function openCart() { const cs=$('cartSidebar'),co=$('cartOverlay'); if(cs) cs.classList.add('open'); if(co) co.classList.add('open'); renderCart(); }
 function closeCart() { const cs=$('cartSidebar'),co=$('cartOverlay'); if(cs) cs.classList.remove('open'); if(co) co.classList.remove('open'); }
+// ── CHECKOUT ADDRESS MODAL ──
+let _checkoutAddress = null;
+
 function checkout() {
+  if(!cart.length) { alert('Your cart is empty.'); return; }
   if(typeof Razorpay === 'undefined') { alert('Payment gateway loading. Please try again.'); return; }
-  const total = cart.reduce((a,b) => a+b.price*b.qty, 0)*100;
+  openCheckoutModal();
+}
+
+function openCheckoutModal() {
+  const m = $('checkoutModal');
+  if(!m) { proceedToPayment(); return; } // fallback if modal missing
+  // Pre-fill from logged-in user
+  const user = window._currentUser;
+  if(user) {
+    const nameEl = $('co-name'); if(nameEl && !nameEl.value) nameEl.value = user.displayName || '';
+    const emailEl = $('co-email'); if(emailEl && !emailEl.value) emailEl.value = user.email || '';
+  }
+  m.classList.add('open');
+}
+
+function closeCheckoutModal() { const m=$('checkoutModal'); if(m) m.classList.remove('open'); }
+
+function proceedToPayment() {
+  // Validate form
+  const get = id => { const el=$(id); return el ? el.value.trim() : ''; };
+  const name = get('co-name'), phone = get('co-phone'), line1 = get('co-address'),
+        city = get('co-city'), state = get('co-state'), pincode = get('co-pincode');
+  if(!name) { alert('Please enter your full name.'); return; }
+  if(!phone || phone.length < 10) { alert('Please enter a valid phone number.'); return; }
+  if(!line1) { alert('Please enter your delivery address.'); return; }
+  if(!city) { alert('Please enter your city.'); return; }
+  if(!pincode || !/^\d{6}$/.test(pincode)) { alert('Please enter a valid 6-digit pincode.'); return; }
+
+  _checkoutAddress = { name, phone, email: get('co-email'), line1, city, state: state||'Rajasthan', pincode, notes: get('co-notes') };
+  closeCheckoutModal();
+
+  const rawTotal = cart.reduce((a,b) => a+b.price*b.qty, 0);
+  const discount = (appliedCoupon && appliedCoupon.pct) ? Math.round(rawTotal * appliedCoupon.pct / 100) : 0;
+  const finalTotal = rawTotal - discount;
+
   const options = {
     key:'rzp_live_StJcfZp5KQLYuY',
-    amount:total,
+    amount: finalTotal * 100,
     currency:'INR',
     name:'Jai Shree Cashew Industries',
     description:'Premium Cashew Order',
+    prefill: { name: _checkoutAddress.name, contact: _checkoutAddress.phone, email: _checkoutAddress.email },
     theme:{color:'#C6A15B'},
     handler: async function(response) {
-      // Save order to Firestore (primary) + localStorage (fallback)
       const user = window._currentUser;
       const orderId = 'ORD-'+Date.now().toString().slice(-6);
-      const cartSnapshot = cart.slice(); // snapshot before clearing
-      const orderTotal = cartSnapshot.reduce((a,b)=>a+b.price*b.qty,0);
+      const cartSnapshot = cart.slice();
       const order = {
         id: orderId,
-        customer: user ? (user.displayName||user.email) : 'Guest',
-        email: user ? user.email : '',
+        customer: _checkoutAddress.name,
+        email: _checkoutAddress.email || (user ? user.email : ''),
         userId: user ? user.uid : null,
-        phone: '',
+        phone: _checkoutAddress.phone,
+        address: _checkoutAddress,
         items: cartSnapshot.map(i=>({name:i.name, qty:i.qty, size:i.weight, price:i.price})),
-        total: orderTotal,
+        total: finalTotal,
+        discount: discount,
+        coupon: appliedCoupon ? appliedCoupon.code : null,
         status:'processing',
         date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
         createdAt: window._serverTimestamp ? window._serverTimestamp() : new Date(),
@@ -331,17 +382,19 @@ function checkout() {
           await window._addDoc(window._collection(window._db,'orders'), order);
         }
       } catch(err) { console.warn('Firestore order save failed:', err); }
-      // Also save to localStorage as backup
+      // localStorage backup
       let orders = [];
       try { orders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
       orders.unshift(order);
       try { localStorage.setItem('jsc_orders', JSON.stringify(orders)); } catch(e){}
       // Clear cart
-      cart = [];
-      saveCart();
-      renderCart();
-      closeCart();
+      cart = []; appliedCoupon = null;
+      saveCart(); renderCart(); closeCart();
       alert('✓ Order placed successfully! Order ID: '+orderId);
+      // WhatsApp notification to admin
+      const addr = _checkoutAddress;
+      const waMsg = `🛒 *NEW ORDER — Jai Shree Cashew*\nOrder ID: ${orderId}\nCustomer: ${addr.name}\nPhone: ${addr.phone}\nAddress: ${addr.line1}, ${addr.city}, ${addr.state} - ${addr.pincode}\nItems:\n${order.items.map(i=>`• ${i.name} ×${i.qty} (${i.size}) = ₹${i.price*i.qty}`).join('\n')}\nTotal: ₹${order.total}\nPayment: Razorpay ✓ (${response.razorpay_payment_id})`;
+      window.open('https://wa.me/917568577968?text='+encodeURIComponent(waMsg),'_blank');
     }
   };
   new Razorpay(options).open();
@@ -416,6 +469,46 @@ async function submitInquiry(e) {
   btn.textContent='SEND ENQUIRY'; btn.disabled=false;
 }
 
+// ── CUSTOMER ORDERS (Firestore) ──
+async function loadCustomerOrders(userId, email) {
+  const container = $('dashOrders');
+  if(!container) return;
+  container.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">⏳</div><div class="dash-empty-text">Loading orders...</div></div>';
+  try {
+    const { getDocs, query, collection, where, orderBy } =
+      await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+    const q = query(collection(window._db,'orders'), where('userId','==',userId), orderBy('createdAt','desc'));
+    const snap = await getDocs(q);
+    if(snap.empty) {
+      container.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">📦</div><div class="dash-empty-text">No orders yet</div><div class="dash-empty-sub">Your orders will appear here after purchase.</div></div>';
+      return;
+    }
+    const statusColors = {pending:'#FFF3CD',processing:'#CCE5FF',shipped:'#D4EDDA',delivered:'#D4EDDA',cancelled:'#F8D7DA'};
+    const statusText = {pending:'Pending',processing:'Processing',shipped:'Shipped 🚚',delivered:'Delivered ✅',cancelled:'Cancelled ❌'};
+    container.innerHTML = snap.docs.map(d => {
+      const o = d.data();
+      const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : (o.date||'—');
+      return `<div class="dash-inquiry-card" style="margin-bottom:12px">
+        <div class="dash-inquiry-top">
+          <span style="font-weight:600;font-size:13px">${o.id}</span>
+          <span class="dash-inquiry-date">${date}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-soft);margin:6px 0">
+          ${(o.items||[]).map(i=>`${i.name} ×${i.qty}`).join(' · ')}
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <strong style="font-size:15px">₹${(o.total||0).toLocaleString('en-IN')}</strong>
+          <span style="font-size:11px;padding:3px 10px;background:${statusColors[o.status]||'#eee'}">${statusText[o.status]||o.status}</span>
+        </div>
+        ${o.address ? `<div style="font-size:11px;color:var(--text-soft);margin-top:6px">📍 ${o.address.line1}, ${o.address.city}</div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(err) {
+    console.error('Customer orders error:', err);
+    container.innerHTML = '<div class="dash-empty"><div class="dash-empty-text">Could not load orders</div></div>';
+  }
+}
+
 // ── CUSTOMER DASHBOARD TABS ──
 function switchDashTab(tab, el) {
   document.querySelectorAll('#dashOverlay .auth-tab').forEach(t => t.classList.remove('active'));
@@ -425,6 +518,7 @@ function switchDashTab(tab, el) {
     if(sec) sec.style.display = t===tab ? 'block' : 'none';
   });
   if(tab==='enquiries' && window._currentUser) loadCustomerInquiries(window._currentUser.email);
+  if(tab==='orders' && window._currentUser) loadCustomerOrders(window._currentUser.uid, window._currentUser.email);
 }
 
 // ── FIREBASE AUTH + DASHBOARD ──
@@ -553,6 +647,8 @@ function openDashboard() {
   // Show cart summary in dashboard
   renderDashCartSummary();
   switchDashTab('orders', $('dtab-orders'));
+  const user2 = window._currentUser;
+  if(user2) loadCustomerOrders(user2.uid, user2.email);
 }
 
 function renderDashCartSummary() {
@@ -723,23 +819,59 @@ function closeNavSearch() {
 }
 
 // ── COUPON ──
-const COUPONS = { 'CASHEW10': 10, 'JAIPUR15': 15, 'BULK20': 20 };
 let appliedCoupon = null;
-function applyCoupon() {
-  const ci=$('couponInput'), msg=$('couponMsg'), savingsEl=$('cartSavings');
+async function applyCoupon() {
+  const ci=$('couponInput'), msg=$('couponMsg');
   if(!ci || !msg) return;
   const code = ci.value.trim().toUpperCase();
   if(!code) { msg.className='cart-coupon-msg error'; msg.textContent='Please enter a promo code.'; return; }
-  if(COUPONS[code]) {
-    appliedCoupon = {code, pct: COUPONS[code]};
-    msg.className='cart-coupon-msg success'; msg.textContent='✓ '+code+' applied — '+COUPONS[code]+'% off!';
-    if(savingsEl) savingsEl.classList.add('show');
+
+  msg.className='cart-coupon-msg'; msg.textContent='Checking...';
+
+  try {
+    const { getDocs, query, collection, where } =
+      await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+    const snap = await getDocs(query(
+      collection(window._db, 'coupons'),
+      where('code', '==', code),
+      where('active', '==', true)
+    ));
+    if(snap.empty) {
+      appliedCoupon = null;
+      msg.className='cart-coupon-msg error';
+      msg.textContent='Invalid or expired code.';
+      renderCart(); return;
+    }
+    const couponData = snap.docs[0].data();
+    const cartTotal = cart.reduce((a,b)=>a+b.price*b.qty,0);
+    if(couponData.minOrder && cartTotal < couponData.minOrder) {
+      msg.className='cart-coupon-msg error';
+      msg.textContent=`Minimum order ₹${couponData.minOrder} required for this code.`;
+      return;
+    }
+    if(couponData.expiry && couponData.expiry.toDate && couponData.expiry.toDate() < new Date()) {
+      msg.className='cart-coupon-msg error';
+      msg.textContent='This coupon has expired.';
+      return;
+    }
+    appliedCoupon = { code, pct: couponData.discount, type: couponData.type };
+    msg.className='cart-coupon-msg success';
+    msg.textContent=`✓ ${code} applied — ${couponData.discount}% off!`;
     renderCart();
-  } else {
-    appliedCoupon = null;
-    msg.className='cart-coupon-msg error'; msg.textContent='Invalid code. Try: CASHEW10, JAIPUR15, or BULK20';
-    if(savingsEl) savingsEl.classList.remove('show');
-    renderCart();
+  } catch(e) {
+    // Fallback to hardcoded coupons if Firestore fails
+    const FALLBACK = { 'CASHEW10':10, 'JAIPUR15':15, 'BULK20':20 };
+    if(FALLBACK[code]) {
+      appliedCoupon = { code, pct: FALLBACK[code] };
+      msg.className='cart-coupon-msg success';
+      msg.textContent=`✓ ${code} applied — ${FALLBACK[code]}% off!`;
+      renderCart();
+    } else {
+      appliedCoupon = null;
+      msg.className='cart-coupon-msg error';
+      msg.textContent='Invalid code.';
+      renderCart();
+    }
   }
 }
 
@@ -823,9 +955,15 @@ function renderFeaturedProducts() {
   grid.innerHTML = featured.map(p => {
     const hasDiscount = p.origPrice && p.origPrice > p.price;
     const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
+    const outOfStock = p.stock === 0;
+    const lowStock = p.stock > 0 && p.stock <= 10;
+    const stockBadge = outOfStock
+      ? `<div class="badge-new" style="background:#e74c3c">OUT OF STOCK</div>`
+      : lowStock ? `<div class="badge-new" style="background:#f39c12">ONLY ${p.stock} LEFT</div>` : '';
     return `<div class="product-card" style="cursor:pointer">
       ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
       ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
+      ${stockBadge}
       <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
         <img src="${p.img}" alt="${p.name}" loading="lazy">
         <div class="prod-overlay"></div>
@@ -840,7 +978,9 @@ function renderFeaturedProducts() {
           ${hasDiscount ? `<span class="prod-price-original">₹${p.origPrice}</span><span class="prod-discount">−${discPct}%</span>` : ''}
         </div>
         <div class="prod-btns">
-          <button class="btn-cart" onclick="addToCart('${p.id}')">ADD TO CART</button>
+          <button class="btn-cart" onclick="addToCart('${p.id}')" ${outOfStock ? 'disabled style="background:#aaa;cursor:not-allowed"' : ''}>
+            ${outOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
+          </button>
           <button class="btn-wish" onclick="toggleWish(this)">♡</button>
         </div>
       </div>
@@ -877,6 +1017,21 @@ function openProductDetail(id) {
     const discBadge = $('pdpDiscountBadge');
     if(discBadge) { discBadge.textContent = discPct+'% OFF'; discBadge.style.display = hasDiscount ? '' : 'none'; }
     safeSet('pdpPerUnit', 'Per '+pdpSelectedSize+' pack · Inclusive of all taxes');
+
+    // Stock badge
+    const stockBadge = $('pdpStockBadge');
+    if(stockBadge) {
+      if(p.stock === 0) {
+        stockBadge.textContent = 'OUT OF STOCK';
+        stockBadge.style.color = '#e74c3c';
+      } else if(p.stock <= 10) {
+        stockBadge.textContent = 'ONLY '+p.stock+' LEFT — ORDER NOW';
+        stockBadge.style.color = '#f39c12';
+      } else {
+        stockBadge.textContent = '✓ In Stock — Ships in 2–3 days';
+        stockBadge.style.color = '#27ae60';
+      }
+    }
 
     const allImgs = p.imgs && p.imgs.length ? p.imgs : [p.img];
     const mainImg = $('pdpMainImg');
@@ -937,6 +1092,7 @@ function pdpQtyChange(delta) {
 
 function pdpAddToCart() {
   if(!currentPDP) return;
+  if(currentPDP.stock === 0) { alert('This product is currently out of stock.'); return; }
   const qtyEl = $('pdpQtyVal');
   const qty = qtyEl ? parseInt(qtyEl.value||1) : 1;
   for(let i=0;i<qty;i++) addToCart(currentPDP.id);
@@ -1132,6 +1288,7 @@ function adminSwitchTab(tab, el) {
   if(tab==='products') renderAdminProducts();
   if(tab==='payments') loadAdminPayments();
   if(tab==='reviews') loadAdminReviews();
+  if(tab==='coupons') loadAdminCoupons();
 }
 
 // ══ ADMIN PRODUCTS ══
@@ -1183,6 +1340,8 @@ function openProductModal(id) {
     setVal('ap-cons',(p.cons||[]).join('\n'));
     setVal('ap-sizes',(p.sizes||[]).join(', '));
     setVal('ap-badge',p.badge||'');
+    setVal('ap-stock', p.stock !== undefined ? p.stock : 999);
+    const tsEl = $('ap-track-stock'); if(tsEl) tsEl.value = p.trackStock ? 'true' : 'false';
     const preview = $('adminPhotoPreview');
     const imgs = p.imgs||[p.img];
     if(preview) preview.innerHTML = imgs.map((src,i)=>`<div class="admin-photo-preview-item"><img src="${src}"><button class="admin-photo-remove" onclick="this.parentElement.remove()">✕</button></div>`).join('');
@@ -1264,6 +1423,8 @@ async function saveProduct() {
     sizes: getVal('ap-sizes').split(',').map(s=>s.trim()).filter(Boolean),
     badge: getVal('ap-badge') || null,
     featured: getVal('ap-featured') !== 'false',
+    stock: parseInt(getVal('ap-stock')) || 999,
+    trackStock: getVal('ap-track-stock') === 'true',
   };
   if(allImgs.length) { productData.img = mainImg; productData.imgs = allImgs; }
 
@@ -1588,6 +1749,95 @@ function updateStickyCartBar() {
   } else {
     bar.style.display = 'none';
   }
+}
+
+// ══ ADMIN COUPONS ══
+let _couponsUnsub = null;
+
+function loadAdminCoupons() {
+  const container = $('adminCouponsContainer');
+  if(!container) return;
+  if(_couponsUnsub) { _couponsUnsub(); _couponsUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({onSnapshot, collection, query, orderBy}) => {
+    _couponsUnsub = onSnapshot(query(collection(window._db,'coupons'), orderBy('code')), snap => {
+      if(snap.empty) { container.innerHTML='<div class="admin-loading">No coupons yet. Add one above.</div>'; return; }
+      container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
+        <thead><tr><th>CODE</th><th>DISCOUNT</th><th>MIN ORDER</th><th>USES</th><th>MAX USES</th><th>ACTIVE</th><th>EXPIRY</th><th>ACTION</th></tr></thead>
+        <tbody>${snap.docs.map(d => {
+          const c = d.data();
+          const exp = c.expiry?.toDate ? c.expiry.toDate().toLocaleDateString('en-IN') : 'No expiry';
+          return `<tr>
+            <td><strong>${c.code}</strong></td>
+            <td>${c.discount}%</td>
+            <td>₹${c.minOrder||0}</td>
+            <td>${c.uses||0}</td>
+            <td>${c.maxUses||'∞'}</td>
+            <td><span style="color:${c.active?'#27ae60':'#e74c3c'}">${c.active?'✓ Active':'✕ Off'}</span></td>
+            <td style="font-size:11px">${exp}</td>
+            <td>
+              <button onclick="openCouponModal('${d.id}')" style="border:1px solid var(--border);background:none;padding:4px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">Edit</button>
+              <button onclick="deleteCoupon('${d.id}')" style="border:1px solid #e74c3c;background:none;padding:4px 10px;font-size:11px;cursor:pointer;color:#e74c3c;font-family:'DM Sans',sans-serif;margin-left:4px">Delete</button>
+            </td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>`;
+    });
+  });
+}
+
+function openCouponModal(id) {
+  const m = $('adminCouponModal'); if(!m) return;
+  m.classList.add('open');
+  const eid = $('editCouponId'); if(eid) eid.value = id || '';
+  if(!id) {
+    safeSet('couponModalTitle','Add Coupon');
+    ['cp-code','cp-discount','cp-minorder','cp-maxuses','cp-expiry'].forEach(f=>{ const el=$(f); if(el) el.value=''; });
+    const ca=$('cp-active'); if(ca) ca.value='true';
+  } else {
+    import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({getDoc, doc}) => {
+      getDoc(doc(window._db,'coupons',id)).then(d => {
+        if(!d.exists()) return;
+        const c = d.data();
+        safeSet('couponModalTitle','Edit Coupon: '+c.code);
+        const sv=(fid,v)=>{ const el=$(fid); if(el) el.value=v||''; };
+        sv('cp-code',c.code); sv('cp-discount',c.discount); sv('cp-minorder',c.minOrder||0);
+        sv('cp-maxuses',c.maxUses||0);
+        const ca=$('cp-active'); if(ca) ca.value=c.active?'true':'false';
+        if(c.expiry?.toDate) { sv('cp-expiry', c.expiry.toDate().toISOString().split('T')[0]); }
+      });
+    });
+  }
+}
+
+function closeCouponModal() { const m=$('adminCouponModal'); if(m) m.classList.remove('open'); }
+
+async function saveCoupon() {
+  const id = ($('editCouponId')||{}).value;
+  const code = (($('cp-code')||{}).value||'').trim().toUpperCase();
+  const discount = parseInt(($('cp-discount')||{}).value)||0;
+  if(!code || !discount) { alert('Code and discount % required.'); return; }
+  const expiryVal = ($('cp-expiry')||{}).value;
+  const { addDoc, updateDoc, doc, collection, Timestamp } =
+    await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+  const data = {
+    code, discount, type:'percent',
+    minOrder: parseInt(($('cp-minorder')||{}).value)||0,
+    maxUses: parseInt(($('cp-maxuses')||{}).value)||0,
+    active: ($('cp-active')||{}).value !== 'false',
+    expiry: expiryVal ? Timestamp.fromDate(new Date(expiryVal)) : null,
+    uses: 0
+  };
+  try {
+    if(id) await updateDoc(doc(window._db,'coupons',id), data);
+    else await addDoc(collection(window._db,'coupons'), data);
+    closeCouponModal();
+  } catch(e) { alert('Error saving coupon: '+e.message); }
+}
+
+async function deleteCoupon(id) {
+  if(!confirm('Delete this coupon?')) return;
+  const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+  try { await deleteDoc(doc(window._db,'coupons',id)); } catch(e) { alert('Error: '+e.message); }
 }
 
 // ══ INIT — runs after DOM is ready ══
