@@ -304,28 +304,38 @@ function checkout() {
     name:'Jai Shree Cashew Industries',
     description:'Premium Cashew Order',
     theme:{color:'#C6A15B'},
-    handler: function(response) {
-      // Save order on successful payment
+    handler: async function(response) {
+      // Save order to Firestore (primary) + localStorage (fallback)
       const user = window._currentUser;
       const orderId = 'ORD-'+Date.now().toString().slice(-6);
+      const cartSnapshot = cart.slice(); // snapshot before clearing
+      const orderTotal = cartSnapshot.reduce((a,b)=>a+b.price*b.qty,0);
       const order = {
         id: orderId,
         customer: user ? (user.displayName||user.email) : 'Guest',
         email: user ? user.email : '',
+        userId: user ? user.uid : null,
         phone: '',
-        items: cart.map(i=>({name:i.name, qty:i.qty, size:i.weight, price:i.price})),
-        total: cart.reduce((a,b)=>a+b.price*b.qty,0),
+        items: cartSnapshot.map(i=>({name:i.name, qty:i.qty, size:i.weight, price:i.price})),
+        total: orderTotal,
         status:'processing',
         date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+        createdAt: window._serverTimestamp ? window._serverTimestamp() : new Date(),
         payment:'Razorpay',
         payStatus:'paid',
         razorpay_payment_id: response.razorpay_payment_id||''
       };
+      // Save to Firestore
+      try {
+        if(window._db && window._addDoc && window._collection) {
+          await window._addDoc(window._collection(window._db,'orders'), order);
+        }
+      } catch(err) { console.warn('Firestore order save failed:', err); }
+      // Also save to localStorage as backup
       let orders = [];
       try { orders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
       orders.unshift(order);
       try { localStorage.setItem('jsc_orders', JSON.stringify(orders)); } catch(e){}
-      adminAllOrders = orders;
       // Clear cart
       cart = [];
       saveCart();
@@ -623,47 +633,55 @@ function openAdmin() {
 }
 function closeAdmin() { const ap=$('adminPanel'); if(ap) ap.classList.remove('open'); }
 
-async function loadAdminInquiries() {
+// Real-time enquiries listener — unsubscribe handle
+let _enquiriesUnsub = null;
+
+function loadAdminInquiries() {
   const container = $('adminTableContainer');
   if(!container) return;
   container.innerHTML = '<div class="admin-loading">Loading enquiries...</div>';
-  try {
-    if(!window._db) { container.innerHTML = '<div class="admin-loading">Database not ready.</div>'; return; }
-    const q = window._query(window._collection(window._db, 'inquiries'), window._orderBy('timestamp','desc'));
-    const snap = await window._getDocs(q);
-    const docs = snap.docs;
-    const total = docs.length;
-    const newCount = docs.filter(d => !d.data().status || d.data().status === 'new').length;
-    const contacted = docs.filter(d => d.data().status === 'contacted').length;
-    safeSet('statTotal', total);
-    safeSet('statNew', newCount);
-    safeSet('statContacted', contacted);
-    if(!total) { container.innerHTML = '<div class="admin-loading">No enquiries yet.</div>'; return; }
-    const rows = docs.map(d => {
-      const data = d.data();
-      const date = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Just now';
-      const status = data.status || 'new';
-      return `<tr>
-        <td><strong>${data.name||'—'}</strong><br><span style="font-size:11px;color:var(--text-soft)">${data.email||''}</span></td>
-        <td>${data.phone||'—'}</td>
-        <td><span style="font-size:11px;background:var(--cream);padding:2px 8px">${data.grade||'—'}</span></td>
-        <td>${data.type||'—'}</td><td>${data.qty||'—'}</td>
-        <td style="max-width:180px;font-size:12px;color:var(--text-soft)">${(data.message||'').substring(0,60)}${(data.message||'').length>60?'...':''}</td>
-        <td><span style="font-size:11px;color:var(--text-soft)">${date}</span></td>
-        <td><select class="admin-status-select" onchange="updateInquiryStatus('${d.id}',this.value)">
-          <option value="new" ${status==='new'?'selected':''}>🟡 New</option>
-          <option value="contacted" ${status==='contacted'?'selected':''}>🔵 Contacted</option>
-          <option value="closed" ${status==='closed'?'selected':''}>🟢 Closed</option>
-        </select></td>
-      </tr>`;
-    }).join('');
-    container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
-      <thead><tr><th>NAME / EMAIL</th><th>PHONE</th><th>GRADE</th><th>TYPE</th><th>QTY</th><th>MESSAGE</th><th>DATE</th><th>STATUS</th></tr></thead>
-      <tbody>${rows}</tbody></table></div>`;
-  } catch(err) {
-    container.innerHTML = '<div class="admin-loading">Error loading. Check Firestore rules.</div>';
-    console.error(err);
-  }
+  if(!window._db) { container.innerHTML = '<div class="admin-loading">Database not ready.</div>'; return; }
+  // Tear down any existing listener
+  if(_enquiriesUnsub) { _enquiriesUnsub(); _enquiriesUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy }) => {
+    const q = query(collection(window._db, 'inquiries'), orderBy('timestamp','desc'));
+    _enquiriesUnsub = onSnapshot(q, (snap) => {
+      const docs = snap.docs;
+      const total = docs.length;
+      const newCount = docs.filter(d => !d.data().status || d.data().status === 'new').length;
+      const contacted = docs.filter(d => d.data().status === 'contacted').length;
+      safeSet('statTotal', total);
+      safeSet('statNew', newCount);
+      safeSet('statContacted', contacted);
+      if(!total) { container.innerHTML = '<div class="admin-loading">No enquiries yet.</div>'; return; }
+      const filterVal = ($('adminEnqFilter')||{}).value || 'all';
+      const filtered = filterVal === 'all' ? docs : docs.filter(d => (d.data().status||'new') === filterVal);
+      const rows = filtered.map(d => {
+        const data = d.data();
+        const date = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Just now';
+        const status = data.status || 'new';
+        return `<tr>
+          <td><strong>${data.name||'—'}</strong><br><span style="font-size:11px;color:var(--text-soft)">${data.email||''}</span></td>
+          <td>${data.phone||'—'}</td>
+          <td><span style="font-size:11px;background:var(--cream);padding:2px 8px">${data.grade||'—'}</span></td>
+          <td>${data.type||'—'}</td><td>${data.qty||'—'}</td>
+          <td style="max-width:180px;font-size:12px;color:var(--text-soft)">${(data.message||'').substring(0,60)}${(data.message||'').length>60?'...':''}</td>
+          <td><span style="font-size:11px;color:var(--text-soft)">${date}</span></td>
+          <td><select class="admin-status-select" onchange="updateInquiryStatus('${d.id}',this.value)">
+            <option value="new" ${status==='new'?'selected':''}>🟡 New</option>
+            <option value="contacted" ${status==='contacted'?'selected':''}>🔵 Contacted</option>
+            <option value="closed" ${status==='closed'?'selected':''}>🟢 Closed</option>
+          </select></td>
+        </tr>`;
+      }).join('');
+      container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
+        <thead><tr><th>NAME / EMAIL</th><th>PHONE</th><th>GRADE</th><th>TYPE</th><th>QTY</th><th>MESSAGE</th><th>DATE</th><th>STATUS</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-soft)">No enquiries match the selected filter.</td></tr>'}</tbody></table></div>`;
+    }, (err) => {
+      container.innerHTML = '<div class="admin-loading">Error loading. Check Firestore rules.</div>';
+      console.error('Enquiries listener error:', err);
+    });
+  });
 }
 
 async function updateInquiryStatus(docId, newStatus) {
@@ -964,51 +982,47 @@ const defaultReviews = [
 function getAllReviews(productId) {
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
-  const all = [...defaultReviews, ...stored].filter(r => !productId || r.productId === productId);
+  // Only show approved reviews on the website
+  const all = [...defaultReviews, ...stored.filter(r=>!r.pending||r.approved)]
+    .filter(r => !productId || String(r.productId) === String(productId));
   return all;
 }
 
-function loadPDPReviews(productId) {
-  const reviews = getAllReviews(productId);
+function _renderPDPReviews(reviews) {
   const count = reviews.length;
   safeSet('pdpReviewCount', count);
   safeSet('pdpTabReviewCount', count);
   safeSet('pdpBigCount', count+' ratings');
-
   if(!count) {
     safeHTML('pdpReviewList', '<div class="dash-empty">No reviews yet. Be the first to review!</div>');
     safeSet('pdpBigScore', '—');
     return;
   }
-
-  const avg = (reviews.reduce((a,b) => a+b.rating,0)/count).toFixed(1);
+  const avg = (reviews.reduce((a,b) => a+(b.rating||0),0)/count).toFixed(1);
   safeSet('pdpBigScore', avg);
   safeSet('pdpRatingNum', avg);
-
   const full = Math.floor(avg); const half = avg - full >= 0.5;
   safeSet('pdpStars', '★'.repeat(full)+(half?'½':'')+'☆'.repeat(5-full-(half?1:0)));
-
   [1,2,3,4,5].forEach(star => {
     const cnt = reviews.filter(r => r.rating===star).length;
     const pct = count ? (cnt/count*100).toFixed(0) : 0;
     const bar = $('bar'+star); if(bar) bar.style.width = pct+'%';
     const cntEl = $('cnt'+star); if(cntEl) cntEl.textContent = cnt;
   });
-
   const rvList = $('pdpReviewList');
   if(rvList) rvList.innerHTML = reviews.slice().reverse().map(r => {
-    const stars = '★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
+    const stars = '★'.repeat(r.rating||0)+'☆'.repeat(5-(r.rating||0));
     return `<div class="pdp-review-card">
       <div class="pdp-review-top">
         <div class="pdp-review-author">
-          <div class="pdp-review-avatar">${r.name.charAt(0).toUpperCase()}</div>
+          <div class="pdp-review-avatar">${(r.name||'?').charAt(0).toUpperCase()}</div>
           <div><div class="pdp-review-name">${r.name}</div><div class="pdp-review-location">${r.location||''}</div></div>
         </div>
         <div class="pdp-review-date">${r.date||''}</div>
       </div>
       <div class="pdp-review-stars">${stars}</div>
       <div class="pdp-review-title">${r.title||''}</div>
-      <div class="pdp-review-text">${r.text}</div>
+      <div class="pdp-review-text">${r.text||''}</div>
       ${r.verified?'<div class="pdp-review-verified">✓ Verified Purchase</div>':''}
       <div class="pdp-review-helpful"><span>Helpful?</span>
         <button onclick="var n=parseInt(this.dataset.count||'${r.helpful||0}');n++;this.dataset.count=n;this.textContent='👍 '+n;this.disabled=true" data-count="${r.helpful||0}">👍 ${r.helpful||0}</button>
@@ -1018,6 +1032,31 @@ function loadPDPReviews(productId) {
   }).join('');
 }
 
+function loadPDPReviews(productId) {
+  // Start with local/default reviews immediately for fast render
+  const localReviews = getAllReviews(productId);
+  _renderPDPReviews(localReviews);
+  // Then fetch from Firestore for live approved reviews
+  if(!window._db) return;
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ getDocs, query, collection, where, orderBy }) => {
+    // Query approved reviews for this product
+    const q = query(
+      collection(window._db, 'reviews'),
+      where('productId', '==', productId),
+      where('approved', '==', true),
+      orderBy('createdAt', 'desc')
+    );
+    getDocs(q).then(snap => {
+      const firestoreReviews = snap.docs.map(d => ({ firestoreId:d.id, ...d.data() }));
+      // Merge with defaults, deduplicate by id
+      const combined = [...defaultReviews, ...firestoreReviews];
+      const seen = new Set();
+      const deduped = combined.filter(r => { const k = r.firestoreId||r.id; if(seen.has(k)) return false; seen.add(k); return true; });
+      _renderPDPReviews(deduped.filter(r => !productId || String(r.productId)===String(productId)));
+    }).catch(() => { /* keep local reviews shown */ });
+  }).catch(() => {});
+}
+
 function pdpSelectStar(val) {
   pdpSelectedRating = val;
   document.querySelectorAll('.pdp-star-select span').forEach((s,i) => {
@@ -1025,7 +1064,7 @@ function pdpSelectStar(val) {
   });
 }
 
-function submitReview() {
+async function submitReview() {
   const nameEl=$('rv-name'), locEl=$('rv-loc'), titleEl=$('rv-title'), textEl=$('rv-text');
   const name = nameEl ? nameEl.value.trim() : '';
   const loc = locEl ? locEl.value.trim() : '';
@@ -1036,10 +1075,25 @@ function submitReview() {
   const review = {
     id: 'u'+Date.now(),
     productId: currentPDP ? currentPDP.id : 0,
+    productName: currentPDP ? currentPDP.name : '',
     name, location:loc, rating:pdpSelectedRating,
-    title, text, date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
-    verified: !!window._currentUser, helpful:0, pending:true
+    title, text,
+    date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+    createdAt: window._serverTimestamp ? window._serverTimestamp() : new Date(),
+    verified: !!window._currentUser,
+    userId: window._currentUser ? window._currentUser.uid : null,
+    userEmail: window._currentUser ? window._currentUser.email : null,
+    helpful: 0,
+    pending: true,
+    approved: false
   };
+  // Save to Firestore
+  try {
+    if(window._db && window._addDoc && window._collection) {
+      await window._addDoc(window._collection(window._db,'reviews'), review);
+    }
+  } catch(e) { console.warn('Firestore review save failed:', e); }
+  // Also keep localStorage backup
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
   stored.push(review);
@@ -1073,6 +1127,7 @@ function adminSwitchTab(tab, el) {
   if(el) el.classList.add('active');
   const tc = $('admintab-'+tab);
   if(tc) tc.classList.add('active');
+  if(tab==='enquiries') loadAdminInquiries();
   if(tab==='orders') loadAdminOrders();
   if(tab==='products') renderAdminProducts();
   if(tab==='payments') loadAdminPayments();
@@ -1247,20 +1302,51 @@ async function deleteProduct(id) {
 }
 
 
-// ══ ADMIN ORDERS ══
+// ══ ADMIN ORDERS — Firestore real-time ══
 let adminAllOrders = [];
-try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
 let adminOrderFilter = 'all';
-
-// Orders are real - no fake data pre-loaded
+let _ordersUnsub = null;
 
 function loadAdminOrders() {
-  // Always re-read from localStorage to get latest real orders
-  try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){ adminAllOrders=[]; }
-  renderAdminOrders();
+  const container = $('adminOrdersContainer');
+  if(!container) return;
+  container.innerHTML = '<div class="admin-loading">Loading orders...</div>';
+  if(!window._db) {
+    // Fallback to localStorage only
+    try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){ adminAllOrders=[]; }
+    renderAdminOrders();
+    _updateOrderStats();
+    return;
+  }
+  // Tear down existing listener
+  if(_ordersUnsub) { _ordersUnsub(); _ordersUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy }) => {
+    const q = query(collection(window._db, 'orders'), orderBy('createdAt','desc'));
+    _ordersUnsub = onSnapshot(q, (snap) => {
+      // Merge Firestore docs + any localStorage orders not yet in Firestore (migration safety)
+      const firestoreOrders = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+      let localOrders = [];
+      try { localOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
+      // Deduplicate: prefer Firestore, fallback to local orders not yet saved
+      const firestoreIds = new Set(firestoreOrders.map(o => o.id));
+      const localOnly = localOrders.filter(o => !firestoreIds.has(o.id));
+      adminAllOrders = [...firestoreOrders, ...localOnly];
+      renderAdminOrders();
+      _updateOrderStats();
+    }, (err) => {
+      console.warn('Orders listener error:', err);
+      // Fallback to localStorage
+      try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){ adminAllOrders=[]; }
+      renderAdminOrders();
+      _updateOrderStats();
+    });
+  });
+}
+
+function _updateOrderStats() {
   safeSet('statOrders', adminAllOrders.length);
-  const revenue = adminAllOrders.filter(o=>o.payStatus==='paid').reduce((a,b)=>a+b.total,0);
-  safeSet('statRevenue', revenue>0 ? '₹'+revenue.toLocaleString('en-IN') : '₹0');
+  const revenue = adminAllOrders.filter(o=>o.payStatus==='paid').reduce((a,b)=>a+(Number(b.total)||0),0);
+  safeSet('statRevenue', revenue > 0 ? '₹'+revenue.toLocaleString('en-IN') : '₹0');
 }
 
 function filterAdminOrders(status, el) {
@@ -1301,82 +1387,178 @@ function renderAdminOrders() {
   </table></div>`;
 }
 
-function updateOrderStatus(id, status) {
-  const order = adminAllOrders.find(o=>o.id===id);
-  if(order) { order.status=status; try{localStorage.setItem('jsc_orders',JSON.stringify(adminAllOrders));}catch(e){} renderAdminOrders(); }
+async function updateOrderStatus(orderId, status) {
+  const order = adminAllOrders.find(o=>o.id===orderId);
+  if(!order) return;
+  order.status = status;
+  // Update in Firestore if we have the firestoreId
+  if(order.firestoreId && window._db && window._updateDoc && window._doc) {
+    try {
+      await window._updateDoc(window._doc(window._db,'orders',order.firestoreId), { status });
+    } catch(e) { console.warn('Order status update failed:', e); }
+  }
+  // Also update localStorage backup
+  let local = [];
+  try { local = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
+  const li = local.find(o=>o.id===orderId);
+  if(li) { li.status = status; try{localStorage.setItem('jsc_orders',JSON.stringify(local));}catch(e){} }
+  renderAdminOrders();
 }
 
-// ══ ADMIN PAYMENTS ══
+// ══ ADMIN PAYMENTS — driven from Firestore orders collection ══
+let _paymentsUnsub = null;
+
 function loadAdminPayments() {
-  try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){ adminAllOrders=[]; }
-  const paidOrders = adminAllOrders.filter(o=>o.payStatus==='paid');
-  const pendingOrders = adminAllOrders.filter(o=>o.payStatus==='pending');
-  const total = paidOrders.reduce((a,b)=>a+b.total,0);
-  const pending = pendingOrders.reduce((a,b)=>a+b.total,0);
+  const container = $('adminPaymentsContainer');
+  if(!container) return;
+  container.innerHTML = '<div class="admin-loading">Loading payments...</div>';
+  if(!window._db) {
+    _renderPaymentsFromOrders(adminAllOrders);
+    return;
+  }
+  if(_paymentsUnsub) { _paymentsUnsub(); _paymentsUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy }) => {
+    const q = query(collection(window._db, 'orders'), orderBy('createdAt','desc'));
+    _paymentsUnsub = onSnapshot(q, (snap) => {
+      const firestoreOrders = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+      let localOrders = [];
+      try { localOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
+      const ids = new Set(firestoreOrders.map(o=>o.id));
+      const allPay = [...firestoreOrders, ...localOrders.filter(o=>!ids.has(o.id))];
+      _renderPaymentsFromOrders(allPay);
+    }, () => {
+      _renderPaymentsFromOrders(adminAllOrders);
+    });
+  });
+}
+
+function _renderPaymentsFromOrders(orders) {
+  const paidOrders = orders.filter(o=>o.payStatus==='paid');
+  const pendingOrders = orders.filter(o=>o.payStatus!=='paid');
+  const total = paidOrders.reduce((a,b)=>a+(Number(b.total)||0),0);
+  const pending = pendingOrders.reduce((a,b)=>a+(Number(b.total)||0),0);
   const now = new Date(); const thisMonth = now.getMonth(); const thisYear = now.getFullYear();
-  const monthPaid = paidOrders.filter(o=>{ try{const d=new Date(o.date);return d.getMonth()===thisMonth&&d.getFullYear()===thisYear;}catch(e){return false;} });
-  const monthTotal = monthPaid.reduce((a,b)=>a+b.total,0);
+  const monthPaid = paidOrders.filter(o=>{
+    try {
+      // createdAt may be a Firestore Timestamp or a date string
+      const d = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);
+      return d.getMonth()===thisMonth && d.getFullYear()===thisYear;
+    } catch(e){ return false; }
+  });
+  const monthTotal = monthPaid.reduce((a,b)=>a+(Number(b.total)||0),0);
   safeSet('payTotal','₹'+total.toLocaleString('en-IN'));
   safeSet('payMonth','₹'+monthTotal.toLocaleString('en-IN'));
   safeSet('payPending','₹'+pending.toLocaleString('en-IN'));
-  safeSet('payCount',adminAllOrders.length);
+  safeSet('payCount', orders.length);
+  // Also update dashboard revenue stat
+  safeSet('statRevenue', total > 0 ? '₹'+total.toLocaleString('en-IN') : '₹0');
   const container = $('adminPaymentsContainer');
   if(!container) return;
-  if(!adminAllOrders.length) { 
-    container.innerHTML='<div class="admin-loading" style="padding:40px;text-align:center"><div style="font-size:32px;margin-bottom:12px">💳</div><div style="color:var(--text-soft)">No payments yet.<br><small>Payment records appear after customers checkout via Razorpay.</small></div></div>'; 
-    return; 
+  if(!orders.length) {
+    container.innerHTML='<div class="admin-loading" style="padding:40px;text-align:center"><div style="font-size:32px;margin-bottom:12px">💳</div><div style="color:var(--text-soft)">No payments yet.<br><small>Payment records appear after customers checkout via Razorpay.</small></div></div>';
+    return;
   }
   container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
-    <thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>AMOUNT</th><th>DATE</th><th>METHOD</th><th>STATUS</th></tr></thead>
-    <tbody>${adminAllOrders.map(o=>`<tr>
-      <td>${o.id}</td><td>${o.customer}</td>
-      <td><strong>₹${o.total.toLocaleString('en-IN')}</strong></td>
-      <td>${o.date}</td><td>${o.payment}</td>
-      <td><span style="font-size:11px;padding:3px 10px;background:${o.payStatus==='paid'?'#d4edda':'#fff3cd'};color:${o.payStatus==='paid'?'#155724':'#856404'}">${o.payStatus.toUpperCase()}</span></td>
+    <thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>AMOUNT</th><th>DATE</th><th>METHOD</th><th>RAZORPAY ID</th><th>STATUS</th></tr></thead>
+    <tbody>${orders.map(o=>`<tr>
+      <td><strong>${o.id||'—'}</strong></td>
+      <td>${o.customer||'Guest'}<br><span style="font-size:11px;color:var(--text-soft)">${o.email||''}</span></td>
+      <td><strong>₹${(Number(o.total)||0).toLocaleString('en-IN')}</strong></td>
+      <td>${o.date||'—'}</td>
+      <td>${o.payment||'—'}</td>
+      <td style="font-size:11px;color:var(--text-soft)">${o.razorpay_payment_id||'—'}</td>
+      <td><span style="font-size:11px;padding:3px 10px;background:${o.payStatus==='paid'?'#d4edda':'#fff3cd'};color:${o.payStatus==='paid'?'#155724':'#856404'}">${(o.payStatus||'pending').toUpperCase()}</span></td>
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
 
 // ══ ADMIN REVIEWS ══
+// ══ ADMIN REVIEWS — Firestore real-time ══
+let _reviewsUnsub = null;
+let _allAdminReviews = []; // cached for approve/delete by local id
+
 function loadAdminReviews() {
-  const filterEl=$('adminReviewFilter');
-  const filter = filterEl ? filterEl.value : 'all';
+  const container = $('adminReviewsContainer');
+  if(!container) return;
+  container.innerHTML = '<div class="admin-loading">Loading reviews...</div>';
+  if(!window._db) {
+    _renderAdminReviewsLocal();
+    return;
+  }
+  if(_reviewsUnsub) { _reviewsUnsub(); _reviewsUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy }) => {
+    const q = query(collection(window._db, 'reviews'), orderBy('createdAt','desc'));
+    _reviewsUnsub = onSnapshot(q, (snap) => {
+      const firestoreReviews = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+      // Merge with defaults (hardcoded approved reviews shown too)
+      const defaults = defaultReviews.map(r=>({...r, pending:false, approved:true}));
+      _allAdminReviews = [...firestoreReviews, ...defaults];
+      _renderAdminReviewsData(_allAdminReviews);
+    }, () => { _renderAdminReviewsLocal(); });
+  });
+}
+
+function _renderAdminReviewsLocal() {
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
-  const all = [...defaultReviews.map(r=>({...r,pending:false})), ...stored];
-  const filtered = filter==='all' ? all : filter==='pending' ? all.filter(r=>r.pending) : all.filter(r=>!r.pending);
+  _allAdminReviews = [...defaultReviews.map(r=>({...r,pending:false,approved:true})), ...stored];
+  _renderAdminReviewsData(_allAdminReviews);
+}
+
+function _renderAdminReviewsData(all) {
+  const filterEl = $('adminReviewFilter');
+  const filter = filterEl ? filterEl.value : 'all';
+  const filtered = filter==='all' ? all : filter==='pending' ? all.filter(r=>r.pending&&!r.approved) : all.filter(r=>r.approved||(!r.pending));
   const container = $('adminReviewsContainer');
   if(!container) return;
   if(!filtered.length) { container.innerHTML='<div class="admin-loading">No reviews found.</div>'; return; }
   container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
     <thead><tr><th>PRODUCT</th><th>REVIEWER</th><th>RATING</th><th>TITLE</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr></thead>
     <tbody>${filtered.map(r=>`<tr>
-      <td style="font-size:12px">${PRODUCTS.find(p=>String(p.id)===String(r.productId))?.name||'General'}</td>
+      <td style="font-size:12px">${r.productName || PRODUCTS.find(p=>String(p.id)===String(r.productId))?.name||'General'}</td>
       <td><strong>${r.name}</strong><br><span style="font-size:11px;color:var(--text-soft)">${r.location||''}</span></td>
-      <td style="color:#f5a623">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
-      <td style="font-size:12px">${r.title||r.text.substring(0,40)+'...'}</td>
+      <td style="color:#f5a623">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</td>
+      <td style="font-size:12px">${r.title||(r.text||'').substring(0,40)+'...'}</td>
       <td style="font-size:11px">${r.date||''}</td>
-      <td><span style="font-size:10px;padding:3px 8px;background:${r.pending?'#fff3cd':'#d4edda'};color:${r.pending?'#856404':'#155724'}">${r.pending?'PENDING':'APPROVED'}</span></td>
+      <td><span style="font-size:10px;padding:3px 8px;background:${r.pending&&!r.approved?'#fff3cd':'#d4edda'};color:${r.pending&&!r.approved?'#856404':'#155724'}">${r.pending&&!r.approved?'PENDING':'APPROVED'}</span></td>
       <td>
-        ${r.pending?`<button onclick="approveReview('${r.id}')" style="border:1px solid #27ae60;background:none;padding:4px 10px;font-size:11px;cursor:pointer;color:#27ae60;font-family:'DM Sans',sans-serif">Approve</button>`:''}
-        <button onclick="deleteReview('${r.id}')" style="border:1px solid #e74c3c;background:none;padding:4px 10px;font-size:11px;cursor:pointer;color:#e74c3c;font-family:'DM Sans',sans-serif;margin-left:4px">Delete</button>
+        ${r.pending&&!r.approved?`<button onclick="approveReview('${r.firestoreId||r.id}')" style="border:1px solid #27ae60;background:none;padding:4px 10px;font-size:11px;cursor:pointer;color:#27ae60;font-family:'DM Sans',sans-serif">Approve</button>`:''}
+        <button onclick="deleteReview('${r.firestoreId||r.id}')" style="border:1px solid #e74c3c;background:none;padding:4px 10px;font-size:11px;cursor:pointer;color:#e74c3c;font-family:'DM Sans',sans-serif;margin-left:4px">Delete</button>
       </td>
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
 
-function approveReview(id) {
+async function approveReview(id) {
+  // Try Firestore first (id is firestoreId if from Firestore)
+  if(window._db && window._updateDoc && window._doc) {
+    try {
+      await window._updateDoc(window._doc(window._db,'reviews',id), { pending:false, approved:true });
+      return; // onSnapshot will re-render
+    } catch(e) { /* might be local id, fall through */ }
+  }
+  // Fallback: localStorage
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
-  const r = stored.find(x=>x.id===id);
-  if(r) { r.pending=false; try{localStorage.setItem('jsc_reviews',JSON.stringify(stored));}catch(e){} loadAdminReviews(); }
+  const r = stored.find(x=>x.id===id||x.firestoreId===id);
+  if(r) { r.pending=false; r.approved=true; try{localStorage.setItem('jsc_reviews',JSON.stringify(stored));}catch(e){} }
+  loadAdminReviews();
 }
 
-function deleteReview(id) {
+async function deleteReview(id) {
   if(!confirm('Delete this review?')) return;
+  // Try Firestore first
+  if(window._db) {
+    try {
+      const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+      await deleteDoc(doc(window._db,'reviews',id));
+      return; // onSnapshot will re-render
+    } catch(e) { /* might be local id, fall through */ }
+  }
+  // Fallback: localStorage
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
-  stored = stored.filter(x=>x.id!==id);
+  stored = stored.filter(x=>x.id!==id&&x.firestoreId!==id);
   try { localStorage.setItem('jsc_reviews',JSON.stringify(stored)); } catch(e){}
   loadAdminReviews();
 }
