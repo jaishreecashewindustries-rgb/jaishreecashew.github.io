@@ -781,9 +781,6 @@
         <!-- Write Review -->
         <div class="pdp-write-review" id="pdpWriteReviewSection">
           <h4>Write a Review</h4>
-          <div id="pdpReviewLoginMsg" style="display:none;background:var(--cream);padding:14px 18px;font-size:13px;margin-bottom:18px;">
-            Please <a href="#" onclick="openAuth();return false;" style="color:var(--gold);text-decoration:underline">sign in</a> to write a review.
-          </div>
           <div id="pdpReviewFormWrap">
             <div style="margin-bottom:14px;font-size:12px;letter-spacing:1px;color:var(--text-soft);text-transform:uppercase;">Your Rating</div>
             <div class="pdp-star-select" id="pdpStarSelect">
@@ -886,6 +883,9 @@
     <!-- Body (scrollable) -->
     <div class="dash-panel-body">
 
+      <!-- Cart summary bar -->
+      <div id="dashCartSummary" style="display:none"></div>
+
       <!-- ── ORDERS TAB ── -->
       <div id="dSection-orders">
         <div class="dash-section">
@@ -894,9 +894,38 @@
             <div class="dash-empty">
               <div class="dash-empty-icon">📦</div>
               <div class="dash-empty-text">No orders yet</div>
-              <div class="dash-empty-sub">Your completed orders will appear here.<br>Start shopping to place your first order.</div>
-              <a href="#" onclick="showPage('shop');closeDashboard();return false;" style="display:inline-block;background:var(--walnut);color:var(--gold2);padding:10px 24px;font-size:11px;letter-spacing:2px;text-decoration:none">BROWSE PRODUCTS</a>
+              <div class="dash-empty-sub">Your completed orders will appear here after checkout.<br>Start shopping to place your first order.</div>
+              <a href="#" onclick="showPage('shop');closeDashboard();return false;" style="display:inline-block;background:var(--walnut);color:var(--gold2);padding:10px 24px;font-size:11px;letter-spacing:2px;text-decoration:none;margin-top:12px">BROWSE PRODUCTS</a>
             </div>
+          </div>
+        </div>
+        <!-- Quick stats -->
+        <div class="dash-section" style="margin-top:20px">
+          <div class="dash-section-title">My Account</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+            <div style="background:var(--cream);padding:16px;text-align:center;border:1px solid var(--border)">
+              <div style="font-size:22px;font-weight:600;color:var(--walnut)" id="dashCartCount">0</div>
+              <div style="font-size:11px;letter-spacing:1px;color:var(--text-soft);text-transform:uppercase;margin-top:4px">Items in Cart</div>
+            </div>
+            <div style="background:var(--cream);padding:16px;text-align:center;border:1px solid var(--border)">
+              <div style="font-size:22px;font-weight:600;color:var(--walnut)" id="dashEnqCount">0</div>
+              <div style="font-size:11px;letter-spacing:1px;color:var(--text-soft);text-transform:uppercase;margin-top:4px">Enquiries Sent</div>
+            </div>
+          </div>
+        </div>
+        <!-- Quick links -->
+        <div class="dash-section" style="margin-top:20px">
+          <div class="dash-section-title">Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <a href="#" onclick="showPage('shop');closeDashboard();return false;" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--cream);border:1px solid var(--border);text-decoration:none;color:var(--walnut);font-size:13px">
+              <span style="font-size:18px">🛒</span><span>Shop Premium Cashews</span><span style="margin-left:auto;color:var(--text-soft)">→</span>
+            </a>
+            <a href="#" onclick="showPage('contact');closeDashboard();return false;" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--cream);border:1px solid var(--border);text-decoration:none;color:var(--walnut);font-size:13px">
+              <span style="font-size:18px">📋</span><span>Submit Bulk Enquiry</span><span style="margin-left:auto;color:var(--text-soft)">→</span>
+            </a>
+            <a href="https://wa.me/917568577968" target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--cream);border:1px solid var(--border);text-decoration:none;color:var(--walnut);font-size:13px">
+              <span style="font-size:18px">💬</span><span>WhatsApp Us Directly</span><span style="margin-left:auto;color:var(--text-soft)">→</span>
+            </a>
           </div>
         </div>
       </div>

@@ -222,7 +222,44 @@ function closeCart() { const cs=$('cartSidebar'),co=$('cartOverlay'); if(cs) cs.
 function checkout() {
   if(typeof Razorpay === 'undefined') { alert('Payment gateway loading. Please try again.'); return; }
   const total = cart.reduce((a,b) => a+b.price*b.qty, 0)*100;
-  new Razorpay({ key:'rzp_live_StJcfZp5KQLYuY', amount:total, currency:'INR', name:'Jai Shree Cashew Industries', description:'Premium Cashew Order', theme:{color:'#C6A15B'} }).open();
+  const options = {
+    key:'rzp_live_StJcfZp5KQLYuY',
+    amount:total,
+    currency:'INR',
+    name:'Jai Shree Cashew Industries',
+    description:'Premium Cashew Order',
+    theme:{color:'#C6A15B'},
+    handler: function(response) {
+      // Save order on successful payment
+      const user = window._currentUser;
+      const orderId = 'ORD-'+Date.now().toString().slice(-6);
+      const order = {
+        id: orderId,
+        customer: user ? (user.displayName||user.email) : 'Guest',
+        email: user ? user.email : '',
+        phone: '',
+        items: cart.map(i=>({name:i.name, qty:i.qty, size:i.weight, price:i.price})),
+        total: cart.reduce((a,b)=>a+b.price*b.qty,0),
+        status:'processing',
+        date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+        payment:'Razorpay',
+        payStatus:'paid',
+        razorpay_payment_id: response.razorpay_payment_id||''
+      };
+      let orders = [];
+      try { orders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
+      orders.unshift(order);
+      try { localStorage.setItem('jsc_orders', JSON.stringify(orders)); } catch(e){}
+      adminAllOrders = orders;
+      // Clear cart
+      cart = [];
+      saveCart();
+      renderCart();
+      closeCart();
+      alert('✓ Order placed successfully! Order ID: '+orderId);
+    }
+  };
+  new Razorpay(options).open();
 }
 
 // ── QUICK VIEW ──
@@ -428,7 +465,45 @@ function openDashboard() {
   safeSet('dashUserInfo', user.email);
   const av = $('dashAvatarBig');
   if(av) av.textContent = (user.displayName || user.email).charAt(0).toUpperCase();
+  // Show cart summary in dashboard
+  renderDashCartSummary();
   switchDashTab('orders', $('dtab-orders'));
+}
+
+function renderDashCartSummary() {
+  const el = $('dashCartSummary');
+  const cartCountEl = $('dashCartCount');
+  const enqCountEl = $('dashEnqCount');
+  // Update stat cards
+  const cartTotal = cart.reduce((a,b)=>a+b.qty,0);
+  if(cartCountEl) cartCountEl.textContent = cartTotal;
+  // Count enquiries from localStorage
+  if(enqCountEl) {
+    const user = window._currentUser;
+    if(user && window._db) {
+      // Show loading then fetch
+      enqCountEl.textContent = '...';
+      window._getDocs(window._query(window._collection(window._db,'inquiries'),window._orderBy('timestamp','desc')))
+        .then(snap => {
+          const mine = snap.docs.filter(d=>(d.data().email||'').toLowerCase()===user.email.toLowerCase()).length;
+          enqCountEl.textContent = mine;
+        }).catch(()=>{ enqCountEl.textContent = '0'; });
+    } else { enqCountEl.textContent = '0'; }
+  }
+  if(!el) return;
+  if(!cart.length) { el.style.display='none'; return; }
+  el.style.display='block';
+  const total = cart.reduce((a,b)=>a+b.price*b.qty,0);
+  const count = cart.reduce((a,b)=>a+b.qty,0);
+  el.innerHTML = `
+    <div style="background:var(--cream);border:1px solid var(--gold);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:11px;letter-spacing:2px;color:var(--text-soft);text-transform:uppercase;margin-bottom:4px">Items in Cart</div>
+        <div style="font-size:20px;font-weight:600;color:var(--walnut)">${count} item${count>1?'s':''} · ₹${total.toLocaleString('en-IN')}</div>
+      </div>
+      <button onclick="closeDashboard();openCart()" style="background:var(--walnut);color:var(--gold2);border:none;padding:10px 20px;font-size:11px;letter-spacing:2px;cursor:pointer;font-family:'DM Sans',sans-serif">VIEW CART</button>
+    </div>
+  `;
 }
 function closeDashboard() { const d=$('dashOverlay'); if(d) d.classList.remove('open'); }
 
@@ -649,25 +724,30 @@ function showPage(page) {
 function renderFeaturedProducts() {
   const grid = $('featuredProductsGrid');
   if(!grid) return;
-  const featured = PRODUCTS.slice(0,3);
+  // Always use live PRODUCTS array (reflects admin edits)
+  const featured = PRODUCTS.filter(p => p.img).slice(0,3);
   grid.innerHTML = featured.map(p => {
-    const discPct = p.origPrice ? Math.round((1-p.price/p.origPrice)*100) : 0;
-    return `<div class="product-card" onclick="openProductDetail(${p.id})" style="cursor:pointer">
-      ${discPct ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
+    const hasDiscount = p.origPrice && p.origPrice > p.price;
+    const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
+    return `<div class="product-card" style="cursor:pointer">
       ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
-      <div class="prod-img-wrap">
-        <img src="${p.img}" alt="${p.name}" class="product-img" loading="lazy">
+      ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
+      <div class="prod-img-wrap" onclick="openProductDetail(${p.id})">
+        <img src="${p.img}" alt="${p.name}" loading="lazy">
         <div class="prod-overlay"></div>
+        <button class="prod-quick" onclick="event.stopPropagation();openModal(${p.id})">QUICK VIEW</button>
       </div>
       <div class="prod-info">
         <div class="prod-grade">${p.grade||''}</div>
-        <div class="prod-name">${p.name}</div>
+        <div class="prod-name" onclick="openProductDetail(${p.id})">${p.name}</div>
+        <div class="prod-weight">${p.weight} pack</div>
         <div class="prod-price-row">
           <span class="prod-price">₹${p.price}</span>
-          ${p.origPrice ? `<span class="prod-price-original">₹${p.origPrice}</span>` : ''}
+          ${hasDiscount ? `<span class="prod-price-original">₹${p.origPrice}</span><span class="prod-discount">−${discPct}%</span>` : ''}
         </div>
         <div class="prod-btns">
-          <button class="btn-cart" onclick="event.stopPropagation();addToCart(${p.id})">ADD TO CART</button>
+          <button class="btn-cart" onclick="addToCart(${p.id})">ADD TO CART</button>
+          <button class="btn-wish" onclick="toggleWish(this)">♡</button>
         </div>
       </div>
     </div>`;
@@ -1026,7 +1106,9 @@ function saveProduct() {
   closeProductModal();
   renderAdminProducts();
   safeSet('statProducts', PRODUCTS.length);
-  alert('✓ Product saved successfully!');
+  // Refresh featured products on home page too
+  renderFeaturedProducts();
+  alert('✓ Product saved successfully! Changes reflected on website.');
 }
 
 function deleteProduct(id) {
@@ -1034,6 +1116,7 @@ function deleteProduct(id) {
   const idx = PRODUCTS.findIndex(p => p.id===id);
   if(idx>=0) PRODUCTS.splice(idx,1);
   renderAdminProducts();
+  renderFeaturedProducts();
 }
 
 // ══ ADMIN ORDERS ══
@@ -1041,21 +1124,15 @@ let adminAllOrders = [];
 try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
 let adminOrderFilter = 'all';
 
-if(!adminAllOrders.length) {
-  adminAllOrders = [
-    {id:'ORD-2501',customer:'Ramesh Agarwal',email:'ramesh@abc.com',phone:'9876543210',items:[{name:'W180 Jumbo Whole',qty:2,size:'250g',price:1450}],total:2900,status:'delivered',date:'12 Apr 2025',payment:'Razorpay',payStatus:'paid'},
-    {id:'ORD-2502',customer:'Sunita Mehta',email:'sunita@xyz.com',phone:'9876500001',items:[{name:'W240 Large Whole',qty:4,size:'500g',price:2100}],total:8400,status:'shipped',date:'18 Apr 2025',payment:'Razorpay',payStatus:'paid'},
-    {id:'ORD-2503',customer:'Ashok Sharma',email:'ashok@pqr.com',phone:'9876511111',items:[{name:'W320 Classic Whole',qty:10,size:'1kg',price:3200}],total:32000,status:'processing',date:'22 Apr 2025',payment:'Bank Transfer',payStatus:'paid'},
-    {id:'ORD-2504',customer:'Priya Verma',email:'priya@email.com',phone:'9872211234',items:[{name:'Roasted & Salted',qty:3,size:'200g',price:780}],total:2340,status:'pending',date:'24 Apr 2025',payment:'Razorpay',payStatus:'pending'},
-  ];
-  try { localStorage.setItem('jsc_orders', JSON.stringify(adminAllOrders)); } catch(e){}
-}
+// Orders are real - no fake data pre-loaded
 
 function loadAdminOrders() {
+  // Always re-read from localStorage to get latest real orders
+  try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){ adminAllOrders=[]; }
   renderAdminOrders();
   safeSet('statOrders', adminAllOrders.length);
   const revenue = adminAllOrders.filter(o=>o.payStatus==='paid').reduce((a,b)=>a+b.total,0);
-  safeSet('statRevenue', '₹'+revenue.toLocaleString('en-IN'));
+  safeSet('statRevenue', revenue>0 ? '₹'+revenue.toLocaleString('en-IN') : '₹0');
 }
 
 function filterAdminOrders(status, el) {
@@ -1069,7 +1146,10 @@ function renderAdminOrders() {
   const container = $('adminOrdersContainer');
   if(!container) return;
   const filtered = adminOrderFilter==='all' ? adminAllOrders : adminAllOrders.filter(o=>o.status===adminOrderFilter);
-  if(!filtered.length) { container.innerHTML='<div class="admin-loading">No orders found.</div>'; return; }
+  if(!filtered.length) { 
+    container.innerHTML='<div class="admin-loading" style="padding:40px;text-align:center"><div style="font-size:32px;margin-bottom:12px">📦</div><div style="color:var(--text-soft)">No orders yet.<br><small>Orders appear here after customers complete Razorpay checkout.</small></div></div>'; 
+    return; 
+  }
   const statusColors = {pending:'#FFF3CD',processing:'#CCE5FF',shipped:'#D4EDDA',delivered:'#D4EDDA',cancelled:'#F8D7DA'};
   const statusText = {pending:'🟡 Pending',processing:'🔵 Processing',shipped:'🚚 Shipped',delivered:'✅ Delivered',cancelled:'❌ Cancelled'};
   container.innerHTML = `<div class="admin-orders-table-wrap"><table class="admin-orders-table">
@@ -1100,6 +1180,7 @@ function updateOrderStatus(id, status) {
 
 // ══ ADMIN PAYMENTS ══
 function loadAdminPayments() {
+  try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){ adminAllOrders=[]; }
   const paidOrders = adminAllOrders.filter(o=>o.payStatus==='paid');
   const pendingOrders = adminAllOrders.filter(o=>o.payStatus==='pending');
   const total = paidOrders.reduce((a,b)=>a+b.total,0);
@@ -1113,7 +1194,10 @@ function loadAdminPayments() {
   safeSet('payCount',adminAllOrders.length);
   const container = $('adminPaymentsContainer');
   if(!container) return;
-  if(!adminAllOrders.length) { container.innerHTML='<div class="admin-loading">No payments yet.</div>'; return; }
+  if(!adminAllOrders.length) { 
+    container.innerHTML='<div class="admin-loading" style="padding:40px;text-align:center"><div style="font-size:32px;margin-bottom:12px">💳</div><div style="color:var(--text-soft)">No payments yet.<br><small>Payment records appear after customers checkout via Razorpay.</small></div></div>'; 
+    return; 
+  }
   container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
     <thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>AMOUNT</th><th>DATE</th><th>METHOD</th><th>STATUS</th></tr></thead>
     <tbody>${adminAllOrders.map(o=>`<tr>
