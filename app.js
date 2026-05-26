@@ -905,49 +905,18 @@ function closeProductModal() {
   document.getElementById('adminProductModal').classList.remove('open');
 }
 
-async function previewProductPhotos(input) {
+function previewProductPhotos(input) {
   const preview = document.getElementById('adminPhotoPreview');
-  const files = Array.from(input.files);
-  
-  for(const file of files) {
-    // Create preview div with progress
-    const div = document.createElement('div');
-    div.className = 'admin-photo-preview-item';
-    div.innerHTML = `
-      <div class="upload-progress-wrap">
-        <div class="upload-progress-bar"></div>
-        <span class="upload-progress-pct">0%</span>
-      </div>
-      <button class="admin-photo-remove" onclick="this.parentElement.remove()" style="display:none">✕</button>`;
-    preview.appendChild(div);
-    
-    const progressBar = div.querySelector('.upload-progress-bar');
-    const progressPct = div.querySelector('.upload-progress-pct');
-    
-    try {
-      if(window._uploadProductImage) {
-        // Upload to Firebase Storage
-        const productId = document.getElementById('editProductId').value || 'new';
-        const url = await window._uploadProductImage(file, productId, (pct) => {
-          progressBar.style.width = pct + '%';
-          progressPct.textContent = pct + '%';
-        });
-        div.innerHTML = `
-          <img src="${url}" data-firebase-url="${url}">
-          <button class="admin-photo-remove" onclick="this.parentElement.remove()">✕</button>`;
-      } else {
-        // Fallback: local base64 preview
-        const reader = new FileReader();
-        reader.onload = e => {
-          div.innerHTML = `<img src="${e.target.result}"><button class="admin-photo-remove" onclick="this.parentElement.remove()">✕</button>`;
-        };
-        reader.readAsDataURL(file);
-      }
-    } catch(err) {
-      div.innerHTML = `<div style="color:red;padding:8px;font-size:11px">Upload failed: ${err.message}</div>`;
-    }
-  }
-  input.value = '';
+  Array.from(input.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.className = 'admin-photo-preview-item';
+      div.innerHTML = `<img src="${e.target.result}"><button class="admin-photo-remove" onclick="this.parentElement.remove()">✕</button>`;
+      preview.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function saveProduct() {
@@ -956,11 +925,9 @@ function saveProduct() {
   const price = parseInt(document.getElementById('ap-price').value);
   if(!name || !price) { alert('Product name and price are required.'); return; }
 
-  // Collect photos (Firebase Storage URLs preferred over base64)
+  // Collect new photos
   const previewItems = document.querySelectorAll('#adminPhotoPreview .admin-photo-preview-item img');
-  const newImgs = previewItems.length 
-    ? Array.from(previewItems).map(i => i.dataset.firebaseUrl || i.src)
-    : null;
+  const newImgs = previewItems.length ? Array.from(previewItems).map(i=>i.src) : null;
 
   const productData = {
     name, grade: document.getElementById('ap-grade').value,

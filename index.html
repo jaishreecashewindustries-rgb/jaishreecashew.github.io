@@ -14,7 +14,6 @@
   import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js";
-  import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBMqi_-isYPwH52YO5xXz10h7ods01AvOk",
@@ -30,7 +29,6 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
   const analytics = getAnalytics(app);
-  const storage = getStorage(app);
   const googleProvider = new GoogleAuthProvider();
 
   // Expose to window
@@ -49,66 +47,39 @@
   window._signInGoogle = () => signInWithPopup(auth, googleProvider);
   window._signOut = () => signOut(auth);
   window._updateProfile = (u,d) => updateProfile(u,d);
-  
-  // Storage functions
+
+  // Admin email
+  const ADMIN_EMAIL = 'jiteshpansari@gmail.com';
+  window.ADMIN_EMAIL = ADMIN_EMAIL;
+
+  // Storage
+  const { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js");
+  const storage = getStorage(app);
   window._storage = storage;
-  window._ref = ref;
-  window._uploadBytesResumable = uploadBytesResumable;
-  window._getDownloadURL = getDownloadURL;
-  window._deleteObject = deleteObject;
-  
-  // Upload image to Firebase Storage
   window._uploadProductImage = function(file, productId, onProgress) {
     return new Promise((resolve, reject) => {
       const ext = file.name.split('.').pop();
       const storageRef = ref(storage, `products/${productId}_${Date.now()}.${ext}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          if(onProgress) onProgress(Math.round(progress));
-        },
-        (error) => reject(error),
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          resolve(downloadURL);
-        }
+        s => { if(onProgress) onProgress(Math.round(s.bytesTransferred/s.totalBytes*100)); },
+        reject,
+        async () => resolve(await getDownloadURL(uploadTask.snapshot.ref))
       );
     });
   };
-  
-  // Upload gallery image
   window._uploadGalleryImage = function(file, name, onProgress) {
     return new Promise((resolve, reject) => {
       const ext = file.name.split('.').pop();
       const storageRef = ref(storage, `gallery/${name}_${Date.now()}.${ext}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          if(onProgress) onProgress(Math.round(progress));
-        },
-        (error) => reject(error),
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          resolve(downloadURL);
-        }
+        s => { if(onProgress) onProgress(Math.round(s.bytesTransferred/s.totalBytes*100)); },
+        reject,
+        async () => resolve(await getDownloadURL(uploadTask.snapshot.ref))
       );
     });
   };
-  
-  // Delete image from storage
-  window._deleteStorageImage = async function(url) {
-    try {
-      const imageRef = ref(storage, url);
-      await deleteObject(imageRef);
-      return true;
-    } catch(e) { return false; }
-  };
-
-  // Admin email
-  const ADMIN_EMAIL = 'jiteshpansari@gmail.com';
-  window.ADMIN_EMAIL = ADMIN_EMAIL;
 
   // Auth state listener
   onAuthStateChanged(auth, (user) => {
@@ -826,6 +797,304 @@
 
 <!-- WHATSAPP -->
 <a href="https://wa.me/917568577968?text=Hello%2C%20I%20am%20interested%20in%20your%20premium%20cashew%20products." class="wa-btn" target="_blank" title="Chat on WhatsApp">💬</a>
+
+
 <script src="app.js"></script>
+
+
+<!-- ── AUTH MODAL ── -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-title">Welcome Back</div>
+    <div class="auth-sub">Sign in to track your orders & enquiries</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login',this)">SIGN IN</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup',this)">REGISTER</button>
+    </div>
+    <!-- Login Form -->
+    <div class="auth-form active" id="authFormLogin">
+      <div class="auth-error" id="loginError"></div>
+      <div class="auth-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"></div>
+      <div class="auth-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"></div>
+      <button class="auth-btn-primary" onclick="doLogin()">SIGN IN</button>
+      <div class="auth-divider">OR</div>
+      <button class="auth-btn-google" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+    <!-- Signup Form -->
+    <div class="auth-form" id="authFormSignup">
+      <div class="auth-error" id="signupError"></div>
+      <div class="auth-group"><label>Full Name</label><input type="text" id="signupName" placeholder="Your Name"></div>
+      <div class="auth-group"><label>Email</label><input type="email" id="signupEmail" placeholder="your@email.com"></div>
+      <div class="auth-group"><label>Password</label><input type="password" id="signupPass" placeholder="Min 6 characters"></div>
+      <button class="auth-btn-primary" onclick="doSignup()">CREATE ACCOUNT</button>
+      <div class="auth-divider">OR</div>
+      <button class="auth-btn-google" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CUSTOMER DASHBOARD PANEL ── -->
+<div class="dash-overlay" id="dashOverlay">
+  <div class="dash-panel">
+
+    <!-- Header (dark walnut bg) -->
+    <div class="dash-panel-header">
+      <button class="dash-close" onclick="closeDashboard()">✕</button>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;padding-top:8px">
+        <div id="dashAvatarBig" style="width:46px;height:46px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--walnut);flex-shrink:0">?</div>
+        <div>
+          <div class="dash-title" id="dashTitle">My Account</div>
+          <div class="dash-user" id="dashUserInfo">Loading...</div>
+        </div>
+      </div>
+      <!-- Tabs inside header -->
+      <div class="auth-tabs" style="display:flex;border-bottom:1px solid rgba(255,255,255,0.15);margin:0 -32px;padding:0 32px">
+        <button onclick="switchDashTab('orders',this)" class="auth-tab active" id="dtab-orders">📦 ORDERS</button>
+        <button onclick="switchDashTab('enquiries',this)" class="auth-tab" id="dtab-enquiries">📋 ENQUIRIES</button>
+        <button onclick="switchDashTab('wishlist',this)" class="auth-tab" id="dtab-wishlist">♡ WISHLIST</button>
+      </div>
+    </div>
+
+    <!-- Body (scrollable) -->
+    <div class="dash-panel-body">
+
+      <!-- ── ORDERS TAB ── -->
+      <div id="dSection-orders">
+        <div class="dash-section">
+          <div class="dash-section-title">Your Recent Orders</div>
+          <div id="dashOrders">
+            <div class="dash-empty">
+              <div class="dash-empty-icon">📦</div>
+              <div class="dash-empty-text">No orders yet</div>
+              <div class="dash-empty-sub">Your completed orders will appear here.<br>Start shopping to place your first order.</div>
+              <a href="#" onclick="showPage('shop');closeDashboard();return false;" style="display:inline-block;background:var(--walnut);color:var(--gold2);padding:10px 24px;font-size:11px;letter-spacing:2px;text-decoration:none">BROWSE PRODUCTS</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ENQUIRIES TAB ── -->
+      <div id="dSection-enquiries" style="display:none">
+        <div class="dash-section">
+          <div class="dash-section-title">Your Submitted Enquiries</div>
+          <div id="dashInquiries">
+            <div class="dash-empty">
+              <div class="dash-empty-icon">📋</div>
+              <div class="dash-empty-text">No enquiries yet</div>
+              <div class="dash-empty-sub">Submit an enquiry from the contact section for bulk pricing, export quotes, or custom orders.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── WISHLIST TAB ── -->
+      <div id="dSection-wishlist" style="display:none">
+        <div class="dash-section">
+          <div class="dash-section-title">Saved Products</div>
+          <div class="dash-empty">
+            <div class="dash-empty-icon">♡</div>
+            <div class="dash-empty-text">Your wishlist is empty</div>
+            <div class="dash-empty-sub">Tap the heart icon on any product to save it here for later.</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="dash-signout" onclick="doSignOut()">← SIGN OUT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-inner">
+    <div class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="admin-logo">Jai Shree Cashew</span>
+        <span class="admin-badge">ADMIN PANEL</span>
+      </div>
+      <button class="admin-close-btn" onclick="closeAdmin()">← Back to Website</button>
+    </div>
+
+    <!-- Dashboard Stats Row -->
+    <div class="admin-stats" style="grid-template-columns:repeat(6,1fr)">
+      <div class="admin-stat-card">
+        <div class="admin-stat-num" id="statTotal">—</div>
+        <div class="admin-stat-label">Total Enquiries</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-num" id="statNew">—</div>
+        <div class="admin-stat-label">New Enquiries</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-num" id="statContacted">—</div>
+        <div class="admin-stat-label">Contacted</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-num" id="statOrders">—</div>
+        <div class="admin-stat-label">Total Orders</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-num" id="statRevenue">—</div>
+        <div class="admin-stat-label">Revenue (₹)</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-num" id="statProducts">6</div>
+        <div class="admin-stat-label">Products Listed</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="adminSwitchTab('enquiries',this)">📋 ENQUIRIES</button>
+      <button class="admin-tab" onclick="adminSwitchTab('orders',this)">📦 ORDERS</button>
+      <button class="admin-tab" onclick="adminSwitchTab('products',this)">🛍️ PRODUCTS</button>
+      <button class="admin-tab" onclick="adminSwitchTab('payments',this)">💰 PAYMENTS</button>
+      <button class="admin-tab" onclick="adminSwitchTab('reviews',this)">⭐ REVIEWS</button>
+    </div>
+
+    <!-- TAB: ENQUIRIES -->
+    <div class="admin-tab-content active" id="admintab-enquiries">
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-title">All Enquiries</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <select id="adminEnqFilter" onchange="loadAdminInquiries()" style="border:1px solid var(--border);padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--white);color:var(--walnut)">
+              <option value="all">All Status</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="closed">Closed</option>
+            </select>
+            <button class="admin-refresh" onclick="loadAdminInquiries()">↻ Refresh</button>
+          </div>
+        </div>
+        <div id="adminTableContainer"><div class="admin-loading">Loading enquiries...</div></div>
+      </div>
+    </div>
+
+    <!-- TAB: ORDERS -->
+    <div class="admin-tab-content" id="admintab-orders">
+      <div class="admin-orders-filter">
+        <button class="active" onclick="filterAdminOrders('all',this)">All Orders</button>
+        <button onclick="filterAdminOrders('pending',this)">🟡 Pending</button>
+        <button onclick="filterAdminOrders('processing',this)">🔵 Processing</button>
+        <button onclick="filterAdminOrders('shipped',this)">🚚 Shipped</button>
+        <button onclick="filterAdminOrders('delivered',this)">✅ Delivered</button>
+        <button onclick="filterAdminOrders('cancelled',this)">❌ Cancelled</button>
+      </div>
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-title">Orders</div>
+          <button class="admin-refresh" onclick="loadAdminOrders()">↻ Refresh</button>
+        </div>
+        <div class="admin-orders-table-wrap" id="adminOrdersContainer">
+          <div class="admin-loading">Loading orders...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: PRODUCTS -->
+    <div class="admin-tab-content" id="admintab-products">
+      <button class="admin-add-product-btn" onclick="openProductModal(null)">+ ADD NEW PRODUCT</button>
+      <div class="admin-products-grid" id="adminProductsGrid"></div>
+    </div>
+
+    <!-- TAB: PAYMENTS -->
+    <div class="admin-tab-content" id="admintab-payments">
+      <div class="admin-payment-summary">
+        <div class="admin-payment-card">
+          <div class="admin-payment-num" id="payTotal">₹0</div>
+          <div class="admin-payment-label">Total Collected</div>
+        </div>
+        <div class="admin-payment-card">
+          <div class="admin-payment-num" id="payMonth">₹0</div>
+          <div class="admin-payment-label">This Month</div>
+        </div>
+        <div class="admin-payment-card">
+          <div class="admin-payment-num" id="payPending">₹0</div>
+          <div class="admin-payment-label">Pending</div>
+        </div>
+        <div class="admin-payment-card">
+          <div class="admin-payment-num" id="payCount">0</div>
+          <div class="admin-payment-label">Transactions</div>
+        </div>
+      </div>
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-title">Payment History</div>
+          <button class="admin-refresh" onclick="loadAdminPayments()">↻ Refresh</button>
+        </div>
+        <div id="adminPaymentsContainer"><div class="admin-loading">Loading payments...</div></div>
+      </div>
+    </div>
+
+    <!-- TAB: REVIEWS -->
+    <div class="admin-tab-content" id="admintab-reviews">
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-title">Customer Reviews</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <select id="adminReviewFilter" onchange="loadAdminReviews()" style="border:1px solid var(--border);padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--white)">
+              <option value="all">All Reviews</option>
+              <option value="pending">Pending Approval</option>
+              <option value="approved">Approved</option>
+            </select>
+            <button class="admin-refresh" onclick="loadAdminReviews()">↻ Refresh</button>
+          </div>
+        </div>
+        <div id="adminReviewsContainer"><div class="admin-loading">Loading reviews...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADMIN PRODUCT MODAL ── -->
+<div class="admin-modal-overlay" id="adminProductModal">
+  <div class="admin-modal-box">
+    <button class="admin-modal-close" onclick="closeProductModal()">✕</button>
+    <div class="admin-modal-title" id="adminProductModalTitle">Add New Product</div>
+    <input type="hidden" id="editProductId">
+    <div class="admin-form-row">
+      <div class="admin-form-group"><label>Product Name</label><input type="text" id="ap-name" placeholder="e.g. W180 Jumbo Whole"></div>
+      <div class="admin-form-group"><label>Grade</label><input type="text" id="ap-grade" placeholder="W180"></div>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-group"><label>Category</label>
+        <select id="ap-cat"><option value="whole">Whole</option><option value="processed">Processed</option><option value="raw">Raw</option></select>
+      </div>
+      <div class="admin-form-group"><label>Packet Size (default)</label><input type="text" id="ap-weight" placeholder="250g"></div>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-group"><label>Price (₹)</label><input type="number" id="ap-price" placeholder="1450"></div>
+      <div class="admin-form-group"><label>Original Price (₹) — for discount</label><input type="number" id="ap-origprice" placeholder="Leave blank if no discount"></div>
+    </div>
+    <div class="admin-form-group"><label>Short Description</label><textarea id="ap-desc" rows="2" placeholder="Brief product description..."></textarea></div>
+    <div class="admin-form-group"><label>Detailed Overview</label><textarea id="ap-overview" rows="4" placeholder="Full product overview for detail page..."></textarea></div>
+    <div class="admin-form-row">
+      <div class="admin-form-group"><label>Pros (one per line)</label><textarea id="ap-pros" rows="4" placeholder="Premium jumbo size&#10;Low breakage&#10;Vacuum packed"></textarea></div>
+      <div class="admin-form-group"><label>Cons (one per line)</label><textarea id="ap-cons" rows="4" placeholder="Higher price point&#10;Limited availability"></textarea></div>
+    </div>
+    <div class="admin-form-group"><label>Packet Sizes Available (comma separated)</label><input type="text" id="ap-sizes" placeholder="100g, 250g, 500g, 1kg"></div>
+    <div class="admin-form-row">
+      <div class="admin-form-group"><label>Badge Text (e.g. BESTSELLER)</label><input type="text" id="ap-badge" placeholder="Leave blank for none"></div>
+      <div class="admin-form-group"><label>Show in Featured?</label>
+        <select id="ap-featured"><option value="true">Yes</option><option value="false">No</option></select>
+      </div>
+    </div>
+    <div class="admin-form-group">
+      <label>Product Photos</label>
+      <div style="margin-bottom:8px;font-size:12px;color:var(--text-soft)">Upload up to 5 photos. First photo = main image.</div>
+      <input type="file" id="ap-photos" accept="image/*" multiple style="font-size:13px;color:var(--text-soft);" onchange="previewProductPhotos(this)">
+      <div class="admin-photo-preview" id="adminPhotoPreview"></div>
+    </div>
+    <button class="admin-form-save-btn" onclick="saveProduct()">SAVE PRODUCT</button>
+  </div>
+</div>
 </body>
 </html>
