@@ -387,31 +387,117 @@
 
 </div><!-- end page-grades -->
 <div id="page-shop" class="page-section">
-<!-- PRODUCTS -->
-<section id="products">
-  <div class="products-header">
-    <div>
-      <div class="sec-tag fade-up">Our Products</div>
-      <h2 class="sec-title fade-up">Shop <em>Premium</em> Cashews</h2>
-    </div>
-    <div class="filter-tabs fade-up">
-      <button class="filter-tab active" onclick="filterProducts('all',this)">ALL</button>
-      <button class="filter-tab" onclick="filterProducts('whole',this)">WHOLE</button>
-      <button class="filter-tab" onclick="filterProducts('processed',this)">PROCESSED</button>
-      <button class="filter-tab" onclick="filterProducts('raw',this)">RAW</button>
+
+<!-- SHOP PROMO STRIP -->
+<div class="shop-promo-strip">
+  <div class="shop-promo-item">🚚 Free Delivery on orders ₹2000+</div>
+  <div class="shop-promo-sep">✦</div>
+  <div class="shop-promo-item">✅ FSSAI Certified · Vacuum Packed</div>
+  <div class="shop-promo-sep">✦</div>
+  <div class="shop-promo-item">🏭 Direct from Kaladera Factory</div>
+  <div class="shop-promo-sep">✦</div>
+  <div class="shop-promo-item">⭐ 500+ Happy Customers</div>
+</div>
+
+<!-- SHOP HERO BANNER -->
+<div class="shop-hero-banner">
+  <div class="shop-hero-content">
+    <div class="shop-hero-tag">EXPORT QUALITY · EST. 2016</div>
+    <h1 class="shop-hero-title">Premium <em>Cashew Kernels</em><br>from Kaladera, Jaipur</h1>
+    <p class="shop-hero-sub">W180 · W240 · W320 · Roasted — Direct from our RIICO facility. Best prices guaranteed.</p>
+    <div class="shop-hero-btns">
+      <button class="shop-hero-btn-primary" onclick="document.getElementById('shopGrid').scrollIntoView({behavior:'smooth'})">SHOP NOW</button>
+      <a href="https://wa.me/917568577968?text=Hello%2C+I+want+bulk+cashew+pricing." target="_blank" class="shop-hero-btn-outline">💬 BULK ENQUIRY</a>
     </div>
   </div>
-  <div class="products-toolbar">
-    <div class="products-count"><span id="products-count">6 products</span></div>
-    <select class="products-sort" onchange="sortProducts(this.value)">
-      <option value="default">Sort: Featured</option>
-      <option value="price-asc">Price: Low to High</option>
-      <option value="price-desc">Price: High to Low</option>
-      <option value="discount">Biggest Discount</option>
-    </select>
+  <div class="shop-hero-badges">
+    <div class="shop-hero-badge"><span class="shb-num">W180</span><span class="shb-label">Jumbo Whole</span></div>
+    <div class="shop-hero-badge"><span class="shb-num">W240</span><span class="shb-label">Large Whole</span></div>
+    <div class="shop-hero-badge"><span class="shb-num">W320</span><span class="shb-label">Classic Whole</span></div>
   </div>
-  <div class="products-grid" id="productsGrid"></div>
-</section>
+</div>
+
+<!-- MAIN SHOP LAYOUT -->
+<div class="shop-layout" id="shopGrid">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="shop-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">🔍 Search</div>
+      <input type="text" class="sidebar-search" id="sidebarSearch" placeholder="Search cashews..." oninput="shopSearch(this.value)">
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">📂 Category</div>
+      <label class="sidebar-radio active" id="scat-all" onclick="sidebarCat('all',this)"><input type="radio" name="scat" checked> All Products <span class="sidebar-count" id="scnt-all"></span></label>
+      <label class="sidebar-radio" id="scat-whole" onclick="sidebarCat('whole',this)"><input type="radio" name="scat"> Whole Kernel <span class="sidebar-count" id="scnt-whole"></span></label>
+      <label class="sidebar-radio" id="scat-processed" onclick="sidebarCat('processed',this)"><input type="radio" name="scat"> Processed / Roasted <span class="sidebar-count" id="scnt-processed"></span></label>
+      <label class="sidebar-radio" id="scat-raw" onclick="sidebarCat('raw',this)"><input type="radio" name="scat"> Raw / RCN <span class="sidebar-count" id="scnt-raw"></span></label>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">💰 Price Range</div>
+      <div class="sidebar-price-row">
+        <input type="number" id="priceMin" class="sidebar-price-input" placeholder="Min ₹" min="0" oninput="applyPriceFilter()">
+        <span style="color:var(--text-soft)">—</span>
+        <input type="number" id="priceMax" class="sidebar-price-input" placeholder="Max ₹" oninput="applyPriceFilter()">
+      </div>
+      <div class="sidebar-price-presets">
+        <button class="sidebar-preset" onclick="setPricePreset(0,500)">Under ₹500</button>
+        <button class="sidebar-preset" onclick="setPricePreset(500,1000)">₹500–1000</button>
+        <button class="sidebar-preset" onclick="setPricePreset(1000,99999)">₹1000+</button>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">🏷️ Special</div>
+      <label class="sidebar-check"><input type="checkbox" id="chk-sale" onchange="applySpecialFilter()"> On Sale only</label>
+      <label class="sidebar-check"><input type="checkbox" id="chk-instock" onchange="applySpecialFilter()"> In Stock only</label>
+      <label class="sidebar-check"><input type="checkbox" id="chk-featured" onchange="applySpecialFilter()"> Featured only</label>
+    </div>
+    <button class="sidebar-reset-btn" onclick="resetShopFilters()">↺ RESET ALL FILTERS</button>
+    <div class="sidebar-trust">
+      <div class="sidebar-trust-item">🔒 Secure Razorpay Checkout</div>
+      <div class="sidebar-trust-item">📦 Vacuum Packed · Fresh</div>
+      <div class="sidebar-trust-item">🇮🇳 FSSAI Certified</div>
+      <div class="sidebar-trust-item">↩️ Easy Returns</div>
+    </div>
+  </aside>
+
+  <!-- RIGHT MAIN -->
+  <div class="shop-main">
+    <div class="shop-toolbar">
+      <div class="shop-toolbar-left">
+        <span class="products-count" id="products-count">Loading...</span>
+        <div class="active-filters" id="activeFiltersRow"></div>
+      </div>
+      <div class="shop-toolbar-right">
+        <select class="products-sort" onchange="sortProducts(this.value)" id="shopSortSelect">
+          <option value="default">Sort: Featured</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="discount">Biggest Discount</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" id="viewGrid" onclick="setViewMode('grid',this)" title="Grid">⊞</button>
+          <button class="view-btn" id="viewList" onclick="setViewMode('list',this)" title="List">☰</button>
+        </div>
+      </div>
+    </div>
+    <div class="products-grid" id="productsGrid"></div>
+    <div id="shopNoResults" style="display:none;text-align:center;padding:80px 20px">
+      <div style="font-size:48px;margin-bottom:16px">🔍</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--walnut);margin-bottom:8px">No products found</div>
+      <p style="font-size:14px;color:var(--text-soft);margin-bottom:20px">Try adjusting your filters</p>
+      <button class="btn-gold" onclick="resetShopFilters()">Reset Filters</button>
+    </div>
+  </div>
+</div>
+
+<!-- Recently Viewed -->
+<div class="recently-viewed" id="recentlyViewedWrap" style="display:none">
+  <div class="recently-viewed-title">Recently Viewed</div>
+  <div class="recently-viewed-grid" id="recentlyViewedGrid"></div>
+</div>
+
+<section id="products" style="display:none"></section>
 <!-- Recently Viewed -->
 <div class="recently-viewed" id="recentlyViewedWrap" style="display:none">
   <div class="recently-viewed-title">Recently Viewed</div>

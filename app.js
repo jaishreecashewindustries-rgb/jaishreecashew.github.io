@@ -136,7 +136,7 @@ function _startProductsListener() {
       PRODUCTS.length = 0;
       snap.docs.forEach(d => PRODUCTS.push(_docToProduct(d)));
       // Refresh any visible grids
-      if(currentPage === 'shop') { renderProducts(); renderRecentlyViewed(); }
+      if(currentPage === 'shop') { renderProducts(); _renderShopGrid(); _updateCategoryCounts(); renderRecentlyViewed(); }
       if(currentPage === 'home') renderFeaturedProducts();
       renderAdminProducts();
       safeSet('statProducts', PRODUCTS.length);
@@ -982,6 +982,8 @@ function showPage(page) {
       updateCartBadge();
     } else if(page === 'shop') {
       renderProducts();
+      _renderShopGrid();
+      _updateCategoryCounts();
       updateCartBadge();
       renderRecentlyViewed();
     }
@@ -1324,6 +1326,7 @@ function sortProducts(val) {
   });
   else PRODUCTS.sort((a,b) => (a.sortOrder||0)-(b.sortOrder||0));
   renderProducts();
+  if(currentPage === 'shop') _renderShopGrid();
 }
 
 // ══ ADMIN TAB SWITCHING ══
@@ -2021,3 +2024,179 @@ if(document.readyState === 'loading') {
 } else {
   init();
 }
+
+// ══════════════════════════════════════
+// SHOP PAGE — SIDEBAR FILTERS & VIEW MODES
+// ══════════════════════════════════════
+
+let _shopFilters = { cat: 'all', search: '', priceMin: 0, priceMax: 99999, sale: false, instock: false, featured: false };
+let _shopViewMode = 'grid';
+
+function _getShopFiltered() {
+  return PRODUCTS.filter(p => {
+    if(_shopFilters.cat !== 'all' && p.cat !== _shopFilters.cat) return false;
+    if(_shopFilters.search) {
+      const q = _shopFilters.search.toLowerCase();
+      if(!p.name.toLowerCase().includes(q) && !p.grade.toLowerCase().includes(q) && !p.desc.toLowerCase().includes(q)) return false;
+    }
+    if(p.price < _shopFilters.priceMin || p.price > _shopFilters.priceMax) return false;
+    if(_shopFilters.sale && !(p.origPrice && p.origPrice > p.price)) return false;
+    if(_shopFilters.instock && p.stock === 0) return false;
+    if(_shopFilters.featured && !p.featured) return false;
+    return true;
+  });
+}
+
+function sidebarCat(cat, el) {
+  _shopFilters.cat = cat;
+  document.querySelectorAll('.sidebar-radio').forEach(r => r.classList.remove('active'));
+  if(el) el.classList.add('active');
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function shopSearch(val) {
+  _shopFilters.search = val || '';
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function applyPriceFilter() {
+  const mn = parseInt(($('priceMin')||{}).value) || 0;
+  const mx = parseInt(($('priceMax')||{}).value) || 99999;
+  _shopFilters.priceMin = mn;
+  _shopFilters.priceMax = mx > 0 ? mx : 99999;
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function setPricePreset(min, max) {
+  const mn = $('priceMin'), mx = $('priceMax');
+  if(mn) mn.value = min || '';
+  if(mx) mx.value = max >= 99999 ? '' : max;
+  _shopFilters.priceMin = min;
+  _shopFilters.priceMax = max;
+  document.querySelectorAll('.sidebar-preset').forEach(b => b.classList.remove('active'));
+  if(event && event.target) event.target.classList.add('active');
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function applySpecialFilter() {
+  _shopFilters.sale     = ($('chk-sale')||{}).checked || false;
+  _shopFilters.instock  = ($('chk-instock')||{}).checked || false;
+  _shopFilters.featured = ($('chk-featured')||{}).checked || false;
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function resetShopFilters() {
+  _shopFilters = { cat: 'all', search: '', priceMin: 0, priceMax: 99999, sale: false, instock: false, featured: false };
+  const mn = $('priceMin'), mx = $('priceMax'), ss = $('sidebarSearch');
+  if(mn) mn.value = ''; if(mx) mx.value = ''; if(ss) ss.value = '';
+  ['chk-sale','chk-instock','chk-featured'].forEach(id => { const el=$(id); if(el) el.checked=false; });
+  document.querySelectorAll('.sidebar-radio').forEach(r => r.classList.remove('active'));
+  const allR = $('scat-all'); if(allR) allR.classList.add('active');
+  document.querySelectorAll('input[name="scat"]').forEach((r,i) => r.checked = i===0);
+  document.querySelectorAll('.sidebar-preset').forEach(b => b.classList.remove('active'));
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function setViewMode(mode, btn) {
+  _shopViewMode = mode;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const grid = $('productsGrid');
+  if(grid) {
+    grid.classList.toggle('products-list-view', mode === 'list');
+  }
+}
+
+function _updateCategoryCounts() {
+  const cats = ['all','whole','processed','raw'];
+  cats.forEach(cat => {
+    const el = $('scnt-'+cat);
+    if(!el) return;
+    const count = cat === 'all' ? PRODUCTS.length : PRODUCTS.filter(p => p.cat === cat).length;
+    el.textContent = count ? `(${count})` : '';
+  });
+}
+
+function _updateActiveFilterChips() {
+  const row = $('activeFiltersRow');
+  if(!row) return;
+  const chips = [];
+  if(_shopFilters.cat !== 'all') chips.push({label: _shopFilters.cat, clear: () => sidebarCat('all', $('scat-all'))});
+  if(_shopFilters.search) chips.push({label: `"${_shopFilters.search}"`, clear: () => { const s=$('sidebarSearch'); if(s)s.value=''; _shopFilters.search=''; _renderShopGrid(); _updateActiveFilterChips(); }});
+  if(_shopFilters.priceMin > 0 || _shopFilters.priceMax < 99999) chips.push({label: `₹${_shopFilters.priceMin}–₹${_shopFilters.priceMax < 99999 ? _shopFilters.priceMax : '∞'}`, clear: () => setPricePreset(0,99999)});
+  if(_shopFilters.sale) chips.push({label: 'On Sale', clear: () => { const el=$('chk-sale'); if(el)el.checked=false; _shopFilters.sale=false; _renderShopGrid(); _updateActiveFilterChips(); }});
+  if(_shopFilters.instock) chips.push({label: 'In Stock', clear: () => { const el=$('chk-instock'); if(el)el.checked=false; _shopFilters.instock=false; _renderShopGrid(); _updateActiveFilterChips(); }});
+  row.innerHTML = chips.map((c,i) => `<span class="filter-chip">${c.label} <button onclick="_clearChip(${i})" style="background:none;border:none;cursor:pointer;margin-left:4px;font-size:12px;color:var(--text-soft)">✕</button></span>`).join('');
+  row._clearFns = chips.map(c => c.clear);
+}
+
+window._clearChip = function(i) {
+  const row = $('activeFiltersRow');
+  if(row && row._clearFns && row._clearFns[i]) row._clearFns[i]();
+};
+
+function _renderShopGrid() {
+  const grid = $('productsGrid');
+  const noRes = $('shopNoResults');
+  const countEl = $('products-count');
+  if(!grid) return;
+
+  const filtered = _getShopFiltered();
+  if(countEl) countEl.textContent = filtered.length + (filtered.length === 1 ? ' product' : ' products');
+
+  if(!filtered.length) {
+    grid.innerHTML = '';
+    if(noRes) noRes.style.display = 'block';
+    return;
+  }
+  if(noRes) noRes.style.display = 'none';
+
+  grid.innerHTML = filtered.map(p => {
+    const hasDiscount = p.origPrice && p.origPrice > p.price;
+    const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
+    const outOfStock = p.stock === 0;
+    const lowStock = p.stock > 0 && p.stock <= 10;
+    const stockBadge = outOfStock
+      ? `<div class="badge-new" style="background:#e74c3c">OUT OF STOCK</div>`
+      : lowStock ? `<div class="badge-new" style="background:#f39c12">ONLY ${p.stock} LEFT</div>` : '';
+    const savings = hasDiscount ? `<div class="prod-savings">You save ₹${(p.origPrice - p.price).toLocaleString('en-IN')}</div>` : '';
+    const ratingStars = '★★★★★';
+    return `
+    <div class="product-card shop-card" style="cursor:pointer">
+      ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
+      ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
+      ${stockBadge}
+      <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
+        <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <div class="prod-overlay"></div>
+        <button class="prod-quick" onclick="event.stopPropagation();openModal('${p.id}')">QUICK VIEW</button>
+      </div>
+      <div class="prod-info shop-prod-info">
+        <div class="prod-grade">${p.grade}</div>
+        <div class="prod-name" onclick="openProductDetail('${p.id}')" style="cursor:pointer">${p.name}</div>
+        <div class="prod-weight">${p.weight} pack</div>
+        <div class="shop-card-rating"><span style="color:#f5a623;font-size:12px">${ratingStars}</span> <span style="font-size:11px;color:var(--text-soft)">(${(p.reviewCount||0)+5})</span></div>
+        <div class="prod-price-row">
+          <div class="prod-price" style="display:inline">₹${p.price.toLocaleString('en-IN')}</div>
+          ${hasDiscount ? `<span class="prod-price-original">₹${p.origPrice.toLocaleString('en-IN')}</span><span class="prod-discount">−${discPct}%</span>` : ''}
+        </div>
+        ${savings}
+        <div class="shop-card-delivery">🚚 ${p.price >= 2000 ? '<span style="color:#27ae60">FREE delivery</span>' : 'Free delivery on ₹2000+'}</div>
+        <div class="prod-btns">
+          <button class="btn-cart shop-add-btn" onclick="addToCart('${p.id}')" ${outOfStock ? 'disabled style="background:#aaa;cursor:not-allowed"' : ''}>
+            ${outOfStock ? 'OUT OF STOCK' : '🛒 ADD TO CART'}
+          </button>
+          <button class="btn-wish" onclick="toggleWish(this)" title="Wishlist">♡</button>
+          <button class="btn-compare" onclick="addToCompare('${p.id}')" title="Compare">⚖️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
