@@ -193,16 +193,21 @@ function setHero(idx) { /* no-op: video hero active */ }
     if (!v || _pending) return;
     if (isPlaying(v)) { _shouldPlay = true; return; }
 
-    // readyState < 2 means pipeline not ready — wait for canplay
+    // Mark intent immediately — before ANY async path
+    // This is the fix: _shouldPlay=true must be set here, not deeper in the
+    // readyState>=2 branch, so the canplay callback can see it.
+    _shouldPlay = true;
+
+    // readyState < 2 means media pipeline not ready — wait for canplay event
     if (v.readyState < 2) {
       _pending = true;
       var onCanPlay = function() {
         v.removeEventListener('canplay', onCanPlay);
         _pending = false;
-        if (_shouldPlay) attemptPlay();
+        if (_shouldPlay) attemptPlay(); // _shouldPlay is now true ✓
       };
       v.addEventListener('canplay', onCanPlay);
-      // Safety unblock if canplay never fires
+      // Safety unblock after 3s if canplay never fires (network issue)
       setTimeout(function() {
         v.removeEventListener('canplay', onCanPlay);
         _pending = false;
@@ -211,7 +216,6 @@ function setHero(idx) { /* no-op: video hero active */ }
     }
 
     _pending = true;
-    _shouldPlay = true;
     v.muted = true;
     v.playsInline = true;
 
@@ -259,9 +263,12 @@ function setHero(idx) { /* no-op: video hero active */ }
 
   function onBecomeVisible() {
     clearPending();
-    if (!_shouldPlay) return;
     var v = getVid();
     if (!v || isPlaying(v)) return;
+    // Always attempt — even if _shouldPlay is false.
+    // The video element has autoplay attr so it SHOULD be playing;
+    // if it's paused after backgrounding, we always want to resume.
+    _shouldPlay = true;
     scheduleResume(200);
   }
 
@@ -1136,67 +1143,87 @@ let prevPage = 'home';
 // ── URL ROUTING — History API ──────────────────────────────────────
 // Maps internal page keys to clean URL paths and back.
 // Works with existing showPage() — zero Firebase/auth/cart impact.
-var PAGE_ROUTES = {
-  'home':           '/',
-  'shop':           '/shop',
-  'grades':         '/grades',
-  'about':          '/about',
-  'contact':        '/contact',
-  'privacy':        '/privacy-policy',
-  'terms':          '/terms',
-  'returns':        '/return-policy',
-  'product-detail': null   // handled separately (product URLs)
+// ── URL ROUTING — Hash-based ─────────────────────────────────────
+// Uses location.hash (#/shop, #/about) instead of pushState paths.
+// Why hash routing here:
+//   • Works on ALL static hosts — Firebase Hosting, GitHub Pages, any CDN
+//   • No server rewrites needed — hash never reaches the server
+//   • Refresh preserves the correct page (hash survives reload)
+//   • Back/forward button works natively
+//   • 100% reliable on mobile Safari, Chrome, all Android browsers
+//   • Share links work: yoursite.com/#/about opens About page directly
+// ─────────────────────────────────────────────────────────────────
+
+var HASH_ROUTES = {
+  'home':           '#/',
+  'shop':           '#/shop',
+  'grades':         '#/grades',
+  'about':          '#/about',
+  'contact':        '#/contact',
+  'privacy':        '#/privacy-policy',
+  'terms':          '#/terms',
+  'returns':        '#/return-policy'
 };
 
-var ROUTE_TO_PAGE = {};
-(function buildReverseMap() {
-  Object.keys(PAGE_ROUTES).forEach(function(page) {
-    var path = PAGE_ROUTES[page];
-    if (path) ROUTE_TO_PAGE[path] = page;
+var HASH_TO_PAGE = {};
+(function() {
+  Object.keys(HASH_ROUTES).forEach(function(p) {
+    HASH_TO_PAGE[HASH_ROUTES[p]] = p;
   });
 })();
 
-// Push a clean URL for the given page (no reload)
+// Set the hash URL for a page
+var _ignoreHashChange = false; // suppress our own hashchange events
+
 function pushPageUrl(page) {
-  var path = PAGE_ROUTES[page];
-  if (!path || !window.history || !window.history.pushState) return;
-  // Don't push duplicate entries
-  if (window.location.pathname === path) return;
+  var hash = HASH_ROUTES[page];
+  if (!hash) return;
+  if (window.location.hash === hash) return; // already correct
   try {
-    window.history.pushState({ page: page }, '', path);
-  } catch(e) { /* file:// protocol or restricted env — ignore */ }
+    _ignoreHashChange = true; // prevent hashchange from re-triggering showPage
+    if (window.history && window.history.pushState) {
+      // pushState changes hash without triggering hashchange event
+      window.history.pushState(null, '', window.location.pathname + hash);
+    } else {
+      window.location.hash = hash; // fallback — will trigger hashchange but _ignoreHashChange guards it
+    }
+    // Reset flag after browser has processed the state change
+    setTimeout(function() { _ignoreHashChange = false; }, 50);
+  } catch(e) { _ignoreHashChange = false; }
 }
 
-// Replace current URL (no new history entry — used on init)
+// Replace current hash (no new history entry — used on init)
 function replacePageUrl(page) {
-  var path = PAGE_ROUTES[page];
-  if (!path || !window.history || !window.history.replaceState) return;
+  var hash = HASH_ROUTES[page] || '#/';
   try {
-    window.history.replaceState({ page: page }, '', path);
-  } catch(e) { /* ignore */ }
+    // replaceState keeps URL clean without a reload
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname + hash);
+    } else {
+      window.location.replace(window.location.pathname + hash);
+    }
+  } catch(e) {}
 }
 
-// Resolve the current URL path to a page key on load/refresh
+// Read current hash and return the matching page key
 function pageFromUrl() {
-  var path = window.location.pathname;
+  var hash = window.location.hash || '#/';
   // Exact match
-  if (ROUTE_TO_PAGE[path]) return ROUTE_TO_PAGE[path];
-  // Trailing slash variants
-  var stripped = path.replace(/\/$/, '') || '/';
-  if (ROUTE_TO_PAGE[stripped]) return ROUTE_TO_PAGE[stripped];
-  // Product URL (e.g. /product/123) — handled by showPage('product-detail')
-  if (path.indexOf('/product/') === 0) return 'product-detail';
-  // Fallback to home
+  if (HASH_TO_PAGE[hash]) return HASH_TO_PAGE[hash];
+  // Strip trailing slash variant: '#/about/' → '#/about'
+  var trimmed = hash.replace(/\/$/, '') || '#/';
+  if (HASH_TO_PAGE[trimmed]) return HASH_TO_PAGE[trimmed];
+  // No match — default to home
   return 'home';
 }
 
-// Back/forward button handler
-window.addEventListener('popstate', function(e) {
-  var page = (e.state && e.state.page) ? e.state.page : pageFromUrl();
-  // Show the page WITHOUT pushing a new history entry
-  _showPageInternal(page, false);
+// Back/forward button — hashchange fires reliably on all mobile browsers
+window.addEventListener('hashchange', function() {
+  if (_ignoreHashChange) return; // our own push — skip
+  var page = pageFromUrl();
+  _showPageInternal(page, false); // don't push — hash already changed
 });
-// ──────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
 
 function showPage(page) {
   _showPageInternal(page, true);

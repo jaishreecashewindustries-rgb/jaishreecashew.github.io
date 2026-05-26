@@ -3,16 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<!-- URL Routing: redirect 404s back to index for SPA-style routing.
-     For GitHub Pages: create a 404.html that copies this file, or use the
-     script below. For other hosts: add rewrite rule → index.html -->
-<script>
-// GitHub Pages SPA routing: if redirected from 404.html via sessionStorage
-(function(){
-  var redir = sessionStorage.getItem('__redir');
-  if (redir) { sessionStorage.removeItem('__redir'); window.history.replaceState(null,'',redir); }
-})();
-</script>
+<!-- Hash-based routing: no server config or head scripts needed -->
 <meta name="format-detection" content="telephone=no, email=no, address=no">
 <title>Jai Shree Cashew Industries — Premium Cashew Kernels</title>
 <meta name="description" content="India's finest cashew processor. W180, W240, W320 grades. Export quality from Kaladera, Jaipur, Rajasthan.">

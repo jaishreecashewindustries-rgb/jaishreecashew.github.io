@@ -4,11 +4,9 @@
 <meta charset="UTF-8">
 <title>Jai Shree Cashew Industries</title>
 <script>
-// GitHub Pages SPA routing trick:
-// Save the path to sessionStorage then redirect to index.html
-// index.html reads it and restores the correct page via History API
-var path = window.location.pathname + window.location.search;
-sessionStorage.setItem('__redir', path);
+// Hash routing: 404 should not occur since hash never hits server.
+// This file is a fallback for any misconfigured server requests.
+// Just redirect to home — the hash router will handle navigation.
 window.location.replace('/');
 </script>
 </head>
