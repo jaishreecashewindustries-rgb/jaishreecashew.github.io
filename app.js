@@ -1,79 +1,149 @@
 
-// ── PRODUCTS DATA ──
-const PRODUCTS = [
+// ── PRODUCTS DATA (live — populated from Firestore) ──
+// This array is kept in sync with Firestore via onSnapshot.
+// Do NOT hardcode products here; add/edit/delete via the Admin Panel.
+let PRODUCTS = [];
+
+// ── SEED PRODUCTS — written to Firestore once if collection is empty ──
+const SEED_PRODUCTS = [
   {
-    id:1, name:"W180 Jumbo Whole", grade:"W180", cat:"whole",
-    price:1450, origPrice:1800, discount:19,
-    weight:"250g", badge:"PREMIUM",
+    name:"W180 Jumbo Whole", grade:"W180", cat:"whole",
+    price:1450, origPrice:1800,
+    weight:"250g", badge:"PREMIUM", featured:true,
     desc:"The rarest grade — only 180 kernels per pound. Ideal for premium gifts and luxury confectionery.",
     overview:"<h4>About W180 Jumbo Whole Cashews</h4><p>W180 is the crown jewel of cashew grades — only 180 kernels fit in one pound, making each kernel exceptionally large and visually striking. Sourced from the finest farms in West Africa and Vietnam, these kernels are processed at our RIICO facility in Kaladera using steam technology to ensure maximum hygiene and zero breakage.</p><p>Preferred by luxury confectioners, premium gift hamper brands, and 5-star hotels. The generous size makes every bite a statement of quality. Vacuum packed to preserve freshness for 12 months.</p>",
     pros:["Exceptionally large kernel size","Maximum visual appeal for gifting","Rich, buttery flavour profile","Vacuum packed — 12 month shelf life","Zero artificial preservatives","Export-quality grading"],
     cons:["Higher price point than W240/W320","Limited seasonal availability","May be over-specification for cooking use"],
     specs:[["Grade","W180 (180 kernels per pound)"],["Origin","West Africa / Vietnam (RCN source)"],["Processed at","RIICO Industrial Area, Kaladera, Jaipur"],["Packet Size","250g (standard)"],["Available Sizes","100g · 250g · 500g · 1kg · 5kg (bulk)"],["Shell Life","12 months (vacuum packed)"],["Storage","Cool, dry place. Refrigerate after opening."],["Certifications","FSSAI Compliant"],["MOQ (Bulk)","5 kg"]],
     sizes:["100g","250g","500g","1kg"],
-    img:"images/product-w180.webp", imgs:["images/hero-w180.webp"]
+    img:"images/product-w180.webp", imgs:["images/hero-w180.webp"],
+    sortOrder:1
   },
   {
-    id:2, name:"W240 Large Whole", grade:"W240", cat:"whole",
-    price:1100, origPrice:1350, discount:19,
-    weight:"250g", badge:"BESTSELLER",
+    name:"W240 Large Whole", grade:"W240", cat:"whole",
+    price:1100, origPrice:1350,
+    weight:"250g", badge:"BESTSELLER", featured:true,
     desc:"Generous whole kernels, perfectly uniform. The preferred choice of premium hotels, bakeries, and specialty retailers.",
     overview:"<h4>About W240 Large Whole Cashews</h4><p>W240 strikes the perfect balance between size, flavour, and value. With 240 kernels per pound, these large whole cashews are the most versatile grade — equally at home in premium retail packs, bakery applications, and luxury snacking.</p><p>Our W240 is sourced from top-tier farms and processed at our state-of-the-art facility to deliver consistent colour, size uniformity, and minimal breakage. The benchmark grade for quality-conscious buyers.</p>",
     pros:["Best balance of size and value","High uniformity — consistent appearance","Ideal for baking, snacking, gifting","Widely available all year round","Buttery, mild flavour"],
     cons:["Slightly smaller than W180","More competitive market — check freshness dates"],
     specs:[["Grade","W240 (240 kernels per pound)"],["Origin","West Africa / Vietnam"],["Processed at","RIICO Industrial Area, Kaladera, Jaipur"],["Packet Size","250g (standard)"],["Available Sizes","100g · 250g · 500g · 1kg · 5kg"],["Shell Life","12 months (vacuum packed)"],["MOQ (Bulk)","5 kg"]],
     sizes:["100g","250g","500g","1kg"],
-    img:"images/product-w240.webp", imgs:["images/hero-w240.webp"]
+    img:"images/product-w240.webp", imgs:["images/hero-w240.webp"],
+    sortOrder:2
   },
   {
-    id:3, name:"W320 Classic Whole", grade:"W320", cat:"whole",
-    price:850, origPrice:1000, discount:15,
-    weight:"250g", badge:null, isNew:false,
+    name:"W320 Classic Whole", grade:"W320", cat:"whole",
+    price:850, origPrice:1000,
+    weight:"250g", badge:null, featured:true,
     desc:"Our highest volume grade — the industry standard. Consistent quality that satisfies both domestic retailers and export buyers.",
     overview:"<h4>About W320 Classic Whole Cashews</h4><p>W320 is the world's most traded cashew grade — and for good reason. With 320 kernels per pound, these are perfectly sized for everyday premium use: cooking, snacking, mithai-making, and retail. Our W320 kernels are known for exceptional whiteness, uniform size, and low moisture content.</p><p>Jai Shree Cashew's W320 is trusted by 300+ domestic distributors and retail chains across Rajasthan and beyond. Available year-round with reliable supply.</p>",
     pros:["Most economical whole grade","Perfect for cooking and everyday use","Available in bulk quantities","Consistent supply all year","Industry-standard grade — easy to resell"],
     cons:["Not suitable for premium gifting (smaller size)","Lower visual impact than W180/W240"],
     specs:[["Grade","W320 (320 kernels per pound)"],["Origin","West Africa / Vietnam / India"],["Processed at","RIICO Industrial Area, Kaladera, Jaipur"],["Packet Size","250g (standard)"],["Available Sizes","250g · 500g · 1kg · 5kg · 10kg · 25kg"],["Shell Life","12 months (vacuum packed)"],["MOQ (Bulk)","10 kg"]],
     sizes:["250g","500g","1kg","5kg"],
-    img:"images/product-w320.webp", imgs:["images/hero-w320.webp"]
+    img:"images/product-w320.webp", imgs:["images/hero-w320.webp"],
+    sortOrder:3
   },
   {
-    id:4, name:"Roasted & Salted", grade:"ROASTED", cat:"processed",
-    price:780, origPrice:920, discount:15,
-    weight:"200g", badge:"NEW",
+    name:"Roasted & Salted", grade:"ROASTED", cat:"processed",
+    price:780, origPrice:920,
+    weight:"200g", badge:"NEW", featured:false,
     desc:"Perfectly roasted with a light sea salt finish. Our most popular ready-to-eat variant.",
     overview:"<h4>About Roasted & Salted Cashews</h4><p>Made from our finest W320 whole kernels, roasted to perfection in a controlled-temperature oven and finished with premium sea salt. No oil added — dry roasted for a clean, satisfying crunch.</p><p>The perfect anytime snack and a bestseller in our retail range. Resealable pack ensures freshness after opening.</p>",
     pros:["Ready-to-eat convenience","Dry roasted — no added oil","Light, even salt coating","W320 base kernels — consistent quality","Resealable packaging"],
     cons:["Not suitable for cooking applications","Shorter shelf life than raw (6 months)","Contains salt — not suitable for low-sodium diets"],
     specs:[["Type","Dry Roasted & Salted"],["Base Grade","W320 Whole"],["Salt","Sea Salt (0.8%)"],["Oil","None (Dry Roasted)"],["Packet Size","200g"],["Available Sizes","100g · 200g · 500g"],["Shell Life","6 months"]],
     sizes:["100g","200g","500g"],
-    img:"images/product-pieces.webp", imgs:["images/gallery-2.webp"]
+    img:"images/product-pieces.webp", imgs:["images/gallery-2.webp"],
+    sortOrder:4
   },
   {
-    id:5, name:"Cashew Pieces", grade:"PIECES", cat:"processed",
-    price:620, origPrice:720, discount:14,
-    weight:"250g", badge:null,
+    name:"Cashew Pieces", grade:"PIECES", cat:"processed",
+    price:620, origPrice:720,
+    weight:"250g", badge:null, featured:false,
     desc:"Broken cashew pieces — perfect for cooking, mithai, ice cream, and bulk baking. Same quality, lower price.",
     overview:"<h4>About Cashew Pieces</h4><p>Cashew pieces are the by-product of whole kernel grading — same premium quality, at a fraction of the cost. Ideal for applications where whole kernel presentation is not required: halwa, kheer, barfi, ice cream toppings, biryanis, and industrial baking.</p><p>Our pieces come in mixed sizes (W320 base) with the same flavour profile as our whole grades. A smart choice for high-volume buyers.</p>",
     pros:["Most economical cashew option","Same flavour as whole grades","Ideal for cooking and mithai","High volume — consistent supply","Zero compromise on taste"],
     cons:["Not suitable for retail gifting","Mixed sizes — not uniform","Lower shelf-life visibility"],
     specs:[["Type","Cashew Pieces (Mixed)"],["Base Grade","W320"],["Origin","Kaladera Processing Unit"],["Packet Size","250g"],["Available Sizes","250g · 500g · 1kg · 10kg · 25kg"],["Shell Life","10 months (vacuum)"],["MOQ (Bulk)","5 kg"]],
     sizes:["250g","500g","1kg"],
-    img:"images/product-roasted.webp", imgs:["images/gallery-production.webp"]
+    img:"images/product-roasted.webp", imgs:["images/gallery-production.webp"],
+    sortOrder:5
   },
   {
-    id:6, name:"Raw Cashew Nuts", grade:"RCN", cat:"raw",
-    price:480, origPrice:560, discount:14,
-    weight:"500g", badge:null,
+    name:"Raw Cashew Nuts", grade:"RCN", cat:"raw",
+    price:480, origPrice:560,
+    weight:"500g", badge:null, featured:false,
     desc:"Unprocessed raw cashew nuts for home roasting or industrial processing. Direct from source.",
     overview:"<h4>About Raw Cashew Nuts (RCN)</h4><p>Raw Cashew Nuts are the unprocessed whole cashew in shell, sourced directly from our supplier network in West Africa and Vietnam. We offer RCN for buyers who prefer home roasting, traditional processing, or industrial use.</p><p>Note: RCN shells contain cashew shell liquid (CNSL) — please handle with care and process before consumption. Not for direct eating.</p>",
     pros:["Unprocessed — maximum freshness potential","Available in bulk at wholesale prices","Suitable for home processing","Long shelf life (18 months unshelled)"],
     cons:["Cannot be eaten directly — requires shelling","Shell contains CNSL — handle with gloves","Processing required before consumption"],
     specs:[["Type","Raw Cashew Nut (In-Shell)"],["KOR","46–50 (depends on origin)"],["Origin","West Africa / Vietnam"],["Packet Size","500g"],["Available Sizes","500g · 1kg · 10kg · 50kg"],["Shell Life","18 months (unshelled)"],["MOQ (Bulk)","10 kg"]],
     sizes:["500g","1kg","10kg"],
-    img:"images/product-raw.webp", imgs:["images/gallery-tree.webp"]
+    img:"images/product-raw.webp", imgs:["images/gallery-tree.webp"],
+    sortOrder:6
   }
 ];
+
+// ── FIRESTORE PRODUCT HELPERS ──
+
+// Convert a Firestore doc snapshot to the local product shape
+function _docToProduct(docSnap) {
+  const d = docSnap.data();
+  return {
+    // Use the Firestore doc ID as our product id (string is fine everywhere we do find/filter)
+    id: docSnap.id,
+    name: d.name || '',
+    grade: d.grade || '',
+    cat: d.cat || 'whole',
+    price: Number(d.price) || 0,
+    origPrice: d.origPrice ? Number(d.origPrice) : null,
+    weight: d.weight || '',
+    badge: d.badge || null,
+    featured: d.featured !== false,
+    desc: d.desc || '',
+    overview: d.overview || '',
+    pros: Array.isArray(d.pros) ? d.pros : [],
+    cons: Array.isArray(d.cons) ? d.cons : [],
+    specs: Array.isArray(d.specs) ? d.specs : [],
+    sizes: Array.isArray(d.sizes) ? d.sizes : [],
+    img: d.img || '',
+    imgs: Array.isArray(d.imgs) ? d.imgs : (d.img ? [d.img] : []),
+    sortOrder: Number(d.sortOrder) || 999,
+  };
+}
+
+// Start real-time Firestore listener — keeps PRODUCTS in sync automatically
+function _startProductsListener() {
+  if(!window._db || !window._collection || !window._query || !window._orderBy) return;
+  // Dynamically import onSnapshot (not exposed yet in index.html)
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy, getDocs, addDoc }) => {
+    const q = query(collection(window._db, 'products'), orderBy('sortOrder', 'asc'));
+    onSnapshot(q, async (snap) => {
+      if(snap.empty) {
+        // First run — seed default products
+        try {
+          for(let i = 0; i < SEED_PRODUCTS.length; i++) {
+            await addDoc(collection(window._db, 'products'), { ...SEED_PRODUCTS[i], sortOrder: i+1 });
+          }
+        } catch(e) { console.warn('Seed failed:', e); }
+        return; // onSnapshot will fire again after seed
+      }
+      // Rebuild PRODUCTS from Firestore
+      PRODUCTS.length = 0;
+      snap.docs.forEach(d => PRODUCTS.push(_docToProduct(d)));
+      // Refresh any visible grids
+      if(currentPage === 'shop') { renderProducts(); renderRecentlyViewed(); }
+      if(currentPage === 'home') renderFeaturedProducts();
+      renderAdminProducts();
+      safeSet('statProducts', PRODUCTS.length);
+      updateCartBadge();
+    }, (err) => {
+      console.warn('Products listener error:', err);
+    });
+  }).catch(e => console.warn('onSnapshot import failed:', e));
+}
 
 // ── SAFE DOM HELPER ──
 function $(id) { return document.getElementById(id); }
@@ -106,6 +176,11 @@ setInterval(() => setHero((heroIdx+1) % heroImages.length), 5000);
 function renderProducts() {
   const grid = $('productsGrid');
   if(!grid) return;
+  if(!PRODUCTS.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-soft)"><div style="font-size:32px;margin-bottom:12px">☕</div><div style="font-size:14px;letter-spacing:1px">Loading products...</div></div>';
+    const countEl = $('products-count'); if(countEl) countEl.textContent = '—';
+    return;
+  }
   const filtered = currentFilter==='all' ? PRODUCTS : PRODUCTS.filter(p => p.cat===currentFilter);
   const countEl = $('products-count');
   if(countEl) countEl.textContent = filtered.length + ' products';
@@ -116,21 +191,21 @@ function renderProducts() {
     <div class="product-card" style="cursor:pointer">
       ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
       ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
-      <div class="prod-img-wrap" onclick="openProductDetail(${p.id})">
+      <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
         <img src="${p.img}" alt="${p.name}" loading="lazy">
         <div class="prod-overlay"></div>
-        <button class="prod-quick" onclick="event.stopPropagation();openModal(${p.id})">QUICK VIEW</button>
+        <button class="prod-quick" onclick="event.stopPropagation();openModal('${p.id}')">QUICK VIEW</button>
       </div>
       <div class="prod-info">
         <div class="prod-grade">${p.grade}</div>
-        <div class="prod-name" onclick="openProductDetail(${p.id})" style="cursor:pointer">${p.name}</div>
+        <div class="prod-name" onclick="openProductDetail('${p.id}')" style="cursor:pointer">${p.name}</div>
         <div class="prod-weight">${p.weight} pack</div>
         <div class="prod-price-row">
           <div class="prod-price" style="display:inline">₹${p.price}</div>
           ${hasDiscount ? `<span class="prod-price-original">₹${p.origPrice}</span><span class="prod-discount">−${discPct}%</span>` : ''}
         </div>
         <div class="prod-btns">
-          <button class="btn-cart" onclick="addToCart(${p.id})">ADD TO CART</button>
+          <button class="btn-cart" onclick="addToCart('${p.id}')">ADD TO CART</button>
           <button class="btn-wish" onclick="toggleWish(this)">♡</button>
         </div>
       </div>
@@ -153,10 +228,10 @@ function updateCartBadge() {
   if(badge) badge.textContent = total;
 }
 function addToCart(id) {
-  id = parseInt(id);
-  const p = PRODUCTS.find(x => x.id===id);
+  id = String(id);
+  const p = PRODUCTS.find(x => String(x.id)===id);
   if(!p) return;
-  const ex = cart.find(x => x.id===id);
+  const ex = cart.find(x => String(x.id)===id);
   if(ex) ex.qty++; else cart.push({...p, qty:1});
   saveCart(); renderCart(); openCart();
 }
@@ -164,13 +239,13 @@ function addToCartFromModal() {
   if(modalProduct) { addToCart(modalProduct.id); const mo = $('modalOverlay'); if(mo) mo.classList.remove('open'); }
 }
 function removeFromCart(id) {
-  id = parseInt(id);
-  cart = cart.filter(x => x.id!==id);
+  id = String(id);
+  cart = cart.filter(x => String(x.id)!==id);
   saveCart(); renderCart();
 }
 function updateQty(id, delta) {
-  id = parseInt(id);
-  const item = cart.find(x => x.id===id);
+  id = String(id);
+  const item = cart.find(x => String(x.id)===id);
   if(item) { item.qty += delta; if(item.qty<=0) removeFromCart(id); else { saveCart(); renderCart(); } }
 }
 function renderCart() {
@@ -264,8 +339,8 @@ function checkout() {
 
 // ── QUICK VIEW ──
 function openModal(id) {
-  id = parseInt(id);
-  const p = PRODUCTS.find(x => x.id===id);
+  id = String(id);
+  const p = PRODUCTS.find(x => String(x.id)===id);
   if(!p) return;
   modalProduct = p;
   const mi=$('modalImg'), mg=$('modalGrade'), mn=$('modalName'), mp=$('modalPrice'), md=$('modalDesc'), mo=$('modalOverlay');
@@ -614,7 +689,7 @@ function navSearch(val) {
     drop.innerHTML = '<div class="search-no-results">No products found for "'+val+'"</div>';
   } else {
     drop.innerHTML = results.map(p => `
-      <div class="search-result-item" onclick="openProductDetail(${p.id});closeNavSearch()">
+      <div class="search-result-item" onclick="openProductDetail('${p.id}');closeNavSearch()">
         <img src="${p.img}" class="search-result-img" alt="${p.name}">
         <div><div class="search-result-name">${p.name}</div><div class="search-result-price">₹${p.price} / ${p.weight}</div></div>
       </div>
@@ -655,7 +730,8 @@ let recentlyViewed = [];
 try { recentlyViewed = JSON.parse(localStorage.getItem('jsc_recent')||'[]'); } catch(e) {}
 
 function trackRecentlyViewed(id) {
-  recentlyViewed = recentlyViewed.filter(x => x!==id);
+  id = String(id);
+  recentlyViewed = recentlyViewed.filter(x => String(x)!==id);
   recentlyViewed.unshift(id);
   recentlyViewed = recentlyViewed.slice(0,6);
   try { localStorage.setItem('jsc_recent', JSON.stringify(recentlyViewed)); } catch(e){}
@@ -664,15 +740,15 @@ function trackRecentlyViewed(id) {
 function renderRecentlyViewed() {
   const wrap = $('recentlyViewedWrap');
   if(!wrap) return;
-  const ids = recentlyViewed.filter(id => PRODUCTS.find(p => p.id===id));
+  const ids = recentlyViewed.filter(id => PRODUCTS.find(p => String(p.id)===String(id)));
   if(!ids.length) { wrap.style.display='none'; return; }
   wrap.style.display = 'block';
   const grid = $('recentlyViewedGrid');
   if(!grid) return;
   grid.innerHTML = ids.map(id => {
-    const p = PRODUCTS.find(x => x.id===id);
+    const p = PRODUCTS.find(x => String(x.id)===String(id));
     if(!p) return '';
-    return `<div class="recently-viewed-item" onclick="openProductDetail(${p.id})">
+    return `<div class="recently-viewed-item" onclick="openProductDetail('${p.id}')">
       <img src="${p.img}" class="recently-viewed-img" alt="${p.name}">
       <div class="recently-viewed-name">${p.name}</div>
       <div class="recently-viewed-price">₹${p.price}</div>
@@ -732,21 +808,21 @@ function renderFeaturedProducts() {
     return `<div class="product-card" style="cursor:pointer">
       ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
       ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
-      <div class="prod-img-wrap" onclick="openProductDetail(${p.id})">
+      <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
         <img src="${p.img}" alt="${p.name}" loading="lazy">
         <div class="prod-overlay"></div>
-        <button class="prod-quick" onclick="event.stopPropagation();openModal(${p.id})">QUICK VIEW</button>
+        <button class="prod-quick" onclick="event.stopPropagation();openModal('${p.id}')">QUICK VIEW</button>
       </div>
       <div class="prod-info">
         <div class="prod-grade">${p.grade||''}</div>
-        <div class="prod-name" onclick="openProductDetail(${p.id})">${p.name}</div>
+        <div class="prod-name" onclick="openProductDetail('${p.id}')">${p.name}</div>
         <div class="prod-weight">${p.weight} pack</div>
         <div class="prod-price-row">
           <span class="prod-price">₹${p.price}</span>
           ${hasDiscount ? `<span class="prod-price-original">₹${p.origPrice}</span><span class="prod-discount">−${discPct}%</span>` : ''}
         </div>
         <div class="prod-btns">
-          <button class="btn-cart" onclick="addToCart(${p.id})">ADD TO CART</button>
+          <button class="btn-cart" onclick="addToCart('${p.id}')">ADD TO CART</button>
           <button class="btn-wish" onclick="toggleWish(this)">♡</button>
         </div>
       </div>
@@ -760,8 +836,8 @@ let pdpSelectedSize = '';
 let pdpSelectedRating = 0;
 
 function openProductDetail(id) {
-  id = parseInt(id);
-  const p = PRODUCTS.find(x => x.id === id);
+  id = String(id);
+  const p = PRODUCTS.find(x => String(x.id) === id);
   if(!p) return;
   currentPDP = p;
   pdpSelectedSize = p.sizes ? p.sizes[0] : p.weight;
@@ -986,7 +1062,7 @@ function sortProducts(val) {
     const db=b.origPrice?Math.round((1-b.price/b.origPrice)*100):0;
     return db-da;
   });
-  else PRODUCTS.sort((a,b) => a.id-b.id);
+  else PRODUCTS.sort((a,b) => (a.sortOrder||0)-(b.sortOrder||0));
   renderProducts();
 }
 
@@ -1008,15 +1084,19 @@ function renderAdminProducts() {
   const grid = $('adminProductsGrid');
   if(!grid) return;
   safeSet('statProducts', PRODUCTS.length);
+  if(!PRODUCTS.length) {
+    grid.innerHTML = '<div class="admin-loading" style="padding:40px;text-align:center"><div style="font-size:28px;margin-bottom:12px">🛍️</div><div>Loading products from database...</div></div>';
+    return;
+  }
   grid.innerHTML = PRODUCTS.map(p => `
     <div class="admin-product-card">
-      <img src="${p.img}" alt="${p.name}" class="admin-product-img">
+      <img src="${p.img || 'images/product-w320.webp'}" alt="${p.name}" class="admin-product-img" onerror="this.src='images/product-w320.webp'">
       <div class="admin-product-body">
         <div class="admin-product-name">${p.name}</div>
         <div class="admin-product-price">₹${p.price} ${p.origPrice?`<span style="text-decoration:line-through;color:var(--text-soft);font-size:11px">₹${p.origPrice}</span>`:''}</div>
         <div class="admin-product-actions">
-          <button class="btn-edit" onclick="openProductModal(${p.id})">✏ EDIT</button>
-          <button class="btn-delete" onclick="deleteProduct(${p.id})">✕ DELETE</button>
+          <button class="btn-edit" onclick="openProductModal('${p.id}')">✏ EDIT</button>
+          <button class="btn-delete" onclick="deleteProduct('${p.id}')">✕ DELETE</button>
         </div>
       </div>
     </div>
@@ -1035,10 +1115,10 @@ function openProductModal(id) {
     const aop=$('ap-origprice'); if(aop) aop.value='';
     safeHTML('adminPhotoPreview','');
   } else {
-    const p = PRODUCTS.find(x => x.id===id);
+    const p = PRODUCTS.find(x => String(x.id)===String(id));
     if(!p) return;
     safeSet('adminProductModalTitle', 'Edit Product: '+p.name);
-    const eid=$('editProductId'); if(eid) eid.value=id;
+    const eid=$('editProductId'); if(eid) eid.value=String(p.id);  // Firestore doc ID
     const setVal=(fid,val)=>{ const el=$(fid); if(el) el.value=val||''; };
     setVal('ap-name',p.name); setVal('ap-grade',p.grade); setVal('ap-cat',p.cat);
     setVal('ap-weight',p.weight); setVal('ap-price',p.price); setVal('ap-origprice',p.origPrice||'');
@@ -1071,53 +1151,101 @@ function previewProductPhotos(input) {
   });
 }
 
-function saveProduct() {
+// ── ADMIN PRODUCTS — Firestore-backed save & delete ──
+
+async function saveProduct() {
   const idEl = $('editProductId');
-  const id = idEl ? (parseInt(idEl.value)||null) : null;
+  const firestoreId = idEl ? idEl.value.trim() : '';
   const nameEl=$('ap-name'), priceEl=$('ap-price');
   const name = nameEl ? nameEl.value.trim() : '';
   const price = priceEl ? parseInt(priceEl.value) : 0;
   if(!name || !price) { alert('Product name and price are required.'); return; }
-  const previewItems = document.querySelectorAll('#adminPhotoPreview .admin-photo-preview-item img');
-  const newImgs = previewItems.length ? Array.from(previewItems).map(i=>i.src) : null;
+
+  const saveBtn = document.querySelector('#adminProductModal .admin-form-save-btn');
+  if(saveBtn) { saveBtn.textContent = 'SAVING...'; saveBtn.disabled = true; }
+
   const getVal = (fid) => { const el=$(fid); return el ? el.value : ''; };
-  const productData = {
-    name, grade:getVal('ap-grade'), cat:getVal('ap-cat'), weight:getVal('ap-weight'),
-    price, origPrice:parseInt(getVal('ap-origprice'))||null, desc:getVal('ap-desc'),
-    overview:'<p>'+getVal('ap-overview').replace(/\n/g,'</p><p>')+'</p>',
-    pros:getVal('ap-pros').split('\n').filter(x=>x.trim()),
-    cons:getVal('ap-cons').split('\n').filter(x=>x.trim()),
-    sizes:getVal('ap-sizes').split(',').map(s=>s.trim()).filter(Boolean),
-    badge:getVal('ap-badge')||null,
-  };
-  if(id) {
-    const idx = PRODUCTS.findIndex(p => p.id===id);
-    if(idx>=0) {
-      Object.assign(PRODUCTS[idx], productData);
-      if(newImgs && newImgs.length) { PRODUCTS[idx].imgs=newImgs; PRODUCTS[idx].img=newImgs[0]; }
-    }
-  } else {
-    const newId = Math.max(...PRODUCTS.map(p=>p.id))+1;
-    productData.id = newId;
-    if(newImgs && newImgs.length) { productData.img=newImgs[0]; productData.imgs=newImgs; }
-    else { productData.img=''; productData.imgs=[]; }
-    PRODUCTS.push(productData);
+
+  // Upload any new files to Firebase Storage
+  const fileInput = $('ap-photos');
+  let uploadedImgs = [];
+  if(fileInput && fileInput.files && fileInput.files.length && window._uploadProductImage) {
+    const tmpId = firestoreId || ('new_'+Date.now());
+    const progressDiv = document.createElement('div');
+    progressDiv.style.cssText='padding:8px;font-size:12px;color:var(--text-soft)';
+    progressDiv.textContent='Uploading images...';
+    const preview = $('adminPhotoPreview');
+    if(preview) preview.appendChild(progressDiv);
+    try {
+      for(const file of Array.from(fileInput.files)) {
+        const url = await window._uploadProductImage(file, tmpId, pct => {
+          progressDiv.textContent = 'Uploading... '+pct+'%';
+        });
+        uploadedImgs.push(url);
+      }
+    } catch(e) { console.warn('Image upload failed:', e); }
+    if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
+    fileInput.value = '';
   }
-  closeProductModal();
-  renderAdminProducts();
-  safeSet('statProducts', PRODUCTS.length);
-  // Refresh featured products on home page too
-  renderFeaturedProducts();
-  alert('✓ Product saved successfully! Changes reflected on website.');
+
+  // Existing preview images (already-uploaded Firebase URLs)
+  const previewItems = document.querySelectorAll('#adminPhotoPreview .admin-photo-preview-item img');
+  const existingImgs = Array.from(previewItems).map(i => i.src).filter(src => src && !src.startsWith('data:'));
+  const dataImgs = Array.from(previewItems).map(i => i.src).filter(src => src && src.startsWith('data:'));
+  const allImgs = [...existingImgs, ...uploadedImgs, ...dataImgs].filter(Boolean);
+  const mainImg = allImgs[0] || '';
+
+  const productData = {
+    name,
+    grade: getVal('ap-grade'),
+    cat: getVal('ap-cat'),
+    weight: getVal('ap-weight'),
+    price,
+    origPrice: parseInt(getVal('ap-origprice')) || null,
+    desc: getVal('ap-desc'),
+    overview: '<p>' + getVal('ap-overview').replace(/\n/g,'</p><p>') + '</p>',
+    pros: getVal('ap-pros').split('\n').filter(x=>x.trim()),
+    cons: getVal('ap-cons').split('\n').filter(x=>x.trim()),
+    sizes: getVal('ap-sizes').split(',').map(s=>s.trim()).filter(Boolean),
+    badge: getVal('ap-badge') || null,
+    featured: getVal('ap-featured') !== 'false',
+  };
+  if(allImgs.length) { productData.img = mainImg; productData.imgs = allImgs; }
+
+  try {
+    if(!window._db) throw new Error('Firestore not ready');
+    if(firestoreId) {
+      await window._updateDoc(window._doc(window._db, 'products', firestoreId), productData);
+    } else {
+      const maxOrder = PRODUCTS.length ? Math.max(...PRODUCTS.map(p => p.sortOrder||0)) : 0;
+      productData.sortOrder = maxOrder + 1;
+      if(!productData.img) { productData.img = ''; productData.imgs = []; }
+      await window._addDoc(window._collection(window._db, 'products'), productData);
+    }
+    closeProductModal();
+    alert('\u2713 Product saved! Live on website instantly.');
+  } catch(err) {
+    console.error('Save product error:', err);
+    alert('Error saving product: ' + (err.message || err));
+  } finally {
+    if(saveBtn) { saveBtn.textContent = 'SAVE PRODUCT'; saveBtn.disabled = false; }
+  }
 }
 
-function deleteProduct(id) {
+async function deleteProduct(id) {
   if(!confirm('Delete this product? This cannot be undone.')) return;
-  const idx = PRODUCTS.findIndex(p => p.id===id);
-  if(idx>=0) PRODUCTS.splice(idx,1);
-  renderAdminProducts();
-  renderFeaturedProducts();
+  id = String(id);
+  try {
+    if(!window._db) throw new Error('Firestore not ready');
+    const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+    await deleteDoc(doc(window._db, 'products', id));
+    alert('\u2713 Product deleted.');
+  } catch(err) {
+    console.error('Delete product error:', err);
+    alert('Error deleting product: ' + (err.message || err));
+  }
 }
+
 
 // ══ ADMIN ORDERS ══
 let adminAllOrders = [];
@@ -1223,7 +1351,7 @@ function loadAdminReviews() {
   container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
     <thead><tr><th>PRODUCT</th><th>REVIEWER</th><th>RATING</th><th>TITLE</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr></thead>
     <tbody>${filtered.map(r=>`<tr>
-      <td style="font-size:12px">${PRODUCTS.find(p=>p.id===r.productId)?.name||'General'}</td>
+      <td style="font-size:12px">${PRODUCTS.find(p=>String(p.id)===String(r.productId))?.name||'General'}</td>
       <td><strong>${r.name}</strong><br><span style="font-size:11px;color:var(--text-soft)">${r.location||''}</span></td>
       <td style="color:#f5a623">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
       <td style="font-size:12px">${r.title||r.text.substring(0,40)+'...'}</td>
@@ -1326,6 +1454,19 @@ function init() {
 
   // Show home page to start
   showPage('home');
+
+  // ── Start Firestore products real-time listener ──
+  // Waits for Firebase to be ready (it's loaded as a module before app.js)
+  function tryStartListener(retries) {
+    if(window._db && window._collection) {
+      _startProductsListener();
+    } else if(retries > 0) {
+      setTimeout(() => tryStartListener(retries - 1), 300);
+    } else {
+      console.warn('Firestore not available — products will not load from database.');
+    }
+  }
+  tryStartListener(15);  // retry up to 15×300ms = 4.5s
 }
 
 // Run init when DOM is ready
