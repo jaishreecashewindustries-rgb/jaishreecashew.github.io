@@ -152,7 +152,7 @@ section{padding:100px 5%}
 .founder-card{position:relative}
 .founder-img-wrap{position:relative;margin-bottom:28px;overflow:hidden}
 .founder-img-wrap::before{content:'';position:absolute;inset:0;border:2px solid var(--gold);z-index:1;margin:16px;pointer-events:none}
-.founder-img{width:100%;height:480px;object-fit:cover;object-position:center 20%;filter:sepia(8%) contrast(1.05)}
+.founder-img{width:100%;height:480px;object-fit:cover;object-position:center 25%;filter:sepia(8%) contrast(1.05)}
 .founder-name{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:500;color:var(--walnut);margin-bottom:4px}
 .founder-title{color:var(--gold);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px}
 .founder-bio{color:var(--text-soft);font-size:14px;line-height:1.8}
