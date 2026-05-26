@@ -163,103 +163,114 @@ let modalProduct = null;
 // setHero is a no-op stub — kept to avoid errors if referenced elsewhere
 function setHero(idx) { /* no-op: video hero active */ }
 
-// ── HERO VIDEO LIFECYCLE MANAGER v2 ──
-// Root cause of resume bug: _playing was set AFTER .then() resolved,
-// but iOS Safari pauses video before .then() fires on backgrounding.
-// Fix: set _playing=true on INTENT (before play()), reset only on hard failure.
+// ── HERO VIDEO LIFECYCLE MANAGER v3 ──
+// Fixes: readyState check, bounded retry loop, canplay fallback.
+// iOS Safari pipeline is not always ready at visibilitychange —
+// we probe readyState and retry up to MAX_RETRIES times.
 (function heroVideoLifecycle() {
-  var _vid        = null;   // cached element reference
-  var _playing    = false;  // INTENT flag — set before play(), not after .then()
-  var _pending    = false;  // guard: one play() in-flight at a time
-  var _retryTimer = null;   // iOS needs a small delay on visibility resume
+  var _vid         = null;
+  var _shouldPlay  = false;
+  var _pending     = false;
+  var _retryTimer  = null;
+  var _retryCount  = 0;
+  var MAX_RETRIES  = 8;
+  var RETRY_DELAY  = 250;
 
-  function vid() {
+  function getVid() {
     if (!_vid) _vid = document.querySelector('.hero-video');
     return _vid;
   }
-
-  function clearRetry() {
+  function clearPending() {
     if (_retryTimer) { clearTimeout(_retryTimer); _retryTimer = null; }
+    _retryCount = 0;
+  }
+  function isPlaying(v) {
+    return v && !v.paused && !v.ended && v.readyState >= 2;
   }
 
-  // Core play function — sets intent FIRST, then calls play()
-  function safePlay() {
-    var v = vid();
-    if (!v) return;
-    if (_pending) return;                        // already mid-play call
-    if (!v.paused && !v.ended) {                 // already playing
-      _playing = true;
+  function attemptPlay() {
+    var v = getVid();
+    if (!v || _pending) return;
+    if (isPlaying(v)) { _shouldPlay = true; return; }
+
+    // readyState < 2 means pipeline not ready — wait for canplay
+    if (v.readyState < 2) {
+      _pending = true;
+      var onCanPlay = function() {
+        v.removeEventListener('canplay', onCanPlay);
+        _pending = false;
+        if (_shouldPlay) attemptPlay();
+      };
+      v.addEventListener('canplay', onCanPlay);
+      // Safety unblock if canplay never fires
+      setTimeout(function() {
+        v.removeEventListener('canplay', onCanPlay);
+        _pending = false;
+      }, 3000);
       return;
     }
 
-    // ── KEY FIX: mark intent BEFORE the async play() call ──
-    // This ensures resumeOnVisible() sees _playing=true even if
-    // the browser paused video before .then() could fire.
-    _playing = true;
     _pending = true;
+    _shouldPlay = true;
+    v.muted = true;
+    v.playsInline = true;
 
-    v.muted      = true;   // defensive — required for autoplay policy
-    v.playsInline = true;  // defensive — prevent fullscreen on iOS
-
-    var p = v.play();
-    if (p && typeof p.then === 'function') {
-      p.then(function() {
+    var promise = v.play();
+    if (promise && typeof promise.then === 'function') {
+      promise.then(function() {
         _pending = false;
+        _retryCount = 0;
       }).catch(function(err) {
         _pending = false;
         if (!err) return;
-
         if (err.name === 'NotAllowedError') {
-          // Autoplay blocked by browser policy — need a user gesture
-          _playing = false; // can't play without interaction — reset intent
-          document.addEventListener('touchstart', function onTouch() {
-            document.removeEventListener('touchstart', onTouch);
-            _playing = true;
-            safePlay();
+          _shouldPlay = false;
+          document.addEventListener('touchstart', function onFirstTouch() {
+            document.removeEventListener('touchstart', onFirstTouch);
+            _shouldPlay = true;
+            _retryCount = 0;
+            scheduleResume(0);
           }, { once: true, passive: true });
-
-        } else if (err.name === 'AbortError') {
-          // Another play() interrupted this one — browser will resolve naturally
-          // Keep _playing=true so we retry on next visibility event
-          _pending = false;
-
         }
-        // All other errors (NotSupportedError, NetworkError etc): silent
+        // AbortError: harmless — browser self-resolves; keep _shouldPlay=true
       });
     } else {
-      // Older browser — no Promise returned, assume success
       _pending = false;
     }
   }
 
-  // Called when page becomes visible — with iOS-safe delay
-  function resumeOnVisible() {
-    clearRetry();
-    if (!_playing) return;
-    var v = vid();
-    if (!v) return;
-
-    // ── iOS Safari needs ~150ms after visibilitychange before play() works ──
-    // Calling play() immediately after the page becomes visible often fails
-    // silently on iPhone. The delay gives the browser time to restore
-    // the media pipeline after backgrounding.
+  function scheduleResume(delay) {
+    clearPending();
+    if (!_shouldPlay) return;
     _retryTimer = setTimeout(function() {
       _retryTimer = null;
-      if (!_playing) return;        // intent cancelled while waiting
-      var v2 = vid();
-      if (!v2 || (!v2.paused && !v2.ended)) return; // already resumed
-      _pending = false;             // reset pending so safePlay() can run
-      safePlay();
-    }, 150);
+      var v = getVid();
+      if (!v || !_shouldPlay) return;
+      if (isPlaying(v)) return;
+      if (_retryCount >= MAX_RETRIES) { _retryCount = 0; return; }
+      _retryCount++;
+      if (v.readyState >= 2) {
+        attemptPlay();
+      } else {
+        scheduleResume(RETRY_DELAY);
+      }
+    }, delay);
   }
 
-  // ── INIT: run as soon as DOM is ready ──
+  function onBecomeVisible() {
+    clearPending();
+    if (!_shouldPlay) return;
+    var v = getVid();
+    if (!v || isPlaying(v)) return;
+    scheduleResume(200);
+  }
+
   function init() {
-    var v = vid();
+    var v = getVid();
     if (!v) return;
     v.muted = true;
     v.playsInline = true;
-    safePlay();
+    attemptPlay();
   }
 
   if (document.readyState === 'loading') {
@@ -268,40 +279,27 @@ function setHero(idx) { /* no-op: video hero active */ }
     init();
   }
 
-  // ── EVENT 1: visibilitychange ──
-  // Fires when: tab switch, app minimize/restore, screen lock/unlock
-  // Chrome, Firefox, Safari 14.5+, most Android browsers
   document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'visible') {
-      resumeOnVisible();
+      onBecomeVisible();
     } else {
-      // Page going hidden — clear any pending retry
-      clearRetry();
-      // NOTE: do NOT set _playing=false here. We want resume on return.
+      clearPending(); // cancel pending retry when going to background
     }
   });
 
-  // ── EVENT 2: pageshow ──
-  // Fires when: BFCache restore (iOS Safari back-button), page reload
-  // iOS Safari frequently skips visibilitychange on BFCache — pageshow is reliable
   window.addEventListener('pageshow', function() {
-    resumeOnVisible();
+    onBecomeVisible();
   });
 
-  // ── EVENT 3: focus ──
-  // Fires when: app switch on older iOS WebViews, some Android browsers
-  // Belt-and-suspenders — safe because safePlay() guards duplicates
   window.addEventListener('focus', function() {
-    resumeOnVisible();
+    onBecomeVisible();
   });
 
-  // ── EVENT 4: resume (WakeLock API, some browsers) ──
-  // Fires on some Android browsers when device wakes from sleep
   document.addEventListener('resume', function() {
-    resumeOnVisible();
+    onBecomeVisible();
   });
 
-})(); // IIFE — zero globals added
+})(); // IIFE — zero globals
 
 // ── NAVBAR SCROLL CLASS ──
 window.addEventListener('scroll', () => {
@@ -1135,7 +1133,76 @@ function renderRecentlyViewed() {
 let currentPage = 'home';
 let prevPage = 'home';
 
+// ── URL ROUTING — History API ──────────────────────────────────────
+// Maps internal page keys to clean URL paths and back.
+// Works with existing showPage() — zero Firebase/auth/cart impact.
+var PAGE_ROUTES = {
+  'home':           '/',
+  'shop':           '/shop',
+  'grades':         '/grades',
+  'about':          '/about',
+  'contact':        '/contact',
+  'privacy':        '/privacy-policy',
+  'terms':          '/terms',
+  'returns':        '/return-policy',
+  'product-detail': null   // handled separately (product URLs)
+};
+
+var ROUTE_TO_PAGE = {};
+(function buildReverseMap() {
+  Object.keys(PAGE_ROUTES).forEach(function(page) {
+    var path = PAGE_ROUTES[page];
+    if (path) ROUTE_TO_PAGE[path] = page;
+  });
+})();
+
+// Push a clean URL for the given page (no reload)
+function pushPageUrl(page) {
+  var path = PAGE_ROUTES[page];
+  if (!path || !window.history || !window.history.pushState) return;
+  // Don't push duplicate entries
+  if (window.location.pathname === path) return;
+  try {
+    window.history.pushState({ page: page }, '', path);
+  } catch(e) { /* file:// protocol or restricted env — ignore */ }
+}
+
+// Replace current URL (no new history entry — used on init)
+function replacePageUrl(page) {
+  var path = PAGE_ROUTES[page];
+  if (!path || !window.history || !window.history.replaceState) return;
+  try {
+    window.history.replaceState({ page: page }, '', path);
+  } catch(e) { /* ignore */ }
+}
+
+// Resolve the current URL path to a page key on load/refresh
+function pageFromUrl() {
+  var path = window.location.pathname;
+  // Exact match
+  if (ROUTE_TO_PAGE[path]) return ROUTE_TO_PAGE[path];
+  // Trailing slash variants
+  var stripped = path.replace(/\/$/, '') || '/';
+  if (ROUTE_TO_PAGE[stripped]) return ROUTE_TO_PAGE[stripped];
+  // Product URL (e.g. /product/123) — handled by showPage('product-detail')
+  if (path.indexOf('/product/') === 0) return 'product-detail';
+  // Fallback to home
+  return 'home';
+}
+
+// Back/forward button handler
+window.addEventListener('popstate', function(e) {
+  var page = (e.state && e.state.page) ? e.state.page : pageFromUrl();
+  // Show the page WITHOUT pushing a new history entry
+  _showPageInternal(page, false);
+});
+// ──────────────────────────────────────────────────────────────────
+
 function showPage(page) {
+  _showPageInternal(page, true);
+}
+
+function _showPageInternal(page, pushUrl) {
   try {
     // Hide all pages
     document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
@@ -1150,6 +1217,10 @@ function showPage(page) {
       const home = $('page-home');
       if(home) home.classList.add('active');
       currentPage = 'home';
+    }
+    // ── URL routing: push clean URL into history ──
+    if (pushUrl) {
+      pushPageUrl(currentPage);
     }
     // Page-specific init
     if(page === 'home') {
@@ -2176,8 +2247,11 @@ function init() {
     });
   }
 
-  // Show home page to start
-  showPage('home');
+  // ── Routing-aware startup ──
+  // On fresh load: read URL path, show correct page, set history entry
+  var startPage = pageFromUrl();
+  replacePageUrl(startPage);    // set clean URL without adding history entry
+  _showPageInternal(startPage, false);  // show page, don't push (already replaced)
 
   // ── Start Firestore products real-time listener ──
   // Waits for Firebase to be ready (it's loaded as a module before app.js)

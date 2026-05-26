@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Jai Shree Cashew Industries</title>
+<script>
+// GitHub Pages SPA routing trick:
+// Save the path to sessionStorage then redirect to index.html
+// index.html reads it and restores the correct page via History API
+var path = window.location.pathname + window.location.search;
+sessionStorage.setItem('__redir', path);
+window.location.replace('/');
+</script>
+</head>
+<body></body>
+</html>
