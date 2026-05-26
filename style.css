@@ -325,12 +325,12 @@ nav.scrolled{
 ════════════════════════════════════════════ */
 .hero{
   position:relative;
-  height:100dvh;
-  min-height:600px;
-  max-height:900px;
+  height:100svh;
+  min-height:100svh;
+  max-height:100svh;
   overflow:hidden;
   display:flex;
-  align-items:center;
+  align-items:flex-end;
 }
 .hero-bg{
   position:absolute;inset:0;
@@ -521,7 +521,7 @@ nav.scrolled{
 
 /* ── Hero mobile ── */
 @media(max-width:768px){
-  .hero{max-height:none;height:100svh}
+  .hero{height:100svh;min-height:100svh;max-height:100svh}
   .hero h1{font-size:clamp(36px,10vw,56px);letter-spacing:-.5px}
   .hero-sub{font-size:14px;max-width:none}
   .hero-content{padding:0 6%}
@@ -2793,8 +2793,8 @@ footer{
   /* Full-bleed, true viewport height */
   .hero{
     height:100svh;
-    min-height:580px;
-    max-height:none;
+    min-height:100svh;
+    max-height:100svh;
     align-items:flex-end;      /* anchor content to bottom third */
   }
 
@@ -3652,8 +3652,8 @@ footer{
   /* ── Layout: fill true viewport, content in lower 45% ── */
   .hero{
     height:100svh;
-    min-height:600px;
-    max-height:none;
+    min-height:100svh;
+    max-height:100svh;
     display:flex;
     align-items:flex-end;
     overflow:hidden;
@@ -4025,25 +4025,29 @@ footer .brand-link:hover{
 /* ── Base hero container ── */
 .hero{
   position:relative;
+  /* Both min AND exact height — section is always exactly viewport tall */
+  height:100svh;
   min-height:100svh;
+  max-height:100svh;
   overflow:hidden;
   display:flex;
-  align-items:flex-end;        /* content anchors to bottom */
-  background:#0a0603;          /* fallback while video loads */
+  align-items:flex-end;
+  background:#0a0603;
 }
 
 /* ── Video: edge-to-edge cinematic fill ── */
 .hero-video{
   position:absolute;
-  inset:0;
+  top:0;left:0;
   width:100%;
   height:100%;
   object-fit:cover;
   object-position:center center;
   display:block;
   will-change:transform;
-  /* Slight scale prevents occasional 1px edge gaps on some browsers */
-  transform:scale(1.005);
+  transform:scale(1.01); /* slightly more scale — kills all edge gaps */
+  /* Prevent mobile browsers from adding default video chrome */
+  -webkit-mask-image:-webkit-radial-gradient(white,black);
 }
 
 /* ── Overlay: strong bottom-up gradient, text sits on dark zone ── */
@@ -4121,30 +4125,36 @@ footer .brand-link:hover{
 ════════════════════════════════════════════════════════════ */
 @media(max-width:768px){
 
-  /* ── Container: full portrait viewport ── */
+  /* ── Container: exact viewport height on mobile ──
+     Using height + min-height + max-height together ensures the section
+     is EXACTLY viewport-tall — not taller, not shorter.
+     100svh = small viewport height (stable, excludes browser chrome).
+     This is what makes the video fill correctly on iOS Safari.
+  ── */
   .hero{
+    height:100svh;
     min-height:100svh;
-    min-height:100dvh;          /* dynamic viewport — accounts for browser chrome */
-    align-items:flex-end;       /* text block anchors to bottom */
+    max-height:100svh;
+    align-items:flex-end;
   }
 
-  /* ── VIDEO CROP: the key art-direction decision ──
-     The video is 16:9 (1920×1080). On a 9:16 portrait phone,
-     object-fit:cover crops ~60% of the horizontal width.
-     Default "center center" pulls the middle of the frame —
-     which is exactly where the nuts are most dense (bad).
-
-     Shifting to "82% center" moves the crop window rightward:
-     → right edge of video = right edge of screen
-     → left ~38% of video (the clean beige zone) fills left of screen
-     → nuts remain on the right half, text on clean left ✓
+  /* ── Video: full-bleed portrait fill ──
+     position:absolute + inset:0 + width/height:100% fills the section.
+     object-fit:cover handles the 16:9→9:16 crop automatically.
+     object-position:82% center shifts the crop window right:
+       → clean beige left zone fills left half (text safe zone)
+       → nuts stay on right half (visual texture, not distraction)
+     scale(1.01) kills any sub-pixel edge gaps on retina screens.
   ── */
   .hero-video{
-    object-fit:cover;
-    object-position:82% center;   /* pull right: clean left zone shows */
-    transform:scale(1.005);       /* prevent hairline edge gap */
-    height:100%;
+    position:absolute;
+    top:0; left:0;
     width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:82% center;
+    transform:scale(1.01);
+    -webkit-mask-image:-webkit-radial-gradient(white,black);
   }
 
   /* ── Overlay: mobile-tuned gradients ──

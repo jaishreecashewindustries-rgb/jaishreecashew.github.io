@@ -163,98 +163,145 @@ let modalProduct = null;
 // setHero is a no-op stub — kept to avoid errors if referenced elsewhere
 function setHero(idx) { /* no-op: video hero active */ }
 
-// ── HERO VIDEO LIFECYCLE MANAGER ──
-// Handles: initial autoplay, iOS/Android background→foreground resume,
-// visibilitychange, pageshow (BFCache), focus, and safe play() guards.
+// ── HERO VIDEO LIFECYCLE MANAGER v2 ──
+// Root cause of resume bug: _playing was set AFTER .then() resolved,
+// but iOS Safari pauses video before .then() fires on backgrounding.
+// Fix: set _playing=true on INTENT (before play()), reset only on hard failure.
 (function heroVideoLifecycle() {
-  let _vid = null;          // cached reference
-  let _playing = false;     // track intent — true means "should be playing"
-  let _playPending = false; // guard against simultaneous play() calls
+  var _vid        = null;   // cached element reference
+  var _playing    = false;  // INTENT flag — set before play(), not after .then()
+  var _pending    = false;  // guard: one play() in-flight at a time
+  var _retryTimer = null;   // iOS needs a small delay on visibility resume
 
-  // Get (and cache) the hero video element
-  function getVid() {
-    if(!_vid) _vid = document.querySelector('.hero-video');
+  function vid() {
+    if (!_vid) _vid = document.querySelector('.hero-video');
     return _vid;
   }
 
-  // Safe play — catches all rejection paths, guards duplicate calls
+  function clearRetry() {
+    if (_retryTimer) { clearTimeout(_retryTimer); _retryTimer = null; }
+  }
+
+  // Core play function — sets intent FIRST, then calls play()
   function safePlay() {
-    const v = getVid();
-    if(!v || _playPending) return;
+    var v = vid();
+    if (!v) return;
+    if (_pending) return;                        // already mid-play call
+    if (!v.paused && !v.ended) {                 // already playing
+      _playing = true;
+      return;
+    }
 
-    // Already playing — nothing to do
-    if(!v.paused && !v.ended) { _playing = true; return; }
+    // ── KEY FIX: mark intent BEFORE the async play() call ──
+    // This ensures resumeOnVisible() sees _playing=true even if
+    // the browser paused video before .then() could fire.
+    _playing = true;
+    _pending = true;
 
-    _playPending = true;
-    v.play()
-      .then(() => { _playing = true; _playPending = false; })
-      .catch((err) => {
-        _playPending = false;
-        // NotAllowedError = autoplay policy blocked — wait for first touch
-        if(err && err.name === 'NotAllowedError') {
-          document.addEventListener('touchstart', function onFirstTouch() {
-            document.removeEventListener('touchstart', onFirstTouch);
+    v.muted      = true;   // defensive — required for autoplay policy
+    v.playsInline = true;  // defensive — prevent fullscreen on iOS
+
+    var p = v.play();
+    if (p && typeof p.then === 'function') {
+      p.then(function() {
+        _pending = false;
+      }).catch(function(err) {
+        _pending = false;
+        if (!err) return;
+
+        if (err.name === 'NotAllowedError') {
+          // Autoplay blocked by browser policy — need a user gesture
+          _playing = false; // can't play without interaction — reset intent
+          document.addEventListener('touchstart', function onTouch() {
+            document.removeEventListener('touchstart', onTouch);
+            _playing = true;
             safePlay();
-          });
+          }, { once: true, passive: true });
+
+        } else if (err.name === 'AbortError') {
+          // Another play() interrupted this one — browser will resolve naturally
+          // Keep _playing=true so we retry on next visibility event
+          _pending = false;
+
         }
-        // AbortError = another play() interrupted — will resolve naturally
-        // All other errors: silently ignored (e.g. network, decode)
+        // All other errors (NotSupportedError, NetworkError etc): silent
       });
+    } else {
+      // Older browser — no Promise returned, assume success
+      _pending = false;
+    }
   }
 
-  // Resume if we were playing before backgrounding
-  function resumeIfNeeded() {
-    if(_playing) safePlay();
+  // Called when page becomes visible — with iOS-safe delay
+  function resumeOnVisible() {
+    clearRetry();
+    if (!_playing) return;
+    var v = vid();
+    if (!v) return;
+
+    // ── iOS Safari needs ~150ms after visibilitychange before play() works ──
+    // Calling play() immediately after the page becomes visible often fails
+    // silently on iPhone. The delay gives the browser time to restore
+    // the media pipeline after backgrounding.
+    _retryTimer = setTimeout(function() {
+      _retryTimer = null;
+      if (!_playing) return;        // intent cancelled while waiting
+      var v2 = vid();
+      if (!v2 || (!v2.paused && !v2.ended)) return; // already resumed
+      _pending = false;             // reset pending so safePlay() can run
+      safePlay();
+    }, 150);
   }
 
-  // ── 1. Initial autoplay on DOM ready ──
+  // ── INIT: run as soon as DOM is ready ──
   function init() {
-    const v = getVid();
-    if(!v) return;
-    // Ensure attributes are set correctly (defensive)
+    var v = vid();
+    if (!v) return;
     v.muted = true;
     v.playsInline = true;
     safePlay();
   }
 
-  if(document.readyState === 'loading') {
+  if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
-    init(); // DOM already ready
+    init();
   }
 
-  // ── 2. Page Visibility API — covers: tab switch, app background ──
-  // Most reliable cross-browser signal (Chrome, Firefox, Safari 14.5+)
-  document.addEventListener('visibilitychange', () => {
-    if(document.visibilityState === 'visible') {
-      resumeIfNeeded();
+  // ── EVENT 1: visibilitychange ──
+  // Fires when: tab switch, app minimize/restore, screen lock/unlock
+  // Chrome, Firefox, Safari 14.5+, most Android browsers
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+      resumeOnVisible();
+    } else {
+      // Page going hidden — clear any pending retry
+      clearRetry();
+      // NOTE: do NOT set _playing=false here. We want resume on return.
     }
-    // When hidden: browser will pause video automatically — that's fine.
-    // We track _playing so we know to resume on return.
   });
 
-  // ── 3. pageshow — covers: BFCache restore (iOS Safari back/forward) ──
-  // iOS Safari frequently uses BFCache; visibilitychange fires AFTER pageshow.
-  // Handling both is safe — safePlay() guard prevents duplicate calls.
-  window.addEventListener('pageshow', (e) => {
-    // e.persisted = true means loaded from BFCache (back/forward navigation)
-    resumeIfNeeded();
+  // ── EVENT 2: pageshow ──
+  // Fires when: BFCache restore (iOS Safari back-button), page reload
+  // iOS Safari frequently skips visibilitychange on BFCache — pageshow is reliable
+  window.addEventListener('pageshow', function() {
+    resumeOnVisible();
   });
 
-  // ── 4. focus — covers: app switch on older iOS / some Android WebViews ──
-  // Belt-and-suspenders for devices where visibilitychange fires unreliably.
-  window.addEventListener('focus', () => {
-    resumeIfNeeded();
+  // ── EVENT 3: focus ──
+  // Fires when: app switch on older iOS WebViews, some Android browsers
+  // Belt-and-suspenders — safe because safePlay() guards duplicates
+  window.addEventListener('focus', function() {
+    resumeOnVisible();
   });
 
-  // ── 5. pagehide — mark intent so we resume correctly ──
-  // iOS fires pagehide (not unload) for background/BFCache scenarios.
-  window.addEventListener('pagehide', () => {
-    // _playing stays as-is — if it was playing, we want it to resume.
-    // Don't call pause() here — browser does it automatically.
+  // ── EVENT 4: resume (WakeLock API, some browsers) ──
+  // Fires on some Android browsers when device wakes from sleep
+  document.addEventListener('resume', function() {
+    resumeOnVisible();
   });
 
-})(); // IIFE — no globals polluted
+})(); // IIFE — zero globals added
 
 // ── NAVBAR SCROLL CLASS ──
 window.addEventListener('scroll', () => {
