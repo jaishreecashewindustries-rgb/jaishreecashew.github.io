@@ -649,43 +649,83 @@ async function doSignup() {
 }
 
 async function doGoogleLogin() {
-  // Check if a previous redirect attempt left an error
+  // ── Helpers ──
+  const allGoogleBtns = () => document.querySelectorAll('.auth-btn-google');
+  const lockBtns = () => allGoogleBtns().forEach(b => {
+    b.disabled = true;
+    b.style.opacity = '0.55';
+    b.style.pointerEvents = 'none';
+    b._origText = b._origText || b.innerHTML;
+    b.innerHTML = b._origText.replace('Continue with Google','Connecting...');
+  });
+  const resetBtns = () => allGoogleBtns().forEach(b => {
+    b.disabled = false;
+    b.style.opacity = '';
+    b.style.pointerEvents = '';
+    if(b._origText) { b.innerHTML = b._origText; delete b._origText; }
+  });
+
+  // ── Check if a previous redirect left an error ──
   const prevRedirectErr = sessionStorage.getItem('jsc_redirect_error');
   if(prevRedirectErr) {
     sessionStorage.removeItem('jsc_redirect_error');
-    const [errCode, errMsg] = prevRedirectErr.split('|');
-    console.error('[Auth] Previous redirect failed. Code:', errCode, '| Msg:', errMsg);
+    const [errCode] = prevRedirectErr.split('|');
+    console.error('[Auth] Previous redirect failed. Code:', errCode);
     const msg = getAuthErrMsg(errCode);
     showAuthError('loginError', msg);
     showAuthError('signupError', msg);
+    resetBtns(); // ensure buttons are usable
     return;
   }
 
-  // Disable Google buttons to prevent double-tap
-  document.querySelectorAll('.auth-btn-google').forEach(b => { b.disabled = true; b.style.opacity = '0.6'; });
-  const resetBtns = () => document.querySelectorAll('.auth-btn-google').forEach(b => { b.disabled = false; b.style.opacity = ''; });
+  // ── Guard: if already in-flight, ignore tap ──
+  if(allGoogleBtns().length && allGoogleBtns()[0].disabled) {
+    console.log('[Auth] Google login already in progress — ignoring tap.');
+    return;
+  }
+
+  lockBtns();
+
+  // ── Safety timeout: always re-enable after 15s ──
+  const safetyTimer = setTimeout(() => {
+    console.warn('[Auth] Safety timeout fired — re-enabling Google buttons.');
+    resetBtns();
+  }, 15000);
 
   try {
     console.log('[Auth] doGoogleLogin called. Domain:', location.hostname);
     const result = await window._signInGoogle();
+
     if(!result) {
-      // Redirect flow initiated — page will reload, result handled by getRedirectResult
+      // Redirect flow initiated — page will reload; keep buttons locked for UX
+      // But set a session flag so they reset if redirect fails
       console.log('[Auth] Redirect flow started — awaiting page reload.');
-      // Keep buttons disabled — page is reloading
+      clearTimeout(safetyTimer);
+      // Page is reloading — no need to reset; safety timer handles edge cases
       return;
     }
-    console.log('[Auth] Google login SUCCESS. User:', result.user.email);
+
+    clearTimeout(safetyTimer);
     resetBtns();
+    console.log('[Auth] Google login SUCCESS. User:', result.user.email);
     closeAuth();
     if(result.user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
+
   } catch(err) {
-    resetBtns();
+    clearTimeout(safetyTimer);
+    resetBtns(); // ALWAYS reset on any error path
     const code = err.code || '';
     console.error('[Auth] doGoogleLogin FAILED. Code:', code, '| Message:', err.message);
 
-    // Silent failures — don't show error to user
+    // Silent failures — user deliberately closed popup
     if(code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-      console.log('[Auth] User closed popup or cancelled — no error shown.');
+      console.log('[Auth] User closed popup — no error shown, buttons re-enabled.');
+      return;
+    }
+
+    // Auth already in progress from another tab/attempt
+    if(code === 'auth/cancelled-popup-request') {
+      resetBtns();
       return;
     }
 
