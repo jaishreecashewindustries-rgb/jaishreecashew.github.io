@@ -44,11 +44,12 @@
   window._serverTimestamp = serverTimestamp;
   window._signInWithEmail = (e,p) => signInWithEmailAndPassword(auth,e,p);
   window._createUser = (e,p) => createUserWithEmailAndPassword(auth,e,p);
-  // Detect mobile/tablet — popup is unreliable on mobile browsers
-  const _isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+  // Detect mobile — popup auth is blocked on most mobile browsers
+  const _isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   window._signInGoogle = async () => {
-    // On mobile always use redirect (popup is blocked by most mobile browsers)
     if(_isMobile) {
+      // Mobile: always use redirect (popup is unreliable/blocked)
       sessionStorage.setItem('jsc_google_redirect', '1');
       await signInWithRedirect(auth, googleProvider);
       return null;
@@ -56,7 +57,6 @@
     try {
       return await signInWithPopup(auth, googleProvider);
     } catch(e) {
-      // If popup blocked on desktop too, fall back to redirect
       if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
         sessionStorage.setItem('jsc_google_redirect', '1');
         await signInWithRedirect(auth, googleProvider);
@@ -76,48 +76,51 @@
   const ADMIN_EMAIL = 'jiteshpansari@gmail.com';
   window.ADMIN_EMAIL = ADMIN_EMAIL;
 
-  // Storage
+  // Storage — explicit bucket required for .firebasestorage.app domain
   const { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js");
-  const storage = getStorage(app);
+  const storage = getStorage(app, 'gs://jai-shree-cashew-website.firebasestorage.app');
   window._storage = storage;
   window._uploadProductImage = function(file, productId, onProgress) {
     return new Promise((resolve, reject) => {
-      const ext = file.name.split('.').pop();
-      const storageRef = ref(storage, `products/${productId}_${Date.now()}.${ext}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      const ext = (file.name||'image.jpg').split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+      const safeExt = ['jpg','jpeg','png','webp','gif'].includes(ext) ? ext : 'jpg';
+      const storageRef = ref(storage, `products/${productId}_${Date.now()}.${safeExt}`);
+      const metadata = { contentType: file.type || 'image/jpeg' };
+      const uploadTask = uploadBytesResumable(storageRef, file, metadata);
       uploadTask.on('state_changed',
         s => { if(onProgress) onProgress(Math.round(s.bytesTransferred/s.totalBytes*100)); },
-        reject,
-        async () => resolve(await getDownloadURL(uploadTask.snapshot.ref))
+        err => { console.error('Storage upload error:', err.code, err.message); reject(err); },
+        async () => { try { resolve(await getDownloadURL(uploadTask.snapshot.ref)); } catch(e) { reject(e); } }
       );
     });
   };
   window._uploadGalleryImage = function(file, name, onProgress) {
     return new Promise((resolve, reject) => {
-      const ext = file.name.split('.').pop();
-      const storageRef = ref(storage, `gallery/${name}_${Date.now()}.${ext}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      const ext = (file.name||'image.jpg').split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+      const safeExt = ['jpg','jpeg','png','webp','gif'].includes(ext) ? ext : 'jpg';
+      const storageRef = ref(storage, `gallery/${name}_${Date.now()}.${safeExt}`);
+      const metadata = { contentType: file.type || 'image/jpeg' };
+      const uploadTask = uploadBytesResumable(storageRef, file, metadata);
       uploadTask.on('state_changed',
         s => { if(onProgress) onProgress(Math.round(s.bytesTransferred/s.totalBytes*100)); },
-        reject,
-        async () => resolve(await getDownloadURL(uploadTask.snapshot.ref))
+        err => { console.error('Gallery upload error:', err.code, err.message); reject(err); },
+        async () => { try { resolve(await getDownloadURL(uploadTask.snapshot.ref)); } catch(e) { reject(e); } }
       );
     });
   };
 
-  // Check for redirect result (Google login redirect flow)
+  // Check for Google redirect result (page reload after signInWithRedirect)
   try {
     const redirectResult = await getRedirectResult(auth);
     if(redirectResult && redirectResult.user) {
       window._currentUser = redirectResult.user;
-      // Mark that this came from redirect so onAuthChange opens dashboard
       if(!sessionStorage.getItem('jsc_google_redirect')) {
         sessionStorage.setItem('jsc_google_redirect', '1');
       }
       if(typeof window.onAuthChange === 'function') window.onAuthChange(redirectResult.user);
     }
   } catch(e) {
-    console.warn('Redirect result:', e.code);
+    console.warn('Redirect result error:', e.code, e.message);
   }
 
   // Auth state listener
@@ -936,12 +939,17 @@
 
     <!-- Header (dark walnut bg) -->
     <div class="dash-panel-header">
-      <button class="dash-close" onclick="closeDashboard()">✕</button>
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;padding-top:8px">
-        <div id="dashAvatarBig" style="width:46px;height:46px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--walnut);flex-shrink:0">?</div>
-        <div>
-          <div class="dash-title" id="dashTitle">My Account</div>
-          <div class="dash-user" id="dashUserInfo">Loading...</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div id="dashAvatarBig" style="width:46px;height:46px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--walnut);flex-shrink:0">?</div>
+          <div>
+            <div class="dash-title" id="dashTitle">My Account</div>
+            <div class="dash-user" id="dashUserInfo">Loading...</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="doSignOut()" title="Logout" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">⏏ LOGOUT</button>
+          <button class="dash-close" onclick="closeDashboard()" style="position:static;font-size:20px;color:rgba(255,255,255,0.7);background:none;border:none;cursor:pointer;padding:4px 8px">✕</button>
         </div>
       </div>
       <!-- Tabs inside header -->
@@ -1028,7 +1036,7 @@
         </div>
       </div>
 
-      <button class="dash-signout" onclick="doSignOut()">← SIGN OUT</button>
+      <button class="dash-signout" onclick="doSignOut()">⏏ SIGN OUT FROM ACCOUNT</button>
     </div>
   </div>
 </div>
@@ -1041,7 +1049,10 @@
         <span class="admin-logo">Jai Shree Cashew</span>
         <span class="admin-badge">ADMIN PANEL</span>
       </div>
-      <button class="admin-close-btn" onclick="closeAdmin()">← Back to Website</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="admin-close-btn" onclick="closeAdmin()">← Back to Website</button>
+        <button onclick="doSignOut()" style="background:#c0392b;color:#fff;border:none;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:6px" title="Logout from admin">⏏ LOGOUT</button>
+      </div>
     </div>
 
     <!-- Dashboard Stats Row -->
@@ -1234,13 +1245,17 @@
       <div class="admin-form-group"><label>Price (₹)</label><input type="number" id="ap-price" placeholder="1450"></div>
       <div class="admin-form-group"><label>Original Price (₹) — for discount</label><input type="number" id="ap-origprice" placeholder="Leave blank if no discount"></div>
     </div>
-    <div class="admin-form-group"><label>Short Description</label><textarea id="ap-desc" rows="2" placeholder="Brief product description..."></textarea></div>
-    <div class="admin-form-group"><label>Detailed Overview</label><textarea id="ap-overview" rows="4" placeholder="Full product overview for detail page..."></textarea></div>
+    <div class="admin-form-group"><label>Short Description</label><textarea id="ap-desc" rows="2" placeholder="e.g. The rarest grade — only 180 kernels per pound. Ideal for premium gifts and luxury confectionery."></textarea></div>
+    <div class="admin-form-group"><label>Detailed Overview (shown on product page)</label><textarea id="ap-overview" rows="5" placeholder="Write 2-3 paragraphs about this product. e.g.:&#10;&#10;W180 is the crown jewel of cashew grades — only 180 kernels fit in one pound, making each kernel exceptionally large and visually striking. Sourced from the finest farms in West Africa and Vietnam.&#10;&#10;Preferred by luxury confectioners, premium gift hamper brands, and 5-star hotels."></textarea></div>
     <div class="admin-form-row">
-      <div class="admin-form-group"><label>Pros (one per line)</label><textarea id="ap-pros" rows="4" placeholder="Premium jumbo size&#10;Low breakage&#10;Vacuum packed"></textarea></div>
-      <div class="admin-form-group"><label>Cons (one per line)</label><textarea id="ap-cons" rows="4" placeholder="Higher price point&#10;Limited availability"></textarea></div>
+      <div class="admin-form-group"><label>Pros — USPs (one per line)</label><textarea id="ap-pros" rows="5" placeholder="Exceptionally large kernel size&#10;Maximum visual appeal for gifting&#10;Rich, buttery flavour profile&#10;Vacuum packed — 12 month shelf life&#10;Zero artificial preservatives&#10;Export-quality grading"></textarea></div>
+      <div class="admin-form-group"><label>Cons — Limitations (one per line)</label><textarea id="ap-cons" rows="5" placeholder="Higher price point than W240/W320&#10;Limited seasonal availability&#10;May be over-specification for cooking use"></textarea></div>
     </div>
     <div class="admin-form-group"><label>Packet Sizes Available (comma separated)</label><input type="text" id="ap-sizes" placeholder="100g, 250g, 500g, 1kg"></div>
+    <div class="admin-form-group">
+      <label>Specifications (one per line, format: Label | Value)</label>
+      <textarea id="ap-specs" rows="5" placeholder="Grade | W180 (180 kernels per pound)&#10;Origin | West Africa / Vietnam&#10;Processed at | RIICO Industrial Area, Kaladera, Jaipur&#10;Packet Size | 250g&#10;Shell Life | 12 months (vacuum packed)&#10;MOQ (Bulk) | 5 kg"></textarea>
+    </div>
     <div class="admin-form-row">
       <div class="admin-form-group"><label>Badge Text (e.g. BESTSELLER)</label><input type="text" id="ap-badge" placeholder="Leave blank for none"></div>
       <div class="admin-form-group"><label>Show in Featured?</label>

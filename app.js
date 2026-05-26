@@ -284,8 +284,8 @@ function renderCart() {
       </div>
       <div class="cart-item-total">₹${item.price*item.qty}</div>
       <button class="cart-remove" onclick="removeFromCart('${sid}')">✕</button>
-    </div>
-  `}).join('');
+    </div>`;
+  }).join('');
   const raw = cart.reduce((a,b) => a+b.price*b.qty, 0);
   const subtotalEl = $('cartSubtotal');
   if(subtotalEl) subtotalEl.textContent = '₹'+raw.toLocaleString('en-IN');
@@ -631,8 +631,16 @@ async function doGoogleLogin() {
 }
 
 async function doSignOut() {
-  if(window._signOut) await window._signOut();
-  closeDashboard(); closeAdmin();
+  try {
+    if(window._signOut) await window._signOut();
+  } catch(e) { console.warn('signOut error:', e); }
+  window._currentUser = null;
+  closeDashboard();
+  closeAdmin();
+  // Reset nav to show login button
+  const loginBtn = $('loginNavBtn'), userBtn = $('userNavBtn');
+  if(loginBtn) loginBtn.style.display = 'flex';
+  if(userBtn) userBtn.style.display = 'none';
 }
 
 // ── CUSTOMER DASHBOARD ──
@@ -1324,7 +1332,7 @@ function openProductModal(id) {
   if(!id) {
     safeSet('adminProductModalTitle', 'Add New Product');
     const eid=$('editProductId'); if(eid) eid.value='';
-    ['ap-name','ap-grade','ap-weight','ap-desc','ap-overview','ap-pros','ap-cons','ap-sizes','ap-badge'].forEach(f=>{ const el=$(f); if(el) el.value=''; });
+    ['ap-name','ap-grade','ap-weight','ap-desc','ap-overview','ap-pros','ap-cons','ap-sizes','ap-badge','ap-specs'].forEach(f=>{ const el=$(f); if(el) el.value=''; });
     const ap=$('ap-price'); if(ap) ap.value='';
     const aop=$('ap-origprice'); if(aop) aop.value='';
     safeHTML('adminPhotoPreview','');
@@ -1342,6 +1350,7 @@ function openProductModal(id) {
     setVal('ap-cons',(p.cons||[]).join('\n'));
     setVal('ap-sizes',(p.sizes||[]).join(', '));
     setVal('ap-badge',p.badge||'');
+    setVal('ap-specs',(p.specs||[]).map(r=>r[0]+' | '+r[1]).join('\n'));
     setVal('ap-stock', p.stock !== undefined ? p.stock : 999);
     const tsEl = $('ap-track-stock'); if(tsEl) tsEl.value = p.trackStock ? 'true' : 'false';
     const preview = $('adminPhotoPreview');
@@ -1369,6 +1378,26 @@ function previewProductPhotos(input) {
 
 // ── ADMIN PRODUCTS — Firestore-backed save & delete ──
 
+// ── Helper: convert a data: URL to a Blob for uploading ──
+function _dataURLtoBlob(dataURL) {
+  const [header, b64] = dataURL.split(',');
+  const mime = header.match(/:(.*?);/)[1];
+  const binary = atob(b64);
+  const arr = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) arr[i]=binary.charCodeAt(i);
+  return new Blob([arr], {type: mime});
+}
+
+// ── Helper: upload a single file/blob to Firebase Storage, return download URL ──
+async function _uploadToStorage(fileOrBlob, folder, baseName, onProgress) {
+  if(!window._uploadProductImage) throw new Error('Firebase Storage not ready. Please refresh and try again.');
+  // Use the existing uploader — wrap Blob as a File-like object
+  const ext = (fileOrBlob.name||baseName||'img.jpg').split('.').pop().replace(/[^a-z0-9]/gi,'') || 'jpg';
+  const fakeFile = fileOrBlob instanceof File ? fileOrBlob : new File([fileOrBlob], `${baseName||'photo'}.${ext}`, {type: fileOrBlob.type||'image/jpeg'});
+  const tmpId = folder || ('prod_'+Date.now());
+  return await window._uploadProductImage(fakeFile, tmpId, onProgress);
+}
+
 async function saveProduct() {
   const idEl = $('editProductId');
   const firestoreId = idEl ? idEl.value.trim() : '';
@@ -1381,80 +1410,113 @@ async function saveProduct() {
   if(saveBtn) { saveBtn.textContent = 'SAVING...'; saveBtn.disabled = true; }
 
   const getVal = (fid) => { const el=$(fid); return el ? el.value : ''; };
+  const preview = $('adminPhotoPreview');
 
-  // Upload any new files to Firebase Storage
-  const fileInput = $('ap-photos');
-  let uploadedImgs = [];
-  if(fileInput && fileInput.files && fileInput.files.length && window._uploadProductImage) {
-    const tmpId = firestoreId || ('new_'+Date.now());
-    const progressDiv = document.createElement('div');
-    progressDiv.style.cssText='padding:8px;font-size:12px;color:var(--text-soft)';
-    progressDiv.textContent='Uploading images...';
-    const preview = $('adminPhotoPreview');
-    if(preview) preview.appendChild(progressDiv);
-    try {
-      for(const file of Array.from(fileInput.files)) {
-        // Wrap upload in a timeout so it doesn't hang forever
-        const url = await Promise.race([
-          window._uploadProductImage(file, tmpId, pct => {
-            progressDiv.textContent = 'Uploading... '+pct+'%';
-          }),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('Upload timeout — check Firebase Storage rules')), 30000))
-        ]);
-        uploadedImgs.push(url);
-      }
-    } catch(e) {
-      console.warn('Image upload failed:', e);
-      if(saveBtn) { saveBtn.textContent = 'SAVE PRODUCT'; saveBtn.disabled = false; }
-      if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
-      const proceed = confirm('Image upload failed: ' + (e.message||'Check Firebase Storage rules.') + '\n\nSave product WITHOUT image?');
-      if(!proceed) return;
-    }
-    if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
-    fileInput.value = '';
-  }
+  // ── Progress indicator ──
+  const progressDiv = document.createElement('div');
+  progressDiv.style.cssText = 'padding:8px 0;font-size:12px;color:var(--gold);font-weight:600;letter-spacing:1px';
+  progressDiv.textContent = '';
+  if(preview) preview.appendChild(progressDiv);
 
-  // Existing preview images (already-uploaded Firebase URLs)
-  const previewItems = document.querySelectorAll('#adminPhotoPreview .admin-photo-preview-item img');
-  const existingImgs = Array.from(previewItems).map(i => i.src).filter(src => src && !src.startsWith('data:'));
-  const dataImgs = Array.from(previewItems).map(i => i.src).filter(src => src && src.startsWith('data:'));
-  const allImgs = [...existingImgs, ...uploadedImgs, ...dataImgs].filter(Boolean);
-  const mainImg = allImgs[0] || '';
+  const setProgress = (msg) => { progressDiv.textContent = msg; };
 
-  const productData = {
-    name,
-    grade: getVal('ap-grade'),
-    cat: getVal('ap-cat'),
-    weight: getVal('ap-weight'),
-    price,
-    origPrice: parseInt(getVal('ap-origprice')) || null,
-    desc: getVal('ap-desc'),
-    overview: '<p>' + getVal('ap-overview').replace(/\n/g,'</p><p>') + '</p>',
-    pros: getVal('ap-pros').split('\n').filter(x=>x.trim()),
-    cons: getVal('ap-cons').split('\n').filter(x=>x.trim()),
-    sizes: getVal('ap-sizes').split(',').map(s=>s.trim()).filter(Boolean),
-    badge: getVal('ap-badge') || null,
-    featured: getVal('ap-featured') !== 'false',
-    stock: parseInt(getVal('ap-stock')) || 999,
-    trackStock: getVal('ap-track-stock') === 'true',
-  };
-  if(allImgs.length) { productData.img = mainImg; productData.imgs = allImgs; }
+  let finalImgUrls = [];
 
   try {
+    // ── Step 1: Collect all preview items (img tags in adminPhotoPreview) ──
+    const previewItems = Array.from(document.querySelectorAll('#adminPhotoPreview .admin-photo-preview-item img'));
+    const existingUrls  = previewItems.map(i=>i.src).filter(s => s && s.startsWith('http'));  // already on Firebase
+    const dataURLs      = previewItems.map(i=>i.src).filter(s => s && s.startsWith('data:')); // local preview blobs
+
+    // ── Step 2: Also grab newly selected files from input (may not be in preview yet) ──
+    const fileInput = $('ap-photos');
+    const newFiles  = fileInput && fileInput.files ? Array.from(fileInput.files) : [];
+
+    // ── Step 3: If there's anything to upload, check Storage is ready ──
+    const needsUpload = dataURLs.length > 0 || newFiles.length > 0;
+    if(needsUpload && !window._uploadProductImage) {
+      if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
+      if(saveBtn) { saveBtn.textContent='SAVE PRODUCT'; saveBtn.disabled=false; }
+      alert('Firebase Storage is not ready yet. Please wait a moment and try again.\n\nIf this keeps happening, refresh the page.');
+      return;
+    }
+
+    const uploadFolder = firestoreId || ('prod_'+Date.now());
+    let uploadIdx = 0;
+    const totalUploads = dataURLs.length + newFiles.length;
+
+    // ── Step 4: Upload data: URLs (local previews from previewProductPhotos) ──
+    for(const dataURL of dataURLs) {
+      uploadIdx++;
+      setProgress(`Uploading image ${uploadIdx}/${totalUploads}...`);
+      const blob = _dataURLtoBlob(dataURL);
+      const ext = blob.type.split('/')[1] || 'jpg';
+      const fakeFile = new File([blob], `photo_${Date.now()}.${ext}`, {type: blob.type});
+      const url = await window._uploadProductImage(fakeFile, uploadFolder, pct => {
+        setProgress(`Uploading image ${uploadIdx}/${totalUploads}... ${pct}%`);
+      });
+      finalImgUrls.push(url);
+    }
+
+    // ── Step 5: Upload any newly selected files from the file input ──
+    for(const file of newFiles) {
+      uploadIdx++;
+      setProgress(`Uploading image ${uploadIdx}/${totalUploads}...`);
+      const url = await window._uploadProductImage(file, uploadFolder, pct => {
+        setProgress(`Uploading image ${uploadIdx}/${totalUploads}... ${pct}%`);
+      });
+      finalImgUrls.push(url);
+    }
+
+    // ── Step 6: Combine existing (already on Firebase) + newly uploaded ──
+    const allImgs = [...existingUrls, ...finalImgUrls].filter(Boolean);
+    const mainImg = allImgs[0] || '';
+
+    if(fileInput) fileInput.value = '';
+    setProgress(allImgs.length ? `✓ ${allImgs.length} image(s) ready. Saving product...` : 'Saving product...');
+
+    // ── Step 7: Build product data — NEVER store data: URLs in Firestore ──
+    const productData = {
+      name,
+      grade: getVal('ap-grade'),
+      cat: getVal('ap-cat'),
+      weight: getVal('ap-weight'),
+      price,
+      origPrice: parseInt(getVal('ap-origprice')) || null,
+      desc: getVal('ap-desc'),
+      overview: '<p>' + getVal('ap-overview').replace(/\n/g,'</p><p>') + '</p>',
+      pros: getVal('ap-pros').split('\n').filter(x=>x.trim()),
+      cons: getVal('ap-cons').split('\n').filter(x=>x.trim()),
+      sizes: getVal('ap-sizes').split(',').map(s=>s.trim()).filter(Boolean),
+      specs: getVal('ap-specs').split('\n').filter(x=>x.includes('|')).map(line=>{
+        const parts = line.split('|'); return [parts[0].trim(), parts.slice(1).join('|').trim()];
+      }),
+      badge: getVal('ap-badge') || null,
+      featured: getVal('ap-featured') !== 'false',
+      stock: parseInt(getVal('ap-stock')) || 999,
+      trackStock: getVal('ap-track-stock') === 'true',
+      img: mainImg,
+      imgs: allImgs,
+    };
+
+    // ── Step 8: Save to Firestore ──
     if(!window._db) throw new Error('Firestore not ready');
     if(firestoreId) {
       await window._updateDoc(window._doc(window._db, 'products', firestoreId), productData);
     } else {
       const maxOrder = PRODUCTS.length ? Math.max(...PRODUCTS.map(p => p.sortOrder||0)) : 0;
       productData.sortOrder = maxOrder + 1;
-      if(!productData.img) { productData.img = ''; productData.imgs = []; }
       await window._addDoc(window._collection(window._db, 'products'), productData);
     }
+
+    if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
     closeProductModal();
-    alert('\u2713 Product saved! Live on website instantly.');
+    alert('\u2713 Product saved successfully!' + (allImgs.length ? '\nImage uploaded to Firebase Storage.' : '\nNo image — you can edit and add one later.'));
+
   } catch(err) {
     console.error('Save product error:', err);
-    alert('Error saving product: ' + (err.message || err));
+    if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
+    alert('Error saving product:\n' + (err.message || err) + '\n\nCheck:\n1. Firebase Storage rules allow write\n2. You are logged in as admin\n3. Internet connection is stable');
   } finally {
     if(saveBtn) { saveBtn.textContent = 'SAVE PRODUCT'; saveBtn.disabled = false; }
   }

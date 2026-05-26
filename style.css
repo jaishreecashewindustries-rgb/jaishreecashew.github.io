@@ -762,51 +762,49 @@ footer{background:var(--walnut);color:rgba(255,255,255,0.6);padding:60px 5% 32px
 }
 
 
-/* ══ MOBILE UI IMPROVEMENTS (May 2026) ══ */
+/* ══ LOGOUT & AUTH IMPROVEMENTS (v2) ══ */
+.dash-signout {
+  background: none;
+  border: 1px solid var(--border);
+  padding: 12px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  color: #c0392b;
+  border-color: #c0392b;
+  transition: .2s;
+  width: 100%;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.dash-signout:hover { background: #c0392b; color: #fff; }
+
+/* ══ MOBILE AUTH IMPROVEMENTS ══ */
 @media(max-width:480px) {
-  /* Auth modal — full screen on very small phones */
-  .auth-overlay { align-items: flex-end; }
+  .auth-overlay { align-items: flex-end; padding: 0; }
   .auth-box {
     width: 100%;
     max-width: 100%;
     max-height: 92vh;
     overflow-y: auto;
-    padding: 28px 20px 32px;
+    padding: 28px 20px 36px;
     border-radius: 0;
-    box-shadow: 0 -8px 40px rgba(59,42,30,0.2);
   }
-  .auth-title { font-size: 24px; }
-  .auth-btn-google { font-size: 14px; padding: 14px; }
+  .auth-title { font-size: 22px; }
+  .auth-btn-google { font-size: 14px; padding: 14px; gap: 12px; }
   .auth-btn-primary { padding: 14px; font-size: 13px; }
-
-  /* Admin product modal — full screen on mobile */
+  /* Admin product modal full screen on mobile */
   .admin-modal-overlay { padding: 0; align-items: flex-end; }
-  .admin-modal-box {
-    max-width: 100%;
-    max-height: 95vh;
-    padding: 24px 16px 32px;
-    border-radius: 0;
-  }
-
-  /* Cart sidebar — full screen */
+  .admin-modal-box { max-width: 100%; max-height: 95vh; padding: 20px 16px 32px; border-radius: 0; }
+  /* Cart full width */
   .cart-sidebar { width: 100vw; max-width: 100vw; }
-
-  /* Cart items better tap targets */
-  .qty-btn { width: 36px; height: 36px; font-size: 18px; }
-  .cart-remove { width: 32px; height: 32px; font-size: 16px; }
-
-  /* Dashboard panel */
+  .qty-btn { width: 38px; height: 38px; font-size: 18px; }
+  /* Dashboard full width */
   .dash-panel { max-width: 100%; }
-  .dash-panel-body { padding: 16px 16px 40px; }
-
-  /* Admin inner padding */
-  .admin-inner { padding: 16px 12px; }
-
-  /* Product cards single column is already set, but ensure buttons are tap-friendly */
-  .btn-cart, .btn-wish { padding: 12px 10px; font-size: 11px; }
+  .dash-panel-body { padding: 16px 16px 48px; }
+  .dash-panel-header { padding: 20px 16px 0; }
 }
-
-/* Google login button — make it more visible on mobile */
-.auth-btn-google svg,
-.auth-btn-google img { width: 20px; height: 20px; }
-
