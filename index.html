@@ -250,12 +250,24 @@
 </div>
 
 <div id="page-home" class="page-section active">
-<!-- HERO SECTION — CINEMATIC -->
+<!-- HERO SECTION — CINEMATIC VIDEO -->
 <section id="home" class="hero">
-  <div class="hero-bg" id="heroBg" style="background-image:url('images/hero-cashews.webp')"></div>
-  <div class="hero-bg" id="heroBgNext" style="opacity:0;"></div>
+
+  <!-- Video background — edge-to-edge, cover fill -->
+  <video class="hero-video"
+    autoplay muted loop playsinline
+    preload="metadata"
+    poster="images/hero-poster.jpg">
+    <source src="images/hero-video.mp4" type="video/mp4">
+  </video>
+
+  <!-- Gradient overlay for text legibility -->
   <div class="hero-overlay"></div>
+
+  <!-- Grain texture -->
   <div class="hero-grain"></div>
+
+  <!-- Content — anchored bottom-left, text-safe zone -->
   <div class="hero-content">
     <div class="hero-badge">EST. 2016 · KALADERA, JAIPUR</div>
     <h1>India's Finest<br><em>Cashew Kernels</em></h1>
@@ -271,16 +283,10 @@
       <a href="#" onclick="showPage('contact');return false;" class="btn-outline">GET BULK QUOTE</a>
     </div>
   </div>
-  <div class="hero-dots">
-    <button class="hero-dot active" onclick="setHero(0)"></button>
-    <button class="hero-dot" onclick="setHero(1)"></button>
-    <button class="hero-dot" onclick="setHero(2)"></button>
-    <button class="hero-dot" onclick="setHero(3)"></button>
-    <button class="hero-dot" onclick="setHero(4)"></button>
-    <button class="hero-dot" onclick="setHero(5)"></button>
-    <button class="hero-dot" onclick="setHero(6)"></button>
-  </div>
+
+  <!-- Scroll indicator -->
   <div class="hero-scroll"><div class="hero-scroll-line"></div>SCROLL</div>
+
 </section>
 
 <!-- STATS -->

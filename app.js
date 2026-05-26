@@ -158,40 +158,21 @@ let cart = [];
 try { cart = JSON.parse(localStorage.getItem('jsc_cart') || '[]'); } catch(e) { cart = []; }
 let currentFilter = 'all';
 let modalProduct = null;
-const heroImages = [
-  "images/hero-cashews.webp",
-  "images/hero-mixed.webp",
-  "images/hero-almonds.webp",
-  "images/hero-pistachios.webp",
-  "images/hero-dates.webp",
-  "images/hero-walnuts.webp",
-  "images/hero-raisins.webp"
-];
-let heroIdx = 0;
+// ── HERO VIDEO (replaces image slideshow) ──
+// Video autoplay handled by <video autoplay muted loop playsinline>
+// setHero is a no-op stub — kept to avoid errors if referenced elsewhere
+function setHero(idx) { /* no-op: video hero active */ }
 
-// ── HERO SLIDER with smooth crossfade ──
-function setHero(idx) {
-  heroIdx = idx;
-  const bg = $('heroBg');
-  const bgNext = $('heroBgNext');
-  if(bg && bgNext) {
-    bgNext.style.backgroundImage = 'url('+heroImages[idx]+')';
-    bgNext.style.transition = 'none';
-    bgNext.style.opacity = '0';
-    void bgNext.offsetWidth;
-    bgNext.style.transition = 'opacity 1.4s ease';
-    bgNext.style.opacity = '1';
-    setTimeout(() => {
-      bg.style.backgroundImage = 'url('+heroImages[idx]+')';
-      bgNext.style.transition = 'none';
-      bgNext.style.opacity = '0';
-    }, 1450);
-  } else if(bg) {
-    bg.style.backgroundImage = 'url('+heroImages[idx]+')';
+// Ensure hero video plays on iOS (requires user interaction on some versions)
+document.addEventListener('DOMContentLoaded', () => {
+  const vid = document.querySelector('.hero-video');
+  if(vid) {
+    vid.play().catch(() => {
+      // Autoplay blocked — show poster, attempt on first touch
+      document.addEventListener('touchstart', () => { vid.play().catch(()=>{}); }, {once:true});
+    });
   }
-  document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
-}
-setInterval(() => setHero((heroIdx+1) % heroImages.length), 5500);
+});
 
 // ── NAVBAR SCROLL CLASS ──
 window.addEventListener('scroll', () => {
