@@ -64,7 +64,7 @@ const PRODUCTS = [
   {
     id:6, name:"Raw Cashew Nuts", grade:"RCN", cat:"raw",
     price:480, origPrice:560, discount:14,
-    weight:"500g",  badge:null,
+    weight:"500g", badge:null,
     desc:"Unprocessed raw cashew nuts for home roasting or industrial processing. Direct from source.",
     overview:"<h4>About Raw Cashew Nuts (RCN)</h4><p>Raw Cashew Nuts are the unprocessed whole cashew in shell, sourced directly from our supplier network in West Africa and Vietnam. We offer RCN for buyers who prefer home roasting, traditional processing, or industrial use.</p><p>Note: RCN shells contain cashew shell liquid (CNSL) — please handle with care and process before consumption. Not for direct eating.</p>",
     pros:["Unprocessed — maximum freshness potential","Available in bulk at wholesale prices","Suitable for home processing","Long shelf life (18 months unshelled)"],
@@ -75,30 +75,41 @@ const PRODUCTS = [
   }
 ];
 
-let cart = JSON.parse(localStorage.getItem('jsc_cart') || '[]');
+// ── SAFE DOM HELPER ──
+function $(id) { return document.getElementById(id); }
+function safeSet(id, val) { const el = $(id); if(el) el.textContent = val; }
+function safeHTML(id, html) { const el = $(id); if(el) el.innerHTML = html; }
+function safeStyle(id, prop, val) { const el = $(id); if(el) el.style[prop] = val; }
+
+// ── CART STATE ──
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem('jsc_cart') || '[]'); } catch(e) { cart = []; }
 let currentFilter = 'all';
 let modalProduct = null;
-const heroImages = ["images/hero-main.webp", "images/hero-export.webp", "images/gallery-1.webp"];
+const heroImages = ["images/hero-main.webp","images/hero-export.webp","images/gallery-1.webp"];
 let heroIdx = 0;
 
 // ── HERO SLIDER ──
-function setHero(idx, el) {
+function setHero(idx) {
   heroIdx = idx;
-  document.getElementById('heroBg').style.backgroundImage = `url(${heroImages[idx]})`;
+  const bg = $('heroBg');
+  if(bg) bg.style.backgroundImage = 'url('+heroImages[idx]+')';
   document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
 }
-setInterval(() => setHero((heroIdx+1)%3, null), 5000);
+setInterval(() => setHero((heroIdx+1) % 3), 5000);
 
 // ── RENDER PRODUCTS ──
 function renderProducts() {
-  const grid = document.getElementById('productsGrid');
-  const filtered = currentFilter==='all' ? PRODUCTS : PRODUCTS.filter(p=>p.cat===currentFilter);
-  if(document.getElementById('products-count')) document.getElementById('products-count').textContent = filtered.length+' products';
+  const grid = $('productsGrid');
+  if(!grid) return;
+  const filtered = currentFilter==='all' ? PRODUCTS : PRODUCTS.filter(p => p.cat===currentFilter);
+  const countEl = $('products-count');
+  if(countEl) countEl.textContent = filtered.length + ' products';
   grid.innerHTML = filtered.map(p => {
     const hasDiscount = p.origPrice && p.origPrice > p.price;
     const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
     return `
-    <div class="product-card" data-id="${p.id}" style="cursor:pointer">
+    <div class="product-card" style="cursor:pointer">
       ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
       ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
       <div class="prod-img-wrap" onclick="openProductDetail(${p.id})">
@@ -108,7 +119,7 @@ function renderProducts() {
       </div>
       <div class="prod-info">
         <div class="prod-grade">${p.grade}</div>
-        <div class="prod-name" onclick="openProductDetail(${p.id})">${p.name}</div>
+        <div class="prod-name" onclick="openProductDetail(${p.id})" style="cursor:pointer">${p.name}</div>
         <div class="prod-weight">${p.weight} pack</div>
         <div class="prod-price-row">
           <div class="prod-price" style="display:inline">₹${p.price}</div>
@@ -125,42 +136,48 @@ function renderProducts() {
 
 function filterProducts(cat, el) {
   currentFilter = cat;
-  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
   renderProducts();
 }
 
 // ── CART ──
-function saveCart() { localStorage.setItem('jsc_cart', JSON.stringify(cart)); updateCartBadge(); }
+function saveCart() { try { localStorage.setItem('jsc_cart', JSON.stringify(cart)); } catch(e){} updateCartBadge(); }
 function updateCartBadge() {
-  const total = cart.reduce((a,b)=>a+b.qty,0);
-  document.getElementById('cartBadge').textContent = total;
+  const total = cart.reduce((a,b) => a+b.qty, 0);
+  const badge = $('cartBadge');
+  if(badge) badge.textContent = total;
 }
 function addToCart(id) {
-  const p = PRODUCTS.find(x=>x.id===id);
-  const ex = cart.find(x=>x.id===id);
+  id = parseInt(id);
+  const p = PRODUCTS.find(x => x.id===id);
+  if(!p) return;
+  const ex = cart.find(x => x.id===id);
   if(ex) ex.qty++; else cart.push({...p, qty:1});
   saveCart(); renderCart(); openCart();
 }
 function addToCartFromModal() {
-  if(modalProduct) { addToCart(modalProduct.id); document.getElementById('modalOverlay').classList.remove('open'); }
+  if(modalProduct) { addToCart(modalProduct.id); const mo = $('modalOverlay'); if(mo) mo.classList.remove('open'); }
 }
 function removeFromCart(id) {
-  cart = cart.filter(x=>x.id!==id);
+  id = parseInt(id);
+  cart = cart.filter(x => x.id!==id);
   saveCart(); renderCart();
 }
 function updateQty(id, delta) {
-  const item = cart.find(x=>x.id===id);
+  id = parseInt(id);
+  const item = cart.find(x => x.id===id);
   if(item) { item.qty += delta; if(item.qty<=0) removeFromCart(id); else { saveCart(); renderCart(); } }
 }
 function renderCart() {
-  const el = document.getElementById('cartItems');
-  const footer = document.getElementById('cartFooter');
+  const el = $('cartItems');
+  const footer = $('cartFooter');
+  if(!el) return;
   if(!cart.length) {
     el.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>Your cart is empty</p></div>';
-    footer.style.display='none'; return;
+    if(footer) footer.style.display='none'; return;
   }
-  footer.style.display='block';
+  if(footer) footer.style.display='block';
   el.innerHTML = cart.map(item => `
     <div class="cart-item">
       <img src="${item.img}" class="cart-item-img" alt="${item.name}">
@@ -177,40 +194,48 @@ function renderCart() {
       <button class="cart-remove" onclick="removeFromCart(${item.id})">✕</button>
     </div>
   `).join('');
-  const raw = cart.reduce((a,b)=>a+b.price*b.qty,0);
-  const subtotalEl = document.getElementById('cartSubtotal');
+  const raw = cart.reduce((a,b) => a+b.price*b.qty, 0);
+  const subtotalEl = $('cartSubtotal');
   if(subtotalEl) subtotalEl.textContent = '₹'+raw.toLocaleString('en-IN');
   if(appliedCoupon && raw > 0) {
     const saving = Math.round(raw * appliedCoupon.pct / 100);
     const final = raw - saving;
-    if(document.getElementById('cartSavingsAmt')) document.getElementById('cartSavingsAmt').textContent = '−₹'+saving.toLocaleString('en-IN');
-    document.getElementById('cartTotal').textContent = '₹'+final.toLocaleString('en-IN');
-    document.getElementById('cartSavings')?.classList.add('show');
+    const savingsAmt = $('cartSavingsAmt');
+    if(savingsAmt) savingsAmt.textContent = '−₹'+saving.toLocaleString('en-IN');
+    const cartTotal = $('cartTotal');
+    if(cartTotal) cartTotal.textContent = '₹'+final.toLocaleString('en-IN');
+    const cartSavings = $('cartSavings');
+    if(cartSavings) cartSavings.classList.add('show');
   } else {
-    document.getElementById('cartTotal').textContent = '₹'+raw.toLocaleString('en-IN');
-    document.getElementById('cartSavings')?.classList.remove('show');
+    const cartTotal = $('cartTotal');
+    if(cartTotal) cartTotal.textContent = '₹'+raw.toLocaleString('en-IN');
+    const cartSavings = $('cartSavings');
+    if(cartSavings) cartSavings.classList.remove('show');
   }
 }
-function openCart() { document.getElementById('cartSidebar').classList.add('open'); document.getElementById('cartOverlay').classList.add('open'); renderCart(); }
-function closeCart() { document.getElementById('cartSidebar').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('open'); }
+function openCart() { const cs=$('cartSidebar'),co=$('cartOverlay'); if(cs) cs.classList.add('open'); if(co) co.classList.add('open'); renderCart(); }
+function closeCart() { const cs=$('cartSidebar'),co=$('cartOverlay'); if(cs) cs.classList.remove('open'); if(co) co.classList.remove('open'); }
 function checkout() {
   if(typeof Razorpay === 'undefined') { alert('Payment gateway loading. Please try again.'); return; }
-  const total = cart.reduce((a,b)=>a+b.price*b.qty,0)*100;
+  const total = cart.reduce((a,b) => a+b.price*b.qty, 0)*100;
   new Razorpay({ key:'rzp_live_StJcfZp5KQLYuY', amount:total, currency:'INR', name:'Jai Shree Cashew Industries', description:'Premium Cashew Order', theme:{color:'#C6A15B'} }).open();
 }
 
 // ── QUICK VIEW ──
 function openModal(id) {
-  const p = PRODUCTS.find(x=>x.id===id);
+  id = parseInt(id);
+  const p = PRODUCTS.find(x => x.id===id);
+  if(!p) return;
   modalProduct = p;
-  document.getElementById('modalImg').src = p.img;
-  document.getElementById('modalGrade').textContent = p.grade;
-  document.getElementById('modalName').textContent = p.name;
-  document.getElementById('modalPrice').textContent = '₹'+p.price;
-  document.getElementById('modalDesc').textContent = p.desc;
-  document.getElementById('modalOverlay').classList.add('open');
+  const mi=$('modalImg'), mg=$('modalGrade'), mn=$('modalName'), mp=$('modalPrice'), md=$('modalDesc'), mo=$('modalOverlay');
+  if(mi) mi.src = p.img;
+  if(mg) mg.textContent = p.grade;
+  if(mn) mn.textContent = p.name;
+  if(mp) mp.textContent = '₹'+p.price;
+  if(md) md.textContent = p.desc;
+  if(mo) mo.classList.add('open');
 }
-function closeModal(e) { if(e.target===e.currentTarget) document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModal(e) { if(e.target===e.currentTarget) { const mo=$('modalOverlay'); if(mo) mo.classList.remove('open'); } }
 
 // ── WISHLIST ──
 function toggleWish(btn) {
@@ -219,79 +244,74 @@ function toggleWish(btn) {
 }
 
 // ── LIGHTBOX ──
-function openLightbox(src) { document.getElementById('lightboxImg').src=src; document.getElementById('lightbox').classList.add('open'); }
-function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+function openLightbox(src) { const li=$('lightboxImg'),lb=$('lightbox'); if(li) li.src=src; if(lb) lb.classList.add('open'); }
+function closeLightbox() { const lb=$('lightbox'); if(lb) lb.classList.remove('open'); }
 
 // ── MOBILE MENU ──
-function toggleMobile() { document.getElementById('mobileMenu').classList.toggle('open'); }
+function toggleMobile() { const mm=$('mobileMenu'); if(mm) mm.classList.toggle('open'); }
 
 // ── SCROLL ANIMATIONS ──
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, {threshold:0.1});
-document.querySelectorAll('.fade-up,.fade-in').forEach(el => observer.observe(el));
+try {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, {threshold:0.1});
+  document.querySelectorAll('.fade-up,.fade-in').forEach(el => observer.observe(el));
+} catch(e) {}
 
 // ── FIREBASE INQUIRY SUBMIT ──
 async function submitInquiry(e) {
   e.preventDefault();
   const btn = e.target.querySelector('button[type=submit]');
+  if(!btn) return;
   btn.textContent = 'SENDING...'; btn.disabled = true;
   try {
     if(window._db) {
       await window._addDoc(window._collection(window._db, 'inquiries'), {
-        name: document.getElementById('fname').value,
-        phone: document.getElementById('fphone').value,
-        email: document.getElementById('femail').value,
-        type: document.getElementById('ftype').value,
-        grade: document.getElementById('fgrade').value,
-        qty: document.getElementById('fqty').value,
-        message: document.getElementById('fmsg').value,
-        timestamp: window._serverTimestamp(),
+        name: ($('fname')||{}).value||'',
+        phone: ($('fphone')||{}).value||'',
+        email: ($('femail')||{}).value||'',
+        type: ($('ftype')||{}).value||'',
+        grade: ($('fgrade')||{}).value||'',
+        qty: ($('fqty')||{}).value||'',
+        message: ($('fmsg')||{}).value||'',
+        timestamp: window._serverTimestamp ? window._serverTimestamp() : new Date(),
         source: 'website',
         status: 'new',
         userId: window._currentUser ? window._currentUser.uid : null
       });
     }
-    document.getElementById('formSuccess').style.display='block';
-    document.getElementById('inquiryForm').reset();
+    const fs = $('formSuccess');
+    if(fs) fs.style.display='block';
+    const form = $('inquiryForm');
+    if(form) form.reset();
   } catch(err) {
     alert('Error submitting. Please WhatsApp us directly.');
   }
   btn.textContent='SEND ENQUIRY'; btn.disabled=false;
 }
 
-
-
 // ── CUSTOMER DASHBOARD TABS ──
 function switchDashTab(tab, el) {
-  document.querySelectorAll('#dashOverlay .auth-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  ['orders','enquiries','wishlist'].forEach(t=>{
-    const sec = document.getElementById('dSection-'+t);
+  document.querySelectorAll('#dashOverlay .auth-tab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  ['orders','enquiries','wishlist'].forEach(t => {
+    const sec = $('dSection-'+t);
     if(sec) sec.style.display = t===tab ? 'block' : 'none';
   });
   if(tab==='enquiries' && window._currentUser) loadCustomerInquiries(window._currentUser.email);
 }
 
-// ══════════════════════════════════════════
-// PHASE 2 — FIREBASE AUTH + DASHBOARD
-// ══════════════════════════════════════════
-
-// Auth state change handler
+// ── FIREBASE AUTH + DASHBOARD ──
 window.onAuthChange = function(user) {
-  const loginBtn = document.getElementById('loginNavBtn');
-  const userBtn = document.getElementById('userNavBtn');
+  const loginBtn = $('loginNavBtn');
+  const userBtn = $('userNavBtn');
   if(!loginBtn || !userBtn) return;
   if(user) {
     loginBtn.style.display = 'none';
     userBtn.style.display = 'flex';
     const initials = (user.displayName || user.email).charAt(0).toUpperCase();
-    document.getElementById('userAvatarNav').textContent = initials;
-    document.getElementById('userNameNav').textContent = (user.displayName || 'Account').split(' ')[0];
-    // If admin, show admin option
-    if(user.email === window.ADMIN_EMAIL) {
-      userBtn.title = 'Admin Panel';
-    }
+    safeSet('userAvatarNav', initials);
+    safeSet('userNameNav', (user.displayName || 'Account').split(' ')[0]);
   } else {
     loginBtn.style.display = 'flex';
     userBtn.style.display = 'none';
@@ -299,30 +319,24 @@ window.onAuthChange = function(user) {
 };
 
 // ── AUTH MODAL ──
-function openAuth() {
-  document.getElementById('authOverlay').classList.add('open');
-}
-function closeAuth() {
-  document.getElementById('authOverlay').classList.remove('open');
-  clearAuthErrors();
-}
-document.getElementById('authOverlay').addEventListener('click', function(e){
-  if(e.target === this) closeAuth();
-});
+function openAuth() { const ao=$('authOverlay'); if(ao) ao.classList.add('open'); }
+function closeAuth() { const ao=$('authOverlay'); if(ao) ao.classList.remove('open'); clearAuthErrors(); }
+
 function switchAuthTab(tab, el) {
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('authForm'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
+  if(el) el.classList.add('active');
+  const formId = 'authForm'+tab.charAt(0).toUpperCase()+tab.slice(1);
+  const form = $(formId);
+  if(form) form.classList.add('active');
   clearAuthErrors();
 }
 function clearAuthErrors() {
   document.querySelectorAll('.auth-error').forEach(e => { e.classList.remove('show'); e.textContent = ''; });
 }
 function showAuthError(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.classList.add('show');
+  const el = $(id);
+  if(el) { el.textContent = msg; el.classList.add('show'); }
 }
 function getAuthErrMsg(code) {
   const msgs = {
@@ -333,46 +347,41 @@ function getAuthErrMsg(code) {
     'auth/invalid-email': 'Invalid email address.',
     'auth/too-many-requests': 'Too many attempts. Please try again later.',
     'auth/popup-closed-by-user': 'Login cancelled.',
+    'auth/invalid-credential': 'Invalid email or password.',
   };
   return msgs[code] || 'Something went wrong. Please try again.';
 }
 
 async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPass').value;
+  const emailEl = $('loginEmail'), passEl = $('loginPass');
+  const email = emailEl ? emailEl.value.trim() : '';
+  const pass = passEl ? passEl.value : '';
   if(!email || !pass) { showAuthError('loginError','Please fill all fields.'); return; }
   try {
     await window._signInWithEmail(email, pass);
     closeAuth();
-    // If admin, open admin panel
-    if(email === window.ADMIN_EMAIL) openAdmin();
-    else openDashboard();
-  } catch(err) {
-    showAuthError('loginError', getAuthErrMsg(err.code));
-  }
+    if(email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
+  } catch(err) { showAuthError('loginError', getAuthErrMsg(err.code)); }
 }
 
 async function doSignup() {
-  const name = document.getElementById('signupName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
-  const pass = document.getElementById('signupPass').value;
+  const nameEl=$('signupName'), emailEl=$('signupEmail'), passEl=$('signupPass');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const email = emailEl ? emailEl.value.trim() : '';
+  const pass = passEl ? passEl.value : '';
   if(!name || !email || !pass) { showAuthError('signupError','Please fill all fields.'); return; }
   try {
     const cred = await window._createUser(email, pass);
     await window._updateProfile(cred.user, { displayName: name });
-    closeAuth();
-    openDashboard();
-  } catch(err) {
-    showAuthError('signupError', getAuthErrMsg(err.code));
-  }
+    closeAuth(); openDashboard();
+  } catch(err) { showAuthError('signupError', getAuthErrMsg(err.code)); }
 }
 
 async function doGoogleLogin() {
   try {
     const result = await window._signInGoogle();
     closeAuth();
-    if(result.user.email === window.ADMIN_EMAIL) openAdmin();
-    else openDashboard();
+    if(result.user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
   } catch(err) {
     if(err.code !== 'auth/popup-closed-by-user') {
       showAuthError('loginError', getAuthErrMsg(err.code));
@@ -382,9 +391,8 @@ async function doGoogleLogin() {
 }
 
 async function doSignOut() {
-  await window._signOut();
-  closeDashboard();
-  closeAdmin();
+  if(window._signOut) await window._signOut();
+  closeDashboard(); closeAdmin();
 }
 
 // ── CUSTOMER DASHBOARD ──
@@ -392,35 +400,27 @@ function openDashboard() {
   const user = window._currentUser;
   if(!user) { openAuth(); return; }
   if(user.email === window.ADMIN_EMAIL) { openAdmin(); return; }
-  document.getElementById('dashOverlay').classList.add('open');
-  document.getElementById('dashTitle').textContent = user.displayName || 'My Account';
-  document.getElementById('dashUserInfo').textContent = user.email;
-  // Set avatar
-  const av = document.getElementById('dashAvatarBig');
+  const overlay = $('dashOverlay');
+  if(overlay) overlay.classList.add('open');
+  safeSet('dashTitle', user.displayName || 'My Account');
+  safeSet('dashUserInfo', user.email);
+  const av = $('dashAvatarBig');
   if(av) av.textContent = (user.displayName || user.email).charAt(0).toUpperCase();
-  // Reset to orders tab
-  switchDashTab('orders', document.getElementById('dtab-orders'));
+  switchDashTab('orders', $('dtab-orders'));
 }
-function closeDashboard() {
-  document.getElementById('dashOverlay').classList.remove('open');
-}
-document.getElementById('dashOverlay').addEventListener('click', function(e){
-  if(e.target === this) closeDashboard();
-});
+function closeDashboard() { const d=$('dashOverlay'); if(d) d.classList.remove('open'); }
 
 async function loadCustomerInquiries(email) {
-  const container = document.getElementById('dashInquiries');
+  const container = $('dashInquiries');
+  if(!container) return;
   container.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">⏳</div><div class="dash-empty-text">Loading enquiries...</div></div>';
   try {
-    if(!window._db) {
-      container.innerHTML = '<div class="dash-empty"><div class="dash-empty-text">Database not ready</div><div class="dash-empty-sub">Please refresh the page.</div></div>';
-      return;
-    }
+    if(!window._db) { container.innerHTML = '<div class="dash-empty"><div class="dash-empty-text">Database not ready</div></div>'; return; }
     const q = window._query(window._collection(window._db, 'inquiries'), window._orderBy('timestamp','desc'));
     const snap = await window._getDocs(q);
-    const myDocs = snap.docs.filter(d => d.data().email === email || d.data().email?.toLowerCase() === email.toLowerCase());
-    if(myDocs.length === 0) {
-      container.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">📋</div><div class="dash-empty-text">No enquiries yet</div><div class="dash-empty-sub">Submit a bulk or export enquiry from the contact section — it will appear here.</div></div>';
+    const myDocs = snap.docs.filter(d => (d.data().email||'').toLowerCase() === email.toLowerCase());
+    if(!myDocs.length) {
+      container.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">📋</div><div class="dash-empty-text">No enquiries yet</div><div class="dash-empty-sub">Submit a bulk or export enquiry from the contact section.</div></div>';
       return;
     }
     container.innerHTML = myDocs.map(d => {
@@ -429,77 +429,65 @@ async function loadCustomerInquiries(email) {
       const status = data.status || 'new';
       const statusLabel = {new:'New',contacted:'Contacted',closed:'Closed'}[status] || status;
       return `<div class="dash-inquiry-card">
-        <div class="dash-inquiry-top">
-          <span class="dash-inquiry-grade">${data.grade || 'General Enquiry'}</span>
-          <span class="dash-inquiry-date">${date}</span>
-        </div>
-        <div class="dash-inquiry-type">${data.type || 'Enquiry'}</div>
+        <div class="dash-inquiry-top"><span class="dash-inquiry-grade">${data.grade||'General'}</span><span class="dash-inquiry-date">${date}</span></div>
+        <div class="dash-inquiry-type">${data.type||'Enquiry'}</div>
         ${data.qty ? `<div class="dash-inquiry-qty">Quantity: ${data.qty}</div>` : ''}
         ${data.message ? `<div class="dash-inquiry-msg">"${data.message.substring(0,100)}${data.message.length>100?'...':''}"</div>` : ''}
         <span class="dash-inquiry-status status-${status}">${statusLabel}</span>
       </div>`;
     }).join('');
   } catch(err) {
-    container.innerHTML = '<div class="dash-empty"><div class="dash-empty-text">Could not load enquiries</div><div class="dash-empty-sub">Check your internet connection and try again.</div></div>';
+    container.innerHTML = '<div class="dash-empty"><div class="dash-empty-text">Could not load enquiries</div></div>';
   }
 }
 
 // ── ADMIN PANEL ──
 function openAdmin() {
-  document.getElementById('adminPanel').classList.add('open');
+  const ap = $('adminPanel');
+  if(ap) ap.classList.add('open');
   loadAdminInquiries();
   loadAdminOrders();
   renderAdminProducts();
 }
-function closeAdmin() {
-  document.getElementById('adminPanel').classList.remove('open');
-}
+function closeAdmin() { const ap=$('adminPanel'); if(ap) ap.classList.remove('open'); }
 
 async function loadAdminInquiries() {
-  const container = document.getElementById('adminTableContainer');
+  const container = $('adminTableContainer');
+  if(!container) return;
   container.innerHTML = '<div class="admin-loading">Loading enquiries...</div>';
   try {
     if(!window._db) { container.innerHTML = '<div class="admin-loading">Database not ready.</div>'; return; }
     const q = window._query(window._collection(window._db, 'inquiries'), window._orderBy('timestamp','desc'));
     const snap = await window._getDocs(q);
     const docs = snap.docs;
-    // Stats
     const total = docs.length;
     const newCount = docs.filter(d => !d.data().status || d.data().status === 'new').length;
     const contacted = docs.filter(d => d.data().status === 'contacted').length;
-    document.getElementById('statTotal').textContent = total;
-    document.getElementById('statNew').textContent = newCount;
-    document.getElementById('statContacted').textContent = contacted;
-    if(total === 0) {
-      container.innerHTML = '<div class="admin-loading">No enquiries yet.</div>'; return;
-    }
+    safeSet('statTotal', total);
+    safeSet('statNew', newCount);
+    safeSet('statContacted', contacted);
+    if(!total) { container.innerHTML = '<div class="admin-loading">No enquiries yet.</div>'; return; }
     const rows = docs.map(d => {
       const data = d.data();
       const date = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Just now';
       const status = data.status || 'new';
       return `<tr>
-        <td><strong>${data.name || '—'}</strong><br><span style="font-size:11px;color:var(--text-soft)">${data.email || ''}</span></td>
-        <td>${data.phone || '—'}</td>
+        <td><strong>${data.name||'—'}</strong><br><span style="font-size:11px;color:var(--text-soft)">${data.email||''}</span></td>
+        <td>${data.phone||'—'}</td>
         <td><span style="font-size:11px;background:var(--cream);padding:2px 8px">${data.grade||'—'}</span></td>
-        <td>${data.type||'—'}</td>
-        <td>${data.qty||'—'}</td>
+        <td>${data.type||'—'}</td><td>${data.qty||'—'}</td>
         <td style="max-width:180px;font-size:12px;color:var(--text-soft)">${(data.message||'').substring(0,60)}${(data.message||'').length>60?'...':''}</td>
         <td><span style="font-size:11px;color:var(--text-soft)">${date}</span></td>
-        <td>
-          <select class="admin-status-select" onchange="updateInquiryStatus('${d.id}',this.value)">
-            <option value="new" ${status==='new'?'selected':''}>🟡 New</option>
-            <option value="contacted" ${status==='contacted'?'selected':''}>🔵 Contacted</option>
-            <option value="closed" ${status==='closed'?'selected':''}>🟢 Closed</option>
-          </select>
-        </td>
+        <td><select class="admin-status-select" onchange="updateInquiryStatus('${d.id}',this.value)">
+          <option value="new" ${status==='new'?'selected':''}>🟡 New</option>
+          <option value="contacted" ${status==='contacted'?'selected':''}>🔵 Contacted</option>
+          <option value="closed" ${status==='closed'?'selected':''}>🟢 Closed</option>
+        </select></td>
       </tr>`;
     }).join('');
     container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
-      <thead><tr>
-        <th>NAME / EMAIL</th><th>PHONE</th><th>GRADE</th><th>TYPE</th><th>QTY</th><th>MESSAGE</th><th>DATE</th><th>STATUS</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>`;
+      <thead><tr><th>NAME / EMAIL</th><th>PHONE</th><th>GRADE</th><th>TYPE</th><th>QTY</th><th>MESSAGE</th><th>DATE</th><th>STATUS</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
   } catch(err) {
     container.innerHTML = '<div class="admin-loading">Error loading. Check Firestore rules.</div>';
     console.error(err);
@@ -510,78 +498,155 @@ async function updateInquiryStatus(docId, newStatus) {
   try {
     if(!window._db) return;
     await window._updateDoc(window._doc(window._db, 'inquiries', docId), { status: newStatus });
-  } catch(err) {
-    alert('Could not update status. Check Firestore rules.');
+  } catch(err) { alert('Could not update status.'); }
+}
+
+// ── SEARCH ──
+function navSearch(val) {
+  const drop = $('searchDropdown');
+  if(!drop) return;
+  val = (val||'').trim().toLowerCase();
+  if(!val) { drop.classList.remove('open'); return; }
+  const results = PRODUCTS.filter(p =>
+    p.name.toLowerCase().includes(val) ||
+    p.grade.toLowerCase().includes(val) ||
+    p.cat.toLowerCase().includes(val) ||
+    p.desc.toLowerCase().includes(val)
+  );
+  if(!results.length) {
+    drop.innerHTML = '<div class="search-no-results">No products found for "'+val+'"</div>';
+  } else {
+    drop.innerHTML = results.map(p => `
+      <div class="search-result-item" onclick="openProductDetail(${p.id});closeNavSearch()">
+        <img src="${p.img}" class="search-result-img" alt="${p.name}">
+        <div><div class="search-result-name">${p.name}</div><div class="search-result-price">₹${p.price} / ${p.weight}</div></div>
+      </div>
+    `).join('');
+  }
+  drop.classList.add('open');
+}
+function closeNavSearch() {
+  const drop = $('searchDropdown');
+  if(drop) drop.classList.remove('open');
+  const inp = $('navSearchInput');
+  if(inp) inp.value = '';
+}
+
+// ── COUPON ──
+const COUPONS = { 'CASHEW10': 10, 'JAIPUR15': 15, 'BULK20': 20 };
+let appliedCoupon = null;
+function applyCoupon() {
+  const ci=$('couponInput'), msg=$('couponMsg'), savingsEl=$('cartSavings');
+  if(!ci || !msg) return;
+  const code = ci.value.trim().toUpperCase();
+  if(!code) { msg.className='cart-coupon-msg error'; msg.textContent='Please enter a promo code.'; return; }
+  if(COUPONS[code]) {
+    appliedCoupon = {code, pct: COUPONS[code]};
+    msg.className='cart-coupon-msg success'; msg.textContent='✓ '+code+' applied — '+COUPONS[code]+'% off!';
+    if(savingsEl) savingsEl.classList.add('show');
+    renderCart();
+  } else {
+    appliedCoupon = null;
+    msg.className='cart-coupon-msg error'; msg.textContent='Invalid code. Try: CASHEW10, JAIPUR15, or BULK20';
+    if(savingsEl) savingsEl.classList.remove('show');
+    renderCart();
   }
 }
 
-// ── USER BUTTON → Admin check ──
-document.getElementById('userNavBtn').addEventListener('click', function() {
-  const user = window._currentUser;
-  if(user && user.email === window.ADMIN_EMAIL) openAdmin();
-  else openDashboard();
-});
+// ── RECENTLY VIEWED ──
+let recentlyViewed = [];
+try { recentlyViewed = JSON.parse(localStorage.getItem('jsc_recent')||'[]'); } catch(e) {}
 
-// ── ENTER key on auth forms ──
-document.addEventListener('keydown', function(e) {
-  if(e.key === 'Enter') {
-    if(document.getElementById('authFormLogin').classList.contains('active') &&
-       document.getElementById('authOverlay').classList.contains('open')) doLogin();
-    if(document.getElementById('authFormSignup').classList.contains('active') &&
-       document.getElementById('authOverlay').classList.contains('open')) doSignup();
-  }
-});
+function trackRecentlyViewed(id) {
+  recentlyViewed = recentlyViewed.filter(x => x!==id);
+  recentlyViewed.unshift(id);
+  recentlyViewed = recentlyViewed.slice(0,6);
+  try { localStorage.setItem('jsc_recent', JSON.stringify(recentlyViewed)); } catch(e){}
+}
 
-// ── Pre-fill inquiry form if user is logged in ──
-document.getElementById('inquiryForm').addEventListener('focusin', function() {
-  const user = window._currentUser;
-  if(user) {
-    if(user.displayName && !document.getElementById('fname').value)
-      document.getElementById('fname').value = user.displayName;
-    if(user.email && !document.getElementById('femail').value)
-      document.getElementById('femail').value = user.email;
-  }
-});
+function renderRecentlyViewed() {
+  const wrap = $('recentlyViewedWrap');
+  if(!wrap) return;
+  const ids = recentlyViewed.filter(id => PRODUCTS.find(p => p.id===id));
+  if(!ids.length) { wrap.style.display='none'; return; }
+  wrap.style.display = 'block';
+  const grid = $('recentlyViewedGrid');
+  if(!grid) return;
+  grid.innerHTML = ids.map(id => {
+    const p = PRODUCTS.find(x => x.id===id);
+    if(!p) return '';
+    return `<div class="recently-viewed-item" onclick="openProductDetail(${p.id})">
+      <img src="${p.img}" class="recently-viewed-img" alt="${p.name}">
+      <div class="recently-viewed-name">${p.name}</div>
+      <div class="recently-viewed-price">₹${p.price}</div>
+    </div>`;
+  }).join('');
+}
 
 // ══ MULTI-PAGE SYSTEM ══
 let currentPage = 'home';
 let prevPage = 'home';
 
 function showPage(page) {
-  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-  currentPage = page;
-  const target = document.getElementById('page-'+page);
-  if(target) target.classList.add('active');
-  if(page === 'home') {
-    renderFeaturedProducts(); updateCartBadge();
-  } else if(page === 'shop') {
-    renderProducts(); updateCartBadge(); renderRecentlyViewed();
+  try {
+    // Hide all pages
+    document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+    prevPage = currentPage !== page ? currentPage : prevPage;
+    currentPage = page;
+    // Show target page
+    const target = $('page-'+page);
+    if(target) {
+      target.classList.add('active');
+    } else {
+      // fallback: show home
+      const home = $('page-home');
+      if(home) home.classList.add('active');
+      currentPage = 'home';
+    }
+    // Page-specific init
+    if(page === 'home') {
+      renderFeaturedProducts();
+      updateCartBadge();
+    } else if(page === 'shop') {
+      renderProducts();
+      updateCartBadge();
+      renderRecentlyViewed();
+    }
+    // Nav active state
+    document.querySelectorAll('.nav-page-link').forEach(a => {
+      a.classList.toggle('active', a.dataset.page === currentPage);
+    });
+    // Scroll top
+    window.scrollTo({top:0, behavior:'smooth'});
+    updateStickyCartBar();
+  } catch(err) {
+    console.error('showPage error:', err);
   }
-  document.querySelectorAll('.nav-page-link').forEach(a => {
-    a.classList.toggle('active', a.dataset.page === page);
-  });
-  window.scrollTo({top:0, behavior:'smooth'});
-  updateStickyCartBar();
 }
 
 function renderFeaturedProducts() {
-  const grid = document.getElementById('featuredProductsGrid');
+  const grid = $('featuredProductsGrid');
   if(!grid) return;
   const featured = PRODUCTS.slice(0,3);
   grid.innerHTML = featured.map(p => {
     const discPct = p.origPrice ? Math.round((1-p.price/p.origPrice)*100) : 0;
-    return `<div class="product-card" onclick="openProductDetail('${p.id}')">
-      ${discPct ? `<div class="product-badge">${discPct}% OFF</div>` : ''}
-      <div class="product-img-wrap"><img src="${p.img}" alt="${p.name}" class="product-img" loading="lazy"></div>
-      <div class="product-info">
-        <div class="product-grade">${p.grade || ''}</div>
-        <div class="product-name">${p.name}</div>
-        <div class="product-price-row">
-          <span class="product-price">₹${p.price}</span>
-          ${p.origPrice ? `<span class="product-orig">₹${p.origPrice}</span>` : ''}
+    return `<div class="product-card" onclick="openProductDetail(${p.id})" style="cursor:pointer">
+      ${discPct ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
+      ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
+      <div class="prod-img-wrap">
+        <img src="${p.img}" alt="${p.name}" class="product-img" loading="lazy">
+        <div class="prod-overlay"></div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-grade">${p.grade||''}</div>
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-price-row">
+          <span class="prod-price">₹${p.price}</span>
+          ${p.origPrice ? `<span class="prod-price-original">₹${p.origPrice}</span>` : ''}
         </div>
-        <div class="product-stock ${p.stock > 0 ? 'in-stock' : 'out-stock'}">${p.stock > 0 ? '✓ In Stock' : 'Out of Stock'}</div>
-        <button class="add-cart-btn" onclick="event.stopPropagation();addToCart('${p.id}')">ADD TO CART</button>
+        <div class="prod-btns">
+          <button class="btn-cart" onclick="event.stopPropagation();addToCart(${p.id})">ADD TO CART</button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -593,113 +658,98 @@ let pdpSelectedSize = '';
 let pdpSelectedRating = 0;
 
 function openProductDetail(id) {
+  id = parseInt(id);
   const p = PRODUCTS.find(x => x.id === id);
   if(!p) return;
   currentPDP = p;
   pdpSelectedSize = p.sizes ? p.sizes[0] : p.weight;
 
-  // Breadcrumb
-  document.getElementById('pdp-breadcrumb-name').textContent = p.name;
-  // Grade
-  document.getElementById('pdpGradeTag').textContent = 'Grade · '+p.grade;
-  // Title
-  document.getElementById('pdpTitle').textContent = p.name;
-  // Badges
-  const bNew = document.getElementById('pdpBadgeNew');
-  const bSale = document.getElementById('pdpBadgeSale');
-  if(p.badge) { bNew.textContent = p.badge; bNew.style.display=''; } else { bNew.style.display='none'; }
-  const hasDiscount = p.origPrice && p.origPrice > p.price;
-  const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
-  if(hasDiscount) { bSale.textContent = discPct+'% OFF'; bSale.style.display=''; } else { bSale.style.display='none'; }
-  // Price
-  document.getElementById('pdpPrice').textContent = '₹'+p.price;
-  if(hasDiscount) {
-    document.getElementById('pdpPriceOriginal').textContent = '₹'+p.origPrice;
-    document.getElementById('pdpPriceOriginal').style.display = '';
-    document.getElementById('pdpDiscountBadge').textContent = discPct+'% OFF';
-    document.getElementById('pdpDiscountBadge').style.display = '';
-  } else {
-    document.getElementById('pdpPriceOriginal').style.display = 'none';
-    document.getElementById('pdpDiscountBadge').style.display = 'none';
+  try {
+    safeSet('pdp-breadcrumb-name', p.name);
+    safeSet('pdpGradeTag', 'Grade · '+p.grade);
+    safeSet('pdpTitle', p.name);
+
+    const bNew = $('pdpBadgeNew'), bSale = $('pdpBadgeSale');
+    if(bNew) { bNew.textContent = p.badge||''; bNew.style.display = p.badge ? '' : 'none'; }
+    const hasDiscount = p.origPrice && p.origPrice > p.price;
+    const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
+    if(bSale) { bSale.textContent = discPct+'% OFF'; bSale.style.display = hasDiscount ? '' : 'none'; }
+
+    safeSet('pdpPrice', '₹'+p.price);
+    const origEl = $('pdpPriceOriginal');
+    if(origEl) { origEl.textContent = hasDiscount ? '₹'+p.origPrice : ''; origEl.style.display = hasDiscount ? '' : 'none'; }
+    const discBadge = $('pdpDiscountBadge');
+    if(discBadge) { discBadge.textContent = discPct+'% OFF'; discBadge.style.display = hasDiscount ? '' : 'none'; }
+    safeSet('pdpPerUnit', 'Per '+pdpSelectedSize+' pack · Inclusive of all taxes');
+
+    const allImgs = p.imgs && p.imgs.length ? p.imgs : [p.img];
+    const mainImg = $('pdpMainImg');
+    if(mainImg) mainImg.src = allImgs[0];
+
+    const thumbsEl = $('pdpThumbs');
+    if(thumbsEl) thumbsEl.innerHTML = allImgs.map((src,i) =>
+      `<img src="${src}" class="pdp-thumb${i===0?' active':''}" alt="${p.name}" onclick="pdpSetMainImg(this,'${src}')">`
+    ).join('');
+
+    const sizesEl = $('pdpSizeBtns');
+    const sizes = p.sizes || [p.weight];
+    if(sizesEl) sizesEl.innerHTML = sizes.map((s,i) =>
+      `<button class="pdp-size-btn${i===0?' active':''}" onclick="pdpSelectSize(this,'${s}')">${s}</button>`
+    ).join('');
+
+    const qtyVal = $('pdpQtyVal');
+    if(qtyVal) qtyVal.value = 1;
+
+    loadPDPReviews(id);
+
+    const overviewEl = $('pdpOverviewText');
+    if(overviewEl) overviewEl.innerHTML = p.overview || '<p>'+p.desc+'</p>';
+    safeHTML('pdpProsList', (p.pros||[]).map(x=>`<li>${x}</li>`).join(''));
+    safeHTML('pdpConsList', (p.cons||[]).map(x=>`<li>${x}</li>`).join(''));
+    safeHTML('pdpSpecsTable', (p.specs||[]).map(row=>`<tr><td>${row[0]}</td><td>${row[1]}</td></tr>`).join(''));
+
+    pdpSwitchTab('overview', $('tab-overview'));
+  } catch(err) {
+    console.error('openProductDetail error:', err);
   }
-  document.getElementById('pdpPerUnit').textContent = 'Per '+pdpSelectedSize+' pack · Inclusive of all taxes';
 
-  // Main image
-  const allImgs = p.imgs && p.imgs.length ? p.imgs : [p.img];
-  document.getElementById('pdpMainImg').src = allImgs[0];
-
-  // Thumbs
-  const thumbsEl = document.getElementById('pdpThumbs');
-  thumbsEl.innerHTML = allImgs.map((src,i) =>
-    `<img src="${src}" class="pdp-thumb${i===0?' active':''}" alt="${p.name}" onclick="pdpSetMainImg(this,'${src}')">`
-  ).join('');
-
-  // Sizes
-  const sizesEl = document.getElementById('pdpSizeBtns');
-  const sizes = p.sizes || [p.weight];
-  sizesEl.innerHTML = sizes.map((s,i) =>
-    `<button class="pdp-size-btn${i===0?' active':''}" onclick="pdpSelectSize(this,'${s}')">${s}</button>`
-  ).join('');
-
-  // Quantity reset
-  document.getElementById('pdpQtyVal').value = 1;
-
-  // Rating (mock or from reviews)
-  loadPDPReviews(id);
-
-  // Overview
-  document.getElementById('pdpOverviewText').innerHTML = p.overview || '<p>'+p.desc+'</p>';
-
-  // Pros
-  const prosList = document.getElementById('pdpProsList');
-  prosList.innerHTML = (p.pros||[]).map(x=>`<li>${x}</li>`).join('');
-
-  // Cons
-  const consList = document.getElementById('pdpConsList');
-  consList.innerHTML = (p.cons||[]).map(x=>`<li>${x}</li>`).join('');
-
-  // Specs
-  const specsTable = document.getElementById('pdpSpecsTable');
-  specsTable.innerHTML = (p.specs||[]).map(row=>`<tr><td>${row[0]}</td><td>${row[1]}</td></tr>`).join('');
-
-  // Switch to first tab
-  pdpSwitchTab('overview', document.getElementById('tab-overview'));
-
-  // Show page
   showPage('product-detail');
-  prevPage = currentPage !== 'product-detail' ? currentPage : prevPage;
   trackRecentlyViewed(id);
   updateStickyCartBar();
 }
 
 function pdpSetMainImg(thumb, src) {
-  document.getElementById('pdpMainImg').src = src;
+  const main = $('pdpMainImg');
+  if(main) main.src = src;
   document.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('active'));
-  thumb.classList.add('active');
+  if(thumb) thumb.classList.add('active');
 }
 
 function pdpSelectSize(btn, size) {
   document.querySelectorAll('.pdp-size-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   pdpSelectedSize = size;
-  if(currentPDP) document.getElementById('pdpPerUnit').textContent = 'Per '+size+' pack · Inclusive of all taxes';
+  if(currentPDP) safeSet('pdpPerUnit', 'Per '+size+' pack · Inclusive of all taxes');
 }
 
 function pdpQtyChange(delta) {
-  const inp = document.getElementById('pdpQtyVal');
+  const inp = $('pdpQtyVal');
+  if(!inp) return;
   const val = Math.max(1, parseInt(inp.value||1) + delta);
   inp.value = val;
 }
 
 function pdpAddToCart() {
   if(!currentPDP) return;
-  const qty = parseInt(document.getElementById('pdpQtyVal').value||1);
+  const qtyEl = $('pdpQtyVal');
+  const qty = qtyEl ? parseInt(qtyEl.value||1) : 1;
   for(let i=0;i<qty;i++) addToCart(currentPDP.id);
-  // Show feedback
   const btn = document.querySelector('.pdp-btn-cart');
-  btn.textContent = '✓ ADDED TO CART';
-  btn.style.background = '#27ae60';
-  setTimeout(()=>{ btn.textContent='ADD TO CART'; btn.style.background=''; }, 2000);
+  if(btn) {
+    btn.textContent = '✓ ADDED TO CART';
+    btn.style.background = '#27ae60';
+    setTimeout(()=>{ btn.textContent='ADD TO CART'; btn.style.background=''; }, 2000);
+  }
 }
 
 function pdpToggleWish(btn) {
@@ -717,24 +767,25 @@ function pdpSwitchTab(tab, el) {
   document.querySelectorAll('.pdp-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.pdp-tab-content').forEach(c => c.classList.remove('active'));
   if(el) el.classList.add('active');
-  const tc = document.getElementById('pdptab-'+tab);
+  const tc = $('pdptab-'+tab);
   if(tc) tc.classList.add('active');
 }
 
 // ══ REVIEWS ══
-let allReviews = JSON.parse(localStorage.getItem('jsc_reviews')||'[]');
+let allReviews = [];
+try { allReviews = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
 
 const defaultReviews = [
-  {id:'r1',productId:1,name:'Ramesh Agarwal',location:'Mumbai',rating:5,title:'Finest cashews I have ever tasted',text:'Ordered W180 for our Diwali gift boxes. The size and quality exceeded expectations. Clients were thoroughly impressed. Will reorder.',date:'12 Nov 2024',verified:true,helpful:8},
-  {id:'r2',productId:1,name:'Sunita Mehta',location:'Delhi',rating:5,title:'Premium quality, on-time delivery',text:'Best W180 in Rajasthan. We use it exclusively for our premium gift hampers. The kernel size and whiteness is outstanding.',date:'8 Oct 2024',verified:true,helpful:5},
-  {id:'r3',productId:2,name:'Ashok Sharma',location:'Jaipur',rating:4,title:'Good quality, slightly expensive',text:'W240 is excellent — very uniform. Bulk pricing is competitive. The vacuum packing extends shelf life perfectly. Only minor concern is price has gone up this season.',date:'2 Jan 2025',verified:true,helpful:3},
-  {id:'r4',productId:3,name:'Priya Verma',location:'Pune',rating:5,title:'Consistent quality every time',text:'W320 is my go-to for cooking. 4 years of ordering and not once has quality disappointed. Best W320 source in Jaipur.',date:'15 Mar 2025',verified:true,helpful:12},
-  {id:'r5',productId:4,name:'Vikram Singh',location:'Udaipur',rating:5,title:'Perfect dry roast — no oily aftertaste',text:'Finally a dry roasted cashew that actually tastes like cashew, not oil. The sea salt balance is perfect. Highly addictive.',date:'20 Feb 2025',verified:true,helpful:7},
+  {id:'r1',productId:1,name:'Ramesh Agarwal',location:'Mumbai',rating:5,title:'Finest cashews I have ever tasted',text:'Ordered W180 for our Diwali gift boxes. The size and quality exceeded expectations. Clients were thoroughly impressed.',date:'12 Nov 2024',verified:true,helpful:8},
+  {id:'r2',productId:1,name:'Sunita Mehta',location:'Delhi',rating:5,title:'Premium quality, on-time delivery',text:'Best W180 in Rajasthan. We use it exclusively for our premium gift hampers. Kernel size and whiteness is outstanding.',date:'8 Oct 2024',verified:true,helpful:5},
+  {id:'r3',productId:2,name:'Ashok Sharma',location:'Jaipur',rating:4,title:'Good quality, slightly expensive',text:'W240 is excellent — very uniform. Bulk pricing is competitive. The vacuum packing extends shelf life perfectly.',date:'2 Jan 2025',verified:true,helpful:3},
+  {id:'r4',productId:3,name:'Priya Verma',location:'Pune',rating:5,title:'Consistent quality every time',text:'W320 is my go-to for cooking. 4 years of ordering and not once has quality disappointed.',date:'15 Mar 2025',verified:true,helpful:12},
+  {id:'r5',productId:4,name:'Vikram Singh',location:'Udaipur',rating:5,title:'Perfect dry roast — no oily aftertaste',text:'Finally a dry roasted cashew that actually tastes like cashew, not oil. The sea salt balance is perfect.',date:'20 Feb 2025',verified:true,helpful:7},
 ];
 
-// Merge default with user-submitted
 function getAllReviews(productId) {
-  const stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]');
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
   const all = [...defaultReviews, ...stored].filter(r => !productId || r.productId === productId);
   return all;
 }
@@ -742,43 +793,38 @@ function getAllReviews(productId) {
 function loadPDPReviews(productId) {
   const reviews = getAllReviews(productId);
   const count = reviews.length;
-  document.getElementById('pdpReviewCount').textContent = count;
-  document.getElementById('pdpTabReviewCount').textContent = count;
-  document.getElementById('pdpBigCount').textContent = count+' ratings';
+  safeSet('pdpReviewCount', count);
+  safeSet('pdpTabReviewCount', count);
+  safeSet('pdpBigCount', count+' ratings');
 
   if(!count) {
-    document.getElementById('pdpReviewList').innerHTML = '<div class="dash-empty">No reviews yet. Be the first to review!</div>';
-    document.getElementById('pdpBigScore').textContent = '—';
+    safeHTML('pdpReviewList', '<div class="dash-empty">No reviews yet. Be the first to review!</div>');
+    safeSet('pdpBigScore', '—');
     return;
   }
 
-  const avg = (reviews.reduce((a,b)=>a+b.rating,0)/count).toFixed(1);
-  document.getElementById('pdpBigScore').textContent = avg;
-  document.getElementById('pdpRatingNum').textContent = avg;
+  const avg = (reviews.reduce((a,b) => a+b.rating,0)/count).toFixed(1);
+  safeSet('pdpBigScore', avg);
+  safeSet('pdpRatingNum', avg);
 
-  // Stars
   const full = Math.floor(avg); const half = avg - full >= 0.5;
-  document.getElementById('pdpStars').textContent = '★'.repeat(full) + (half?'½':'') + '☆'.repeat(5-full-(half?1:0));
+  safeSet('pdpStars', '★'.repeat(full)+(half?'½':'')+'☆'.repeat(5-full-(half?1:0)));
 
-  // Bars
   [1,2,3,4,5].forEach(star => {
-    const cnt = reviews.filter(r=>r.rating===star).length;
+    const cnt = reviews.filter(r => r.rating===star).length;
     const pct = count ? (cnt/count*100).toFixed(0) : 0;
-    document.getElementById('bar'+star).style.width = pct+'%';
-    document.getElementById('cnt'+star).textContent = cnt;
+    const bar = $('bar'+star); if(bar) bar.style.width = pct+'%';
+    const cntEl = $('cnt'+star); if(cntEl) cntEl.textContent = cnt;
   });
 
-  // Review cards
-  document.getElementById('pdpReviewList').innerHTML = reviews.slice().reverse().map(r => {
+  const rvList = $('pdpReviewList');
+  if(rvList) rvList.innerHTML = reviews.slice().reverse().map(r => {
     const stars = '★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
     return `<div class="pdp-review-card">
       <div class="pdp-review-top">
         <div class="pdp-review-author">
           <div class="pdp-review-avatar">${r.name.charAt(0).toUpperCase()}</div>
-          <div>
-            <div class="pdp-review-name">${r.name}</div>
-            <div class="pdp-review-location">${r.location||''}</div>
-          </div>
+          <div><div class="pdp-review-name">${r.name}</div><div class="pdp-review-location">${r.location||''}</div></div>
         </div>
         <div class="pdp-review-date">${r.date||''}</div>
       </div>
@@ -786,9 +832,8 @@ function loadPDPReviews(productId) {
       <div class="pdp-review-title">${r.title||''}</div>
       <div class="pdp-review-text">${r.text}</div>
       ${r.verified?'<div class="pdp-review-verified">✓ Verified Purchase</div>':''}
-      <div class="pdp-review-helpful">
-        <span>Helpful?</span>
-        <button onclick="this.disabled=true;this.textContent='👍 '+(parseInt(this.textContent.replace(/\D/g,''))||${r.helpful||0})+1">👍 ${r.helpful||0}</button>
+      <div class="pdp-review-helpful"><span>Helpful?</span>
+        <button onclick="var n=parseInt(this.dataset.count||'${r.helpful||0}');n++;this.dataset.count=n;this.textContent='👍 '+n;this.disabled=true" data-count="${r.helpful||0}">👍 ${r.helpful||0}</button>
         <button>👎</button>
       </div>
     </div>`;
@@ -803,10 +848,11 @@ function pdpSelectStar(val) {
 }
 
 function submitReview() {
-  const name = document.getElementById('rv-name').value.trim();
-  const loc = document.getElementById('rv-loc').value.trim();
-  const title = document.getElementById('rv-title').value.trim();
-  const text = document.getElementById('rv-text').value.trim();
+  const nameEl=$('rv-name'), locEl=$('rv-loc'), titleEl=$('rv-title'), textEl=$('rv-text');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const loc = locEl ? locEl.value.trim() : '';
+  const title = titleEl ? titleEl.value.trim() : '';
+  const text = textEl ? textEl.value.trim() : '';
   if(!pdpSelectedRating) { alert('Please select a star rating.'); return; }
   if(!name || !text) { alert('Please enter your name and review.'); return; }
   const review = {
@@ -816,33 +862,39 @@ function submitReview() {
     title, text, date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
     verified: !!window._currentUser, helpful:0, pending:true
   };
-  const stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]');
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
   stored.push(review);
-  localStorage.setItem('jsc_reviews', JSON.stringify(stored));
-  document.getElementById('rv-success').style.display = 'block';
-  document.getElementById('rv-name').value=''; document.getElementById('rv-loc').value='';
-  document.getElementById('rv-title').value=''; document.getElementById('rv-text').value='';
+  try { localStorage.setItem('jsc_reviews', JSON.stringify(stored)); } catch(e){}
+  const success = $('rv-success');
+  if(success) success.style.display = 'block';
+  if(nameEl) nameEl.value=''; if(locEl) locEl.value='';
+  if(titleEl) titleEl.value=''; if(textEl) textEl.value='';
   pdpSelectedRating = 0;
-  document.querySelectorAll('.pdp-star-select span').forEach(s=>s.classList.remove('active'));
-  setTimeout(()=>document.getElementById('rv-success').style.display='none', 5000);
+  document.querySelectorAll('.pdp-star-select span').forEach(s => s.classList.remove('active'));
+  setTimeout(()=>{ if(success) success.style.display='none'; }, 5000);
 }
 
 // ══ SORT PRODUCTS ══
 function sortProducts(val) {
-  if(val==='price-asc') PRODUCTS.sort((a,b)=>a.price-b.price);
-  else if(val==='price-desc') PRODUCTS.sort((a,b)=>b.price-a.price);
-  else if(val==='discount') PRODUCTS.sort((a,b)=>{ const da=(a.origPrice?Math.round((1-a.price/a.origPrice)*100):0); const db=(b.origPrice?Math.round((1-b.price/b.origPrice)*100):0); return db-da; });
-  else PRODUCTS.sort((a,b)=>a.id-b.id);
+  if(val==='price-asc') PRODUCTS.sort((a,b) => a.price-b.price);
+  else if(val==='price-desc') PRODUCTS.sort((a,b) => b.price-a.price);
+  else if(val==='discount') PRODUCTS.sort((a,b) => {
+    const da=a.origPrice?Math.round((1-a.price/a.origPrice)*100):0;
+    const db=b.origPrice?Math.round((1-b.price/b.origPrice)*100):0;
+    return db-da;
+  });
+  else PRODUCTS.sort((a,b) => a.id-b.id);
   renderProducts();
 }
 
 // ══ ADMIN TAB SWITCHING ══
 function adminSwitchTab(tab, el) {
-  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.admin-tab-content').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('admintab-'+tab).classList.add('active');
-  // Load tab data
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const tc = $('admintab-'+tab);
+  if(tc) tc.classList.add('active');
   if(tab==='orders') loadAdminOrders();
   if(tab==='products') renderAdminProducts();
   if(tab==='payments') loadAdminPayments();
@@ -851,8 +903,9 @@ function adminSwitchTab(tab, el) {
 
 // ══ ADMIN PRODUCTS ══
 function renderAdminProducts() {
-  const grid = document.getElementById('adminProductsGrid');
-  document.getElementById('statProducts').textContent = PRODUCTS.length;
+  const grid = $('adminProductsGrid');
+  if(!grid) return;
+  safeSet('statProducts', PRODUCTS.length);
   grid.innerHTML = PRODUCTS.map(p => `
     <div class="admin-product-card">
       <img src="${p.img}" alt="${p.name}" class="admin-product-img">
@@ -869,44 +922,41 @@ function renderAdminProducts() {
 }
 
 function openProductModal(id) {
-  const modal = document.getElementById('adminProductModal');
+  const modal = $('adminProductModal');
+  if(!modal) return;
   modal.classList.add('open');
   if(!id) {
-    document.getElementById('adminProductModalTitle').textContent = 'Add New Product';
-    document.getElementById('editProductId').value = '';
-    ['ap-name','ap-grade','ap-weight','ap-desc','ap-overview','ap-pros','ap-cons','ap-sizes','ap-badge'].forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
-    document.getElementById('ap-price').value=''; document.getElementById('ap-origprice').value='';
-    document.getElementById('adminPhotoPreview').innerHTML='';
+    safeSet('adminProductModalTitle', 'Add New Product');
+    const eid=$('editProductId'); if(eid) eid.value='';
+    ['ap-name','ap-grade','ap-weight','ap-desc','ap-overview','ap-pros','ap-cons','ap-sizes','ap-badge'].forEach(f=>{ const el=$(f); if(el) el.value=''; });
+    const ap=$('ap-price'); if(ap) ap.value='';
+    const aop=$('ap-origprice'); if(aop) aop.value='';
+    safeHTML('adminPhotoPreview','');
   } else {
-    const p = PRODUCTS.find(x=>x.id===id);
+    const p = PRODUCTS.find(x => x.id===id);
     if(!p) return;
-    document.getElementById('adminProductModalTitle').textContent = 'Edit Product: '+p.name;
-    document.getElementById('editProductId').value = id;
-    document.getElementById('ap-name').value = p.name||'';
-    document.getElementById('ap-grade').value = p.grade||'';
-    document.getElementById('ap-cat').value = p.cat||'whole';
-    document.getElementById('ap-weight').value = p.weight||'';
-    document.getElementById('ap-price').value = p.price||'';
-    document.getElementById('ap-origprice').value = p.origPrice||'';
-    document.getElementById('ap-desc').value = p.desc||'';
-    document.getElementById('ap-overview').value = (p.overview||'').replace(/<[^>]+>/g,'');
-    document.getElementById('ap-pros').value = (p.pros||[]).join('\n');
-    document.getElementById('ap-cons').value = (p.cons||[]).join('\n');
-    document.getElementById('ap-sizes').value = (p.sizes||[]).join(', ');
-    document.getElementById('ap-badge').value = p.badge||'';
-    // Show current images
-    const preview = document.getElementById('adminPhotoPreview');
+    safeSet('adminProductModalTitle', 'Edit Product: '+p.name);
+    const eid=$('editProductId'); if(eid) eid.value=id;
+    const setVal=(fid,val)=>{ const el=$(fid); if(el) el.value=val||''; };
+    setVal('ap-name',p.name); setVal('ap-grade',p.grade); setVal('ap-cat',p.cat);
+    setVal('ap-weight',p.weight); setVal('ap-price',p.price); setVal('ap-origprice',p.origPrice||'');
+    setVal('ap-desc',p.desc);
+    setVal('ap-overview',(p.overview||'').replace(/<[^>]+>/g,''));
+    setVal('ap-pros',(p.pros||[]).join('\n'));
+    setVal('ap-cons',(p.cons||[]).join('\n'));
+    setVal('ap-sizes',(p.sizes||[]).join(', '));
+    setVal('ap-badge',p.badge||'');
+    const preview = $('adminPhotoPreview');
     const imgs = p.imgs||[p.img];
-    preview.innerHTML = imgs.map((src,i)=>`<div class="admin-photo-preview-item"><img src="${src}"><button class="admin-photo-remove" onclick="this.parentElement.remove()">✕</button></div>`).join('');
+    if(preview) preview.innerHTML = imgs.map((src,i)=>`<div class="admin-photo-preview-item"><img src="${src}"><button class="admin-photo-remove" onclick="this.parentElement.remove()">✕</button></div>`).join('');
   }
 }
 
-function closeProductModal() {
-  document.getElementById('adminProductModal').classList.remove('open');
-}
+function closeProductModal() { const m=$('adminProductModal'); if(m) m.classList.remove('open'); }
 
 function previewProductPhotos(input) {
-  const preview = document.getElementById('adminPhotoPreview');
+  const preview = $('adminPhotoPreview');
+  if(!preview || !input.files) return;
   Array.from(input.files).forEach(file => {
     const reader = new FileReader();
     reader.onload = e => {
@@ -920,30 +970,26 @@ function previewProductPhotos(input) {
 }
 
 function saveProduct() {
-  const id = parseInt(document.getElementById('editProductId').value)||null;
-  const name = document.getElementById('ap-name').value.trim();
-  const price = parseInt(document.getElementById('ap-price').value);
+  const idEl = $('editProductId');
+  const id = idEl ? (parseInt(idEl.value)||null) : null;
+  const nameEl=$('ap-name'), priceEl=$('ap-price');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const price = priceEl ? parseInt(priceEl.value) : 0;
   if(!name || !price) { alert('Product name and price are required.'); return; }
-
-  // Collect new photos
   const previewItems = document.querySelectorAll('#adminPhotoPreview .admin-photo-preview-item img');
   const newImgs = previewItems.length ? Array.from(previewItems).map(i=>i.src) : null;
-
+  const getVal = (fid) => { const el=$(fid); return el ? el.value : ''; };
   const productData = {
-    name, grade: document.getElementById('ap-grade').value,
-    cat: document.getElementById('ap-cat').value,
-    weight: document.getElementById('ap-weight').value,
-    price, origPrice: parseInt(document.getElementById('ap-origprice').value)||null,
-    desc: document.getElementById('ap-desc').value,
-    overview: '<p>'+document.getElementById('ap-overview').value.replace(/\n/g,'</p><p>')+'</p>',
-    pros: document.getElementById('ap-pros').value.split('\n').filter(x=>x.trim()),
-    cons: document.getElementById('ap-cons').value.split('\n').filter(x=>x.trim()),
-    sizes: document.getElementById('ap-sizes').value.split(',').map(s=>s.trim()).filter(Boolean),
-    badge: document.getElementById('ap-badge').value||null,
+    name, grade:getVal('ap-grade'), cat:getVal('ap-cat'), weight:getVal('ap-weight'),
+    price, origPrice:parseInt(getVal('ap-origprice'))||null, desc:getVal('ap-desc'),
+    overview:'<p>'+getVal('ap-overview').replace(/\n/g,'</p><p>')+'</p>',
+    pros:getVal('ap-pros').split('\n').filter(x=>x.trim()),
+    cons:getVal('ap-cons').split('\n').filter(x=>x.trim()),
+    sizes:getVal('ap-sizes').split(',').map(s=>s.trim()).filter(Boolean),
+    badge:getVal('ap-badge')||null,
   };
-
   if(id) {
-    const idx = PRODUCTS.findIndex(p=>p.id===id);
+    const idx = PRODUCTS.findIndex(p => p.id===id);
     if(idx>=0) {
       Object.assign(PRODUCTS[idx], productData);
       if(newImgs && newImgs.length) { PRODUCTS[idx].imgs=newImgs; PRODUCTS[idx].img=newImgs[0]; }
@@ -955,25 +1001,24 @@ function saveProduct() {
     else { productData.img=''; productData.imgs=[]; }
     PRODUCTS.push(productData);
   }
-
   closeProductModal();
   renderAdminProducts();
-  document.getElementById('statProducts').textContent = PRODUCTS.length;
+  safeSet('statProducts', PRODUCTS.length);
   alert('✓ Product saved successfully!');
 }
 
 function deleteProduct(id) {
   if(!confirm('Delete this product? This cannot be undone.')) return;
-  const idx = PRODUCTS.findIndex(p=>p.id===id);
+  const idx = PRODUCTS.findIndex(p => p.id===id);
   if(idx>=0) PRODUCTS.splice(idx,1);
   renderAdminProducts();
 }
 
 // ══ ADMIN ORDERS ══
-let adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]');
+let adminAllOrders = [];
+try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
 let adminOrderFilter = 'all';
 
-// Generate some sample orders for demo
 if(!adminAllOrders.length) {
   adminAllOrders = [
     {id:'ORD-2501',customer:'Ramesh Agarwal',email:'ramesh@abc.com',phone:'9876543210',items:[{name:'W180 Jumbo Whole',qty:2,size:'250g',price:1450}],total:2900,status:'delivered',date:'12 Apr 2025',payment:'Razorpay',payStatus:'paid'},
@@ -981,27 +1026,27 @@ if(!adminAllOrders.length) {
     {id:'ORD-2503',customer:'Ashok Sharma',email:'ashok@pqr.com',phone:'9876511111',items:[{name:'W320 Classic Whole',qty:10,size:'1kg',price:3200}],total:32000,status:'processing',date:'22 Apr 2025',payment:'Bank Transfer',payStatus:'paid'},
     {id:'ORD-2504',customer:'Priya Verma',email:'priya@email.com',phone:'9872211234',items:[{name:'Roasted & Salted',qty:3,size:'200g',price:780}],total:2340,status:'pending',date:'24 Apr 2025',payment:'Razorpay',payStatus:'pending'},
   ];
-  localStorage.setItem('jsc_orders', JSON.stringify(adminAllOrders));
+  try { localStorage.setItem('jsc_orders', JSON.stringify(adminAllOrders)); } catch(e){}
 }
 
 function loadAdminOrders() {
   renderAdminOrders();
-  // Update stats
-  document.getElementById('statOrders').textContent = adminAllOrders.length;
+  safeSet('statOrders', adminAllOrders.length);
   const revenue = adminAllOrders.filter(o=>o.payStatus==='paid').reduce((a,b)=>a+b.total,0);
-  document.getElementById('statRevenue').textContent = '₹'+revenue.toLocaleString('en-IN');
+  safeSet('statRevenue', '₹'+revenue.toLocaleString('en-IN'));
 }
 
 function filterAdminOrders(status, el) {
   adminOrderFilter = status;
-  document.querySelectorAll('.admin-orders-filter button').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
+  document.querySelectorAll('.admin-orders-filter button').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
   renderAdminOrders();
 }
 
 function renderAdminOrders() {
+  const container = $('adminOrdersContainer');
+  if(!container) return;
   const filtered = adminOrderFilter==='all' ? adminAllOrders : adminAllOrders.filter(o=>o.status===adminOrderFilter);
-  const container = document.getElementById('adminOrdersContainer');
   if(!filtered.length) { container.innerHTML='<div class="admin-loading">No orders found.</div>'; return; }
   const statusColors = {pending:'#FFF3CD',processing:'#CCE5FF',shipped:'#D4EDDA',delivered:'#D4EDDA',cancelled:'#F8D7DA'};
   const statusText = {pending:'🟡 Pending',processing:'🔵 Processing',shipped:'🚚 Shipped',delivered:'✅ Delivered',cancelled:'❌ Cancelled'};
@@ -1015,22 +1060,20 @@ function renderAdminOrders() {
       <td style="font-size:12px">${o.date}</td>
       <td style="font-size:12px">${o.payment}</td>
       <td><span class="admin-status-badge" style="background:${statusColors[o.status]||'#eee'}">${statusText[o.status]||o.status}</span></td>
-      <td>
-        <select onchange="updateOrderStatus('${o.id}',this.value)" style="border:1px solid var(--border);padding:5px;font-size:12px;font-family:'DM Sans',sans-serif">
-          <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
-          <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
-          <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped</option>
-          <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
-          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
-        </select>
-      </td>
+      <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="border:1px solid var(--border);padding:5px;font-size:12px;font-family:'DM Sans',sans-serif">
+        <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+        <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
+        <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped</option>
+        <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
+        <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
+      </select></td>
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
 
 function updateOrderStatus(id, status) {
   const order = adminAllOrders.find(o=>o.id===id);
-  if(order) { order.status=status; localStorage.setItem('jsc_orders',JSON.stringify(adminAllOrders)); renderAdminOrders(); }
+  if(order) { order.status=status; try{localStorage.setItem('jsc_orders',JSON.stringify(adminAllOrders));}catch(e){} renderAdminOrders(); }
 }
 
 // ══ ADMIN PAYMENTS ══
@@ -1040,22 +1083,21 @@ function loadAdminPayments() {
   const total = paidOrders.reduce((a,b)=>a+b.total,0);
   const pending = pendingOrders.reduce((a,b)=>a+b.total,0);
   const now = new Date(); const thisMonth = now.getMonth(); const thisYear = now.getFullYear();
-  const monthPaid = paidOrders.filter(o=>{ const d=new Date(o.date); return d.getMonth()===thisMonth && d.getFullYear()===thisYear; });
+  const monthPaid = paidOrders.filter(o=>{ try{const d=new Date(o.date);return d.getMonth()===thisMonth&&d.getFullYear()===thisYear;}catch(e){return false;} });
   const monthTotal = monthPaid.reduce((a,b)=>a+b.total,0);
-  document.getElementById('payTotal').textContent = '₹'+total.toLocaleString('en-IN');
-  document.getElementById('payMonth').textContent = '₹'+monthTotal.toLocaleString('en-IN');
-  document.getElementById('payPending').textContent = '₹'+pending.toLocaleString('en-IN');
-  document.getElementById('payCount').textContent = adminAllOrders.length;
-  const container = document.getElementById('adminPaymentsContainer');
+  safeSet('payTotal','₹'+total.toLocaleString('en-IN'));
+  safeSet('payMonth','₹'+monthTotal.toLocaleString('en-IN'));
+  safeSet('payPending','₹'+pending.toLocaleString('en-IN'));
+  safeSet('payCount',adminAllOrders.length);
+  const container = $('adminPaymentsContainer');
+  if(!container) return;
   if(!adminAllOrders.length) { container.innerHTML='<div class="admin-loading">No payments yet.</div>'; return; }
   container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
     <thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>AMOUNT</th><th>DATE</th><th>METHOD</th><th>STATUS</th></tr></thead>
     <tbody>${adminAllOrders.map(o=>`<tr>
-      <td>${o.id}</td>
-      <td>${o.customer}</td>
+      <td>${o.id}</td><td>${o.customer}</td>
       <td><strong>₹${o.total.toLocaleString('en-IN')}</strong></td>
-      <td>${o.date}</td>
-      <td>${o.payment}</td>
+      <td>${o.date}</td><td>${o.payment}</td>
       <td><span style="font-size:11px;padding:3px 10px;background:${o.payStatus==='paid'?'#d4edda':'#fff3cd'};color:${o.payStatus==='paid'?'#155724':'#856404'}">${o.payStatus.toUpperCase()}</span></td>
     </tr>`).join('')}</tbody>
   </table></div>`;
@@ -1063,11 +1105,14 @@ function loadAdminPayments() {
 
 // ══ ADMIN REVIEWS ══
 function loadAdminReviews() {
-  const filter = document.getElementById('adminReviewFilter').value;
-  const stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]');
+  const filterEl=$('adminReviewFilter');
+  const filter = filterEl ? filterEl.value : 'all';
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
   const all = [...defaultReviews.map(r=>({...r,pending:false})), ...stored];
   const filtered = filter==='all' ? all : filter==='pending' ? all.filter(r=>r.pending) : all.filter(r=>!r.pending);
-  const container = document.getElementById('adminReviewsContainer');
+  const container = $('adminReviewsContainer');
+  if(!container) return;
   if(!filtered.length) { container.innerHTML='<div class="admin-loading">No reviews found.</div>'; return; }
   container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
     <thead><tr><th>PRODUCT</th><th>REVIEWER</th><th>RATING</th><th>TITLE</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr></thead>
@@ -1087,105 +1132,19 @@ function loadAdminReviews() {
 }
 
 function approveReview(id) {
-  const stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]');
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
   const r = stored.find(x=>x.id===id);
-  if(r) { r.pending=false; localStorage.setItem('jsc_reviews',JSON.stringify(stored)); loadAdminReviews(); }
+  if(r) { r.pending=false; try{localStorage.setItem('jsc_reviews',JSON.stringify(stored));}catch(e){} loadAdminReviews(); }
 }
 
 function deleteReview(id) {
   if(!confirm('Delete this review?')) return;
-  const stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]');
-  const filtered = stored.filter(x=>x.id!==id);
-  localStorage.setItem('jsc_reviews',JSON.stringify(filtered));
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
+  stored = stored.filter(x=>x.id!==id);
+  try { localStorage.setItem('jsc_reviews',JSON.stringify(stored)); } catch(e){}
   loadAdminReviews();
-}
-
-
-
-
-// ══ SEARCH ══
-function navSearch(val) {
-  const drop = document.getElementById('searchDropdown');
-  val = val.trim().toLowerCase();
-  if(!val) { drop.classList.remove('open'); return; }
-  const results = PRODUCTS.filter(p =>
-    p.name.toLowerCase().includes(val) ||
-    p.grade.toLowerCase().includes(val) ||
-    p.cat.toLowerCase().includes(val) ||
-    p.desc.toLowerCase().includes(val)
-  );
-  if(!results.length) {
-    drop.innerHTML = '<div class="search-no-results">No products found for "'+val+'"</div>';
-  } else {
-    drop.innerHTML = results.map(p => `
-      <div class="search-result-item" onclick="openProductDetail(${p.id});closeNavSearch()">
-        <img src="${p.img}" class="search-result-img" alt="${p.name}">
-        <div>
-          <div class="search-result-name">${p.name}</div>
-          <div class="search-result-price">₹${p.price} / ${p.weight}</div>
-        </div>
-      </div>
-    `).join('');
-  }
-  drop.classList.add('open');
-}
-function closeNavSearch() {
-  const drop = document.getElementById('searchDropdown');
-  if(drop) drop.classList.remove('open');
-  const inp = document.getElementById('navSearchInput');
-  if(inp) inp.value = '';
-}
-
-// ══ COUPON ══
-const COUPONS = { 'CASHEW10': 10, 'JAIPUR15': 15, 'BULK20': 20 };
-let appliedCoupon = null;
-
-function applyCoupon() {
-  const code = document.getElementById('couponInput').value.trim().toUpperCase();
-  const msg = document.getElementById('couponMsg');
-  const savingsEl = document.getElementById('cartSavings');
-  if(!code) { msg.className='cart-coupon-msg error'; msg.textContent='Please enter a promo code.'; return; }
-  if(COUPONS[code]) {
-    appliedCoupon = {code, pct: COUPONS[code]};
-    msg.className='cart-coupon-msg success'; msg.textContent='✓ '+code+' applied — '+COUPONS[code]+'% off!';
-    savingsEl.classList.add('show');
-    renderCart();
-  } else {
-    appliedCoupon = null;
-    msg.className='cart-coupon-msg error'; msg.textContent='Invalid code. Try: CASHEW10, JAIPUR15, or BULK20';
-    savingsEl.classList.remove('show');
-    renderCart();
-  }
-}
-
-// ══ UPDATE renderCart to include coupon savings ══
-
-
-// ══ RECENTLY VIEWED ══
-let recentlyViewed = JSON.parse(localStorage.getItem('jsc_recent')||'[]');
-
-function trackRecentlyViewed(id) {
-  recentlyViewed = recentlyViewed.filter(x=>x!==id);
-  recentlyViewed.unshift(id);
-  recentlyViewed = recentlyViewed.slice(0,6);
-  localStorage.setItem('jsc_recent', JSON.stringify(recentlyViewed));
-}
-
-function renderRecentlyViewed() {
-  const wrap = document.getElementById('recentlyViewedWrap');
-  if(!wrap) return;
-  const ids = recentlyViewed.filter(id => PRODUCTS.find(p=>p.id===id));
-  if(!ids.length) { wrap.style.display='none'; return; }
-  wrap.style.display = 'block';
-  document.getElementById('recentlyViewedGrid').innerHTML = ids.map(id => {
-    const p = PRODUCTS.find(x=>x.id===id);
-    if(!p) return '';
-    return `<div class="recently-viewed-item" onclick="openProductDetail(${p.id})">
-      <img src="${p.img}" class="recently-viewed-img" alt="${p.name}">
-      <div class="recently-viewed-name">${p.name}</div>
-      <div class="recently-viewed-price">₹${p.price}</div>
-    </div>`;
-  }).join('');
 }
 
 // ══ SHARE ══
@@ -1195,31 +1154,77 @@ function pdpShareWA() {
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 function pdpCopyLink() {
-  const url = window.location.href.split('#')[0] + '#product-' + (currentPDP?.id||'');
+  const url = window.location.href.split('#')[0]+'#product-'+(currentPDP?.id||'');
   navigator.clipboard.writeText(url).then(()=>{
-    const el = document.getElementById('pdpCopyConfirm');
+    const el=$('pdpCopyConfirm');
     if(el) { el.style.display='inline'; setTimeout(()=>el.style.display='none',2500); }
   }).catch(()=>{ alert('Link: '+url); });
 }
 
 // ══ STICKY CART BAR ══
 function updateStickyCartBar() {
-  const bar = document.getElementById('stickyCartBar');
+  const bar = $('stickyCartBar');
   if(!bar) return;
   if(currentPage === 'product-detail' && currentPDP) {
-    document.getElementById('stickyCartPrice').textContent = '₹'+currentPDP.price;
-    document.getElementById('stickyCartSize').textContent = pdpSelectedSize || currentPDP.weight;
+    safeSet('stickyCartPrice','₹'+currentPDP.price);
+    safeSet('stickyCartSize', pdpSelectedSize || currentPDP.weight);
     bar.style.display = 'flex';
   } else {
     bar.style.display = 'none';
   }
 }
 
-// ══ OVERRIDE openProductDetail to also track + sticky ══
+// ══ INIT — runs after DOM is ready ══
+function init() {
+  // Cart badge
+  updateCartBadge();
 
+  // Auth overlay click-outside
+  const authOverlay = $('authOverlay');
+  if(authOverlay) authOverlay.addEventListener('click', function(e){ if(e.target===this) closeAuth(); });
 
+  // Dashboard overlay click-outside
+  const dashOverlay = $('dashOverlay');
+  if(dashOverlay) dashOverlay.addEventListener('click', function(e){ if(e.target===this) closeDashboard(); });
 
+  // User nav button
+  const userNavBtn = $('userNavBtn');
+  if(userNavBtn) userNavBtn.addEventListener('click', function(){
+    const user = window._currentUser;
+    if(user && user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
+  });
 
-// ══ INIT ══
-updateCartBadge();
-showPage('home');
+  // Enter key on auth forms
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter') return;
+    const ao = $('authOverlay');
+    if(!ao || !ao.classList.contains('open')) return;
+    const loginForm = $('authFormLogin');
+    const signupForm = $('authFormSignup');
+    if(loginForm && loginForm.classList.contains('active')) doLogin();
+    else if(signupForm && signupForm.classList.contains('active')) doSignup();
+  });
+
+  // Pre-fill inquiry form if logged in
+  const inquiryForm = $('inquiryForm');
+  if(inquiryForm) {
+    inquiryForm.addEventListener('focusin', function(){
+      const user = window._currentUser;
+      if(user) {
+        const fname=$('fname'), femail=$('femail');
+        if(user.displayName && fname && !fname.value) fname.value = user.displayName;
+        if(user.email && femail && !femail.value) femail.value = user.email;
+      }
+    });
+  }
+
+  // Show home page to start
+  showPage('home');
+}
+
+// Run init when DOM is ready
+if(document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

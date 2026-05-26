@@ -740,3 +740,24 @@ footer{background:var(--walnut);color:rgba(255,255,255,0.6);padding:60px 5% 32px
   .nav-search-wrap { display: none; }
 }
 
+
+/* ── PAGE SYSTEM FIX ── */
+.page-section {
+  display: none !important;
+}
+.page-section.active {
+  display: block !important;
+}
+
+/* Ensure product-detail page renders correctly */
+#page-product-detail.active {
+  display: block !important;
+}
+
+/* Fix any inherited visibility issues */
+.page-section.active section,
+.page-section.active div,
+.page-section.active footer {
+  visibility: visible;
+}
+
