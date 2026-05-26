@@ -2776,3 +2776,603 @@ footer{
 }
 .dash-signout:hover{background:#c0392b;color:#fff}
 
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE ART-DIRECTION POLISH PASS
+   Breakpoints: ≤768px  (tablet/large phone)
+                ≤480px  (standard phone — primary target)
+   Goal: premium luxury ecommerce composition on mobile.
+   This block OVERRIDES only what is broken — no structural rewrites.
+═══════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────
+   1. GLOBAL RHYTHM & SECTION SPACING
+──────────────────────────────────────────── */
+@media(max-width:768px){
+  section{padding:56px 5%}
+  .sec-tag{font-size:9.5px;letter-spacing:3px;margin-bottom:12px}
+  .sec-tag::before{width:20px}
+  .sec-title{font-size:clamp(26px,7.5vw,38px);letter-spacing:-.3px;margin-bottom:0}
+  .divider{margin:18px 0}
+  .sec-sub{font-size:14px;line-height:1.75}
+}
+
+/* ────────────────────────────────────────────
+   2. HERO — CINEMATIC MOBILE COMPOSITION
+──────────────────────────────────────────── */
+@media(max-width:768px){
+  /* Full-bleed, true viewport height */
+  .hero{
+    height:100svh;
+    min-height:580px;
+    max-height:none;
+    align-items:flex-end;      /* anchor content to bottom third */
+  }
+
+  /* Image crops better with a lower focal point on portrait */
+  .hero-bg{
+    background-position:center 30%;
+  }
+
+  /* Stronger overlay gradient for legibility */
+  .hero-overlay{
+    background:linear-gradient(
+      to top,
+      rgba(20,10,4,0.90) 0%,
+      rgba(20,10,4,0.55) 45%,
+      rgba(20,10,4,0.15) 80%,
+      transparent 100%
+    );
+  }
+
+  /* Content sits comfortably in the lower 40% */
+  .hero-content{
+    padding:0 5% 52px;
+    max-width:100%;
+    width:100%;
+  }
+
+  /* Badge — compact and elegant */
+  .hero-badge{
+    font-size:9px;
+    letter-spacing:2.5px;
+    padding:6px 13px;
+    margin-bottom:18px;
+  }
+
+  /* Headline — large and airy */
+  .hero h1{
+    font-size:clamp(38px,11vw,52px);
+    line-height:1.0;
+    letter-spacing:-.5px;
+    margin-bottom:14px;
+  }
+  .hero h1 em{margin-top:2px}
+
+  /* Subtitle — readable, not cramped */
+  .hero-sub{
+    font-size:14px;
+    line-height:1.65;
+    max-width:340px;
+    margin-bottom:20px;
+    color:rgba(255,255,255,0.7);
+  }
+
+  /* Trust row — inline, minimal */
+  .hero-trust{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 16px;
+    margin-bottom:28px;
+  }
+  .hero-trust-item{
+    font-size:10px;
+    letter-spacing:.8px;
+    color:rgba(255,255,255,0.5);
+    display:flex;align-items:center;gap:5px;
+  }
+  .hero-trust-item::before{font-size:9px}
+
+  /* CTAs — full width stack on very small, side-by-side on normal */
+  .hero-btns{
+    gap:10px;
+    flex-wrap:nowrap;
+  }
+  .btn-gold{
+    padding:14px 22px;
+    font-size:11px;
+    letter-spacing:2px;
+    flex:1;
+    text-align:center;
+    justify-content:center;
+  }
+  .btn-outline{
+    padding:13px 20px;
+    font-size:11px;
+    letter-spacing:1.5px;
+    flex:1;
+    text-align:center;
+    justify-content:center;
+  }
+
+  /* Dots — bottom left, above content */
+  .hero-dots{
+    bottom:auto;
+    top:28px;
+    left:5%;
+    gap:7px;
+  }
+  .hero-dot{width:20px;height:2px}
+  .hero-dot.active{width:36px}
+}
+
+/* ────────────────────────────────────────────
+   3. TRUST STRIP — CLEAN HORIZONTAL SCROLL
+   Replace the broken 2×3 grid with a clean
+   horizontal scrolling pill row.
+──────────────────────────────────────────── */
+@media(max-width:768px){
+  .trust-strip{
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .trust-strip::-webkit-scrollbar{display:none}
+
+  .trust-strip-inner{
+    display:flex;
+    flex-direction:row;
+    flex-wrap:nowrap;
+    width:max-content;
+    min-width:100%;
+    gap:0;
+  }
+
+  .trust-item{
+    flex:0 0 auto;
+    width:130px;
+    padding:18px 14px;
+    border-right:1px solid rgba(255,255,255,0.07);
+    border-bottom:none !important;
+    gap:8px;
+  }
+  .trust-item:last-child{border-right:1px solid rgba(255,255,255,0.07)}
+
+  .trust-icon{font-size:18px}
+  .trust-label{font-size:9.5px;letter-spacing:1.2px}
+  .trust-label strong{font-size:10.5px;margin-bottom:2px}
+}
+
+/* ────────────────────────────────────────────
+   4. STATS — TIGHTER, CLEANER 2-COL
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  .stats{padding:36px 5%}
+  .stats-grid{
+    grid-template-columns:1fr 1fr;
+    border:1px solid rgba(255,255,255,0.07);
+  }
+  .stat-item{
+    padding:24px 12px;
+    border-right:1px solid rgba(255,255,255,0.07);
+    border-bottom:1px solid rgba(255,255,255,0.07);
+  }
+  .stat-item:nth-child(2){border-right:none}
+  .stat-item:nth-child(3){border-bottom:none}
+  .stat-item:nth-child(4){border-right:none;border-bottom:none}
+  .stat-num{font-size:40px;letter-spacing:-1px}
+  .stat-label{font-size:9px;letter-spacing:1.8px;margin-top:7px}
+}
+
+/* ────────────────────────────────────────────
+   5. PRODUCT CARDS — PREMIUM MOBILE LAYOUT
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  /* 2-col grid with no gap, hairline separator */
+  .products-grid{
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:var(--border);
+  }
+  .product-card{
+    background:var(--white);
+  }
+  .product-card:hover{
+    transform:none; /* disable lift on touch */
+    box-shadow:none;
+  }
+
+  /* Image: square crop — feels intentional */
+  .prod-img-wrap{
+    height:0;
+    padding-bottom:100%; /* 1:1 ratio */
+    position:relative;
+    overflow:hidden;
+  }
+  .prod-img-wrap img{
+    position:absolute;
+    inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+  }
+  /* Disable hover scale on touch */
+  .product-card:active .prod-img-wrap img{transform:scale(1.04)}
+  .product-card:hover .prod-img-wrap img{transform:none}
+
+  /* Quick add — always visible on mobile */
+  .prod-quick{
+    position:static;
+    bottom:auto;
+    transform:none;
+    opacity:1;
+    font-size:9px;
+    letter-spacing:2px;
+    padding:11px;
+    display:block;
+  }
+  .product-card:hover .prod-quick{bottom:auto}
+
+  /* Info area — clean, breathing */
+  .prod-info{
+    padding:13px 11px 14px;
+  }
+  .prod-grade{
+    font-size:8.5px;
+    letter-spacing:2px;
+    margin-bottom:4px;
+  }
+  .prod-name{
+    font-family:var(--font-serif);
+    font-size:15px;
+    line-height:1.2;
+    margin-bottom:3px;
+  }
+  .prod-weight{
+    font-size:11.5px;
+    margin-bottom:10px;
+    color:var(--text-muted);
+  }
+  .prod-price{font-size:18px}
+  .prod-price-row{gap:5px;margin-bottom:0}
+  .prod-price-original{font-size:12px}
+  .prod-discount{font-size:10px}
+
+  /* Hide wish button & show only cart on mobile cards */
+  .prod-btns{
+    display:none; /* using prod-quick instead */
+  }
+
+  /* Badges — smaller, positioned well */
+  .badge-new,.badge-sale{
+    font-size:7.5px;
+    letter-spacing:1px;
+    padding:3px 8px;
+    top:10px;
+  }
+  .badge-new{left:10px}
+  .badge-sale{right:10px}
+}
+
+/* Section wrapping featured products */
+@media(max-width:640px){
+  .products-header{
+    margin-bottom:24px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .filter-tabs{gap:5px}
+  .filter-tab{
+    padding:7px 14px;
+    font-size:10px;
+    letter-spacing:1px;
+  }
+}
+
+/* ────────────────────────────────────────────
+   6. GRADES SECTION — FULL BLEED CARDS
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  .grades{padding:52px 0}
+  .grades > *:not(.grades-grid){padding-left:5%;padding-right:5%}
+  .grades .sec-tag{padding-left:5%}
+  .grades .sec-title{padding-left:5%}
+  .grades .divider{margin-left:5%}
+  .grades .sec-sub{padding-left:5%;padding-right:5%}
+  .grades-grid{
+    grid-template-columns:1fr;
+    gap:1px;
+    margin-top:28px;
+  }
+  .grade-img{
+    height:220px;
+    object-fit:cover;
+  }
+  .grade-info{padding:22px 5%}
+  .grade-name{font-size:22px}
+  .grade-desc{font-size:13px}
+}
+
+/* ────────────────────────────────────────────
+   7. PROCESS STEPS — VERTICAL ON MOBILE
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  .process{padding:52px 5%}
+  .process-steps{
+    grid-template-columns:1fr;
+    gap:32px;
+    margin-top:40px;
+  }
+  .step{
+    display:flex;
+    align-items:flex-start;
+    gap:20px;
+    text-align:left;
+    padding:0;
+  }
+  .step-num{
+    margin:0;
+    width:52px;height:52px;
+    font-size:18px;
+    flex-shrink:0;
+  }
+  .step-body{flex:1}
+  .step-title{font-size:16px;margin-bottom:6px}
+  .step-desc{font-size:13px;color:rgba(255,255,255,0.5)}
+}
+
+/* ────────────────────────────────────────────
+   8. TESTIMONIALS — SINGLE CARD FEEL
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  .testimonials{padding:52px 0}
+  .testimonials > div:first-child{padding:0 5%}
+  .testi-grid{
+    gap:1px;
+    margin-top:36px;
+  }
+  .testi-card{
+    padding:28px 5%;
+    border-right:none;
+  }
+  .testi-quote{font-size:16px;line-height:1.7}
+  .testi-stars{font-size:12px;letter-spacing:3px;margin-bottom:16px}
+  .testi-name{font-size:13.5px}
+  .testi-from{font-size:11px}
+}
+
+/* ────────────────────────────────────────────
+   9. FOOTER — COMPACT, CLEAN MOBILE LAYOUT
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  footer{
+    padding:44px 5% 28px;
+  }
+  .footer-grid{
+    grid-template-columns:1fr;
+    gap:0;
+    margin-bottom:32px;
+    padding-bottom:32px;
+  }
+  /* Each column gets a clean separator */
+  .footer-grid > div{
+    padding:20px 0;
+    border-bottom:1px solid rgba(255,255,255,0.07);
+  }
+  .footer-grid > div:first-child{
+    padding-top:0;
+  }
+  .footer-grid > div:last-child{
+    border-bottom:none;
+  }
+
+  /* Brand block — tighter */
+  .footer-brand{font-size:18px;margin-bottom:8px}
+  .footer-desc{
+    font-size:12.5px;line-height:1.7;
+    max-width:none;margin-bottom:14px;
+  }
+  .footer-title{
+    font-size:9px;letter-spacing:2.5px;margin-bottom:14px;
+  }
+  .footer-links{gap:9px}
+  .footer-links a{font-size:13px}
+
+  /* Social icons — smaller */
+  .footer-social{margin-top:14px;gap:8px}
+  .footer-social a{width:32px;height:32px;font-size:13px}
+
+  /* Cert badges */
+  .footer-cert{gap:6px;margin-top:14px}
+  .footer-cert-badge{font-size:9px;padding:4px 10px}
+
+  /* Newsletter input */
+  .footer-nl-input{font-size:13px;padding:11px 12px}
+  .footer-nl-btn{padding:11px 14px;font-size:10px;letter-spacing:1px}
+
+  /* Footer bottom — vertical stack */
+  .footer-bottom{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+    padding-top:20px;
+    font-size:11px;
+  }
+  .footer-gstin{font-size:10px}
+}
+
+/* ────────────────────────────────────────────
+   10. MOBILE TYPOGRAPHY HIERARCHY POLISH
+──────────────────────────────────────────── */
+@media(max-width:480px){
+  /* Section headings — the right scale for 390px phones */
+  .sec-title{
+    font-size:clamp(24px,8vw,34px);
+    line-height:1.1;
+    letter-spacing:-.2px;
+  }
+  .sec-sub{font-size:13.5px;line-height:1.7}
+
+  /* Tighter vertical rhythm for paragraphs */
+  p{line-height:1.65}
+
+  /* Stat numbers — don't overpower */
+  .stat-num{font-size:38px}
+
+  /* Product name on very small screens */
+  .prod-name{font-size:14px}
+  .prod-price{font-size:17px}
+}
+
+/* ────────────────────────────────────────────
+   11. ABOUT / FOUNDER / FACTORY SECTIONS
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  .founders{padding:52px 5%}
+  .founders-layout{gap:36px}
+  .founder-img{height:280px}
+  .founder-img-wrap::before{margin:10px}
+  .founder-name{font-size:22px}
+  .founder-bio{font-size:13px;line-height:1.75}
+  .founder-sig{font-size:22px;margin-top:14px}
+
+  .factory-layout{gap:32px}
+  .factory-features{grid-template-columns:1fr 1fr;gap:10px}
+  .factory-feat{padding:14px 12px}
+  .feat-title{font-size:13.5px}
+  .feat-desc{font-size:12px}
+}
+
+/* ────────────────────────────────────────────
+   12. CONTACT FORM — MOBILE CLARITY
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  .contact-section{padding:52px 5%}
+  .contact-layout{gap:32px;margin-top:32px}
+  .form-card{padding:24px 16px}
+  .form-group input,.form-group select,.form-group textarea{
+    font-size:15px; /* prevents iOS zoom */
+    padding:13px 12px;
+  }
+  .contact-info h3{font-size:20px}
+  .contact-info p{font-size:13px}
+  .contact-val{font-size:13px}
+}
+
+/* ────────────────────────────────────────────
+   13. SHOP PAGE MOBILE
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  .shop-hero-banner{padding:32px 5%}
+  .shop-hero-title{
+    font-size:clamp(24px,7vw,34px);
+    line-height:1.1;
+  }
+  .shop-hero-sub{font-size:13px}
+  .shop-main{padding:14px 4%}
+  .shop-toolbar{margin-bottom:16px;padding-bottom:12px}
+}
+
+/* ────────────────────────────────────────────
+   14. MOBILE NAV — BREATHING ROOM
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  nav{padding:0 4%}
+  .nav-inner{height:64px}
+  .logo{font-size:17px}
+  .logo span{font-size:8.5px;letter-spacing:2.5px}
+  .nav-icons{gap:10px}
+  .nav-icon-btn{font-size:18px;padding:3px}
+  .cart-badge{width:15px;height:15px;font-size:8.5px;top:-5px;right:-6px}
+  .hamburger span{width:20px}
+}
+
+/* ────────────────────────────────────────────
+   15. MOBILE MENU — FONT SIZES FOR SMALL PHONES
+──────────────────────────────────────────── */
+@media(max-width:480px){
+  .mobile-menu-inner{padding:80px 32px 40px}
+  .mobile-logo{font-size:16px;margin-bottom:36px}
+  .mobile-menu a.mob-link{
+    font-size:clamp(28px,9vw,40px);
+    margin-bottom:16px;
+  }
+  .mob-cta{padding:14px 24px;font-size:11px}
+  .mob-contact{font-size:11px;line-height:1.9}
+}
+
+/* ────────────────────────────────────────────
+   16. EXPORT / COUNTRY TAGS MOBILE
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  .export-countries{gap:7px}
+  .country-tag{padding:8px 12px;font-size:12px}
+  .country-flag{font-size:16px}
+}
+
+/* ────────────────────────────────────────────
+   17. GALLERY MOBILE — CLEAN 2-COL
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  .gallery-grid{
+    grid-template-columns:1fr 1fr;
+    gap:2px;
+    margin-top:28px;
+  }
+  .gallery-item:nth-child(1){
+    grid-column:span 2;
+    grid-row:span 1;
+  }
+  .gallery-item img{min-height:140px}
+  .gallery-item:nth-child(1) img{min-height:200px}
+}
+
+/* ────────────────────────────────────────────
+   18. PREVENT iOS FONT ZOOM ON INPUTS
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  input,select,textarea{font-size:16px !important}
+  /* Re-override for small UI elements where 16px is too large */
+  .nav-search-input,
+  .sidebar-search,
+  .sidebar-price-input{font-size:14px !important}
+}
+
+/* ────────────────────────────────────────────
+   19. HOMEPAGE FEATURED SECTION PADDING
+──────────────────────────────────────────── */
+@media(max-width:640px){
+  #page-home section[style*="padding:60px"],
+  #page-home section[style*="padding: 60px"]{
+    padding:48px 4% !important;
+  }
+  /* Grades preview dark section */
+  #page-home section[style*="background:var(--walnut)"]{
+    padding:48px 4% !important;
+  }
+}
+
+/* ────────────────────────────────────────────
+   20. SCROLL BEHAVIOUR & TOUCH POLISH
+──────────────────────────────────────────── */
+@media(max-width:768px){
+  /* Smooth momentum scrolling */
+  .cart-items,
+  .shop-sidebar,
+  .dash-panel-body,
+  .recently-viewed-grid{
+    -webkit-overflow-scrolling:touch;
+  }
+  /* Generous touch targets */
+  .nav-icon-btn,.hamburger,.mobile-close,.auth-close,.cart-close{
+    min-width:44px;min-height:44px;
+  }
+  .pdp-qty-btn,.qty-btn{
+    min-width:44px;min-height:44px;
+  }
+  /* Remove tap highlight */
+  *{-webkit-tap-highlight-color:transparent}
+}
+
