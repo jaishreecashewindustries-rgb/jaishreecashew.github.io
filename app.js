@@ -568,16 +568,34 @@ function showAuthError(id, msg) {
 }
 function getAuthErrMsg(code) {
   const msgs = {
-    'auth/user-not-found': 'No account found with this email.',
-    'auth/wrong-password': 'Incorrect password.',
-    'auth/email-already-in-use': 'Email already registered. Please sign in.',
-    'auth/weak-password': 'Password must be at least 6 characters.',
-    'auth/invalid-email': 'Invalid email address.',
-    'auth/too-many-requests': 'Too many attempts. Please try again later.',
-    'auth/popup-closed-by-user': 'Login cancelled.',
-    'auth/invalid-credential': 'Invalid email or password.',
+    // Email/password
+    'auth/user-not-found':        'No account found with this email.',
+    'auth/wrong-password':        'Incorrect password.',
+    'auth/email-already-in-use':  'Email already registered. Please sign in.',
+    'auth/weak-password':         'Password must be at least 6 characters.',
+    'auth/invalid-email':         'Invalid email address.',
+    'auth/too-many-requests':     'Too many attempts. Please try again later.',
+    'auth/invalid-credential':    'Invalid email or password.',
+    // Google / popup
+    'auth/popup-closed-by-user':       'Google sign-in was cancelled.',
+    'auth/cancelled-popup-request':    'Only one sign-in window at a time. Please try again.',
+    'auth/popup-blocked':              'Popup was blocked. Trying redirect instead...',
+    // Domain / config issues — most common cause of "Something went wrong"
+    'auth/unauthorized-domain':        'This domain is not authorised in Firebase.\nFix: Firebase Console → Authentication → Settings → Authorised Domains → Add your domain.',
+    'auth/operation-not-allowed':      'Google sign-in is not enabled.\nFix: Firebase Console → Authentication → Sign-in method → Enable Google.',
+    // Network
+    'auth/network-request-failed':     'Network error. Check your internet connection and try again.',
+    'auth/internal-error':             'Firebase internal error. Please try again in a moment.',
+    // Misc
+    'auth/user-disabled':              'This account has been disabled.',
+    'auth/account-exists-with-different-credential': 'An account already exists with this email using a different sign-in method.',
+    'auth/requires-recent-login':      'Please sign in again to continue.',
+    'auth/no-current-user':            'No user is currently signed in.',
   };
-  return msgs[code] || 'Something went wrong. Please try again.';
+  const human = msgs[code];
+  if(human) return human;
+  // Unknown code — show it so developer knows what to fix
+  return code ? `Sign-in error (${code}). Check browser console for details.` : 'Sign-in failed. Please try again.';
 }
 
 async function doLogin() {
@@ -589,7 +607,7 @@ async function doLogin() {
     await window._signInWithEmail(email, pass);
     closeAuth();
     if(email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
-  } catch(err) { showAuthError('loginError', getAuthErrMsg(err.code)); }
+  } catch(err) { console.error('[Auth] Email login FAILED. Code:', err.code, '|', err.message); showAuthError('loginError', getAuthErrMsg(err.code)); }
 }
 
 async function doSignup() {
@@ -602,28 +620,50 @@ async function doSignup() {
     const cred = await window._createUser(email, pass);
     await window._updateProfile(cred.user, { displayName: name });
     closeAuth(); openDashboard();
-  } catch(err) { showAuthError('signupError', getAuthErrMsg(err.code)); }
+  } catch(err) { console.error('[Auth] Signup FAILED. Code:', err.code, '|', err.message); showAuthError('signupError', getAuthErrMsg(err.code)); }
 }
 
 async function doGoogleLogin() {
+  // Check if a previous redirect attempt left an error
+  const prevRedirectErr = sessionStorage.getItem('jsc_redirect_error');
+  if(prevRedirectErr) {
+    sessionStorage.removeItem('jsc_redirect_error');
+    const [errCode, errMsg] = prevRedirectErr.split('|');
+    console.error('[Auth] Previous redirect failed. Code:', errCode, '| Msg:', errMsg);
+    const msg = getAuthErrMsg(errCode);
+    showAuthError('loginError', msg);
+    showAuthError('signupError', msg);
+    return;
+  }
+
+  // Disable Google buttons to prevent double-tap
+  document.querySelectorAll('.auth-btn-google').forEach(b => { b.disabled = true; b.style.opacity = '0.6'; });
+  const resetBtns = () => document.querySelectorAll('.auth-btn-google').forEach(b => { b.disabled = false; b.style.opacity = ''; });
+
   try {
+    console.log('[Auth] doGoogleLogin called. Domain:', location.hostname);
     const result = await window._signInGoogle();
     if(!result) {
-      // Redirect flow initiated - page will reload, handled by getRedirectResult
+      // Redirect flow initiated — page will reload, result handled by getRedirectResult
+      console.log('[Auth] Redirect flow started — awaiting page reload.');
+      // Keep buttons disabled — page is reloading
       return;
     }
+    console.log('[Auth] Google login SUCCESS. User:', result.user.email);
+    resetBtns();
     closeAuth();
     if(result.user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
   } catch(err) {
+    resetBtns();
     const code = err.code || '';
-    if(code === 'auth/popup-closed-by-user') return;
-    // If popup blocked, try redirect
-    if(code === 'auth/popup-blocked') {
-      if(window._signInGoogleRedirect) {
-        await window._signInGoogleRedirect();
-        return;
-      }
+    console.error('[Auth] doGoogleLogin FAILED. Code:', code, '| Message:', err.message);
+
+    // Silent failures — don't show error to user
+    if(code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      console.log('[Auth] User closed popup or cancelled — no error shown.');
+      return;
     }
+
     const msg = getAuthErrMsg(code);
     showAuthError('loginError', msg);
     showAuthError('signupError', msg);
