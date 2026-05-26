@@ -44,19 +44,31 @@
   window._serverTimestamp = serverTimestamp;
   window._signInWithEmail = (e,p) => signInWithEmailAndPassword(auth,e,p);
   window._createUser = (e,p) => createUserWithEmailAndPassword(auth,e,p);
+  // Detect mobile/tablet — popup is unreliable on mobile browsers
+  const _isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
   window._signInGoogle = async () => {
+    // On mobile always use redirect (popup is blocked by most mobile browsers)
+    if(_isMobile) {
+      sessionStorage.setItem('jsc_google_redirect', '1');
+      await signInWithRedirect(auth, googleProvider);
+      return null;
+    }
     try {
       return await signInWithPopup(auth, googleProvider);
     } catch(e) {
-      // If popup blocked, fall back to redirect
+      // If popup blocked on desktop too, fall back to redirect
       if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
+        sessionStorage.setItem('jsc_google_redirect', '1');
         await signInWithRedirect(auth, googleProvider);
         return null;
       }
       throw e;
     }
   };
-  window._signInGoogleRedirect = () => signInWithRedirect(auth, googleProvider);
+  window._signInGoogleRedirect = () => {
+    sessionStorage.setItem('jsc_google_redirect', '1');
+    return signInWithRedirect(auth, googleProvider);
+  };
   window._signOut = () => signOut(auth);
   window._updateProfile = (u,d) => updateProfile(u,d);
 
@@ -98,6 +110,10 @@
     const redirectResult = await getRedirectResult(auth);
     if(redirectResult && redirectResult.user) {
       window._currentUser = redirectResult.user;
+      // Mark that this came from redirect so onAuthChange opens dashboard
+      if(!sessionStorage.getItem('jsc_google_redirect')) {
+        sessionStorage.setItem('jsc_google_redirect', '1');
+      }
       if(typeof window.onAuthChange === 'function') window.onAuthChange(redirectResult.user);
     }
   } catch(e) {
@@ -889,8 +905,8 @@
     <!-- Login Form -->
     <div class="auth-form active" id="authFormLogin">
       <div class="auth-error" id="loginError"></div>
-      <div class="auth-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"></div>
-      <div class="auth-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"></div>
+      <div class="auth-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email" inputmode="email"></div>
+      <div class="auth-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="auth-btn-primary" onclick="doLogin()">SIGN IN</button>
       <div class="auth-divider">OR</div>
       <button class="auth-btn-google" onclick="doGoogleLogin()">
@@ -901,9 +917,9 @@
     <!-- Signup Form -->
     <div class="auth-form" id="authFormSignup">
       <div class="auth-error" id="signupError"></div>
-      <div class="auth-group"><label>Full Name</label><input type="text" id="signupName" placeholder="Your Name"></div>
-      <div class="auth-group"><label>Email</label><input type="email" id="signupEmail" placeholder="your@email.com"></div>
-      <div class="auth-group"><label>Password</label><input type="password" id="signupPass" placeholder="Min 6 characters"></div>
+      <div class="auth-group"><label>Full Name</label><input type="text" id="signupName" placeholder="Your Name" autocomplete="name"></div>
+      <div class="auth-group"><label>Email</label><input type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email" inputmode="email"></div>
+      <div class="auth-group"><label>Password</label><input type="password" id="signupPass" placeholder="Min 6 characters" autocomplete="new-password"></div>
       <button class="auth-btn-primary" onclick="doSignup()">CREATE ACCOUNT</button>
       <div class="auth-divider">OR</div>
       <button class="auth-btn-google" onclick="doGoogleLogin()">

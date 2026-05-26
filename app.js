@@ -268,22 +268,24 @@ function renderCart() {
     if(footer) footer.style.display='none'; return;
   }
   if(footer) footer.style.display='block';
-  el.innerHTML = cart.map(item => `
+  el.innerHTML = cart.map(item => {
+    const sid = String(item.id).replace(/'/g, "\\'");
+    return `
     <div class="cart-item">
       <img src="${item.img}" class="cart-item-img" alt="${item.name}">
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
         <div class="cart-item-price">₹${item.price} × ${item.weight}</div>
         <div class="cart-qty">
-          <button class="qty-btn" onclick="updateQty(${item.id},-1)">−</button>
+          <button class="qty-btn" onclick="updateQty('${sid}',-1)">−</button>
           <span>${item.qty}</span>
-          <button class="qty-btn" onclick="updateQty(${item.id},1)">+</button>
+          <button class="qty-btn" onclick="updateQty('${sid}',1)">+</button>
         </div>
       </div>
       <div class="cart-item-total">₹${item.price*item.qty}</div>
-      <button class="cart-remove" onclick="removeFromCart(${item.id})">✕</button>
+      <button class="cart-remove" onclick="removeFromCart('${sid}')">✕</button>
     </div>
-  `).join('');
+  `}).join('');
   const raw = cart.reduce((a,b) => a+b.price*b.qty, 0);
   const subtotalEl = $('cartSubtotal');
   if(subtotalEl) subtotalEl.textContent = '₹'+raw.toLocaleString('en-IN');
@@ -1392,12 +1394,22 @@ async function saveProduct() {
     if(preview) preview.appendChild(progressDiv);
     try {
       for(const file of Array.from(fileInput.files)) {
-        const url = await window._uploadProductImage(file, tmpId, pct => {
-          progressDiv.textContent = 'Uploading... '+pct+'%';
-        });
+        // Wrap upload in a timeout so it doesn't hang forever
+        const url = await Promise.race([
+          window._uploadProductImage(file, tmpId, pct => {
+            progressDiv.textContent = 'Uploading... '+pct+'%';
+          }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('Upload timeout — check Firebase Storage rules')), 30000))
+        ]);
         uploadedImgs.push(url);
       }
-    } catch(e) { console.warn('Image upload failed:', e); }
+    } catch(e) {
+      console.warn('Image upload failed:', e);
+      if(saveBtn) { saveBtn.textContent = 'SAVE PRODUCT'; saveBtn.disabled = false; }
+      if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
+      const proceed = confirm('Image upload failed: ' + (e.message||'Check Firebase Storage rules.') + '\n\nSave product WITHOUT image?');
+      if(!proceed) return;
+    }
     if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
     fileInput.value = '';
   }
