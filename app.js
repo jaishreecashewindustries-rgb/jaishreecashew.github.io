@@ -163,16 +163,98 @@ let modalProduct = null;
 // setHero is a no-op stub — kept to avoid errors if referenced elsewhere
 function setHero(idx) { /* no-op: video hero active */ }
 
-// Ensure hero video plays on iOS (requires user interaction on some versions)
-document.addEventListener('DOMContentLoaded', () => {
-  const vid = document.querySelector('.hero-video');
-  if(vid) {
-    vid.play().catch(() => {
-      // Autoplay blocked — show poster, attempt on first touch
-      document.addEventListener('touchstart', () => { vid.play().catch(()=>{}); }, {once:true});
-    });
+// ── HERO VIDEO LIFECYCLE MANAGER ──
+// Handles: initial autoplay, iOS/Android background→foreground resume,
+// visibilitychange, pageshow (BFCache), focus, and safe play() guards.
+(function heroVideoLifecycle() {
+  let _vid = null;          // cached reference
+  let _playing = false;     // track intent — true means "should be playing"
+  let _playPending = false; // guard against simultaneous play() calls
+
+  // Get (and cache) the hero video element
+  function getVid() {
+    if(!_vid) _vid = document.querySelector('.hero-video');
+    return _vid;
   }
-});
+
+  // Safe play — catches all rejection paths, guards duplicate calls
+  function safePlay() {
+    const v = getVid();
+    if(!v || _playPending) return;
+
+    // Already playing — nothing to do
+    if(!v.paused && !v.ended) { _playing = true; return; }
+
+    _playPending = true;
+    v.play()
+      .then(() => { _playing = true; _playPending = false; })
+      .catch((err) => {
+        _playPending = false;
+        // NotAllowedError = autoplay policy blocked — wait for first touch
+        if(err && err.name === 'NotAllowedError') {
+          document.addEventListener('touchstart', function onFirstTouch() {
+            document.removeEventListener('touchstart', onFirstTouch);
+            safePlay();
+          });
+        }
+        // AbortError = another play() interrupted — will resolve naturally
+        // All other errors: silently ignored (e.g. network, decode)
+      });
+  }
+
+  // Resume if we were playing before backgrounding
+  function resumeIfNeeded() {
+    if(_playing) safePlay();
+  }
+
+  // ── 1. Initial autoplay on DOM ready ──
+  function init() {
+    const v = getVid();
+    if(!v) return;
+    // Ensure attributes are set correctly (defensive)
+    v.muted = true;
+    v.playsInline = true;
+    safePlay();
+  }
+
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init(); // DOM already ready
+  }
+
+  // ── 2. Page Visibility API — covers: tab switch, app background ──
+  // Most reliable cross-browser signal (Chrome, Firefox, Safari 14.5+)
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible') {
+      resumeIfNeeded();
+    }
+    // When hidden: browser will pause video automatically — that's fine.
+    // We track _playing so we know to resume on return.
+  });
+
+  // ── 3. pageshow — covers: BFCache restore (iOS Safari back/forward) ──
+  // iOS Safari frequently uses BFCache; visibilitychange fires AFTER pageshow.
+  // Handling both is safe — safePlay() guard prevents duplicate calls.
+  window.addEventListener('pageshow', (e) => {
+    // e.persisted = true means loaded from BFCache (back/forward navigation)
+    resumeIfNeeded();
+  });
+
+  // ── 4. focus — covers: app switch on older iOS / some Android WebViews ──
+  // Belt-and-suspenders for devices where visibilitychange fires unreliably.
+  window.addEventListener('focus', () => {
+    resumeIfNeeded();
+  });
+
+  // ── 5. pagehide — mark intent so we resume correctly ──
+  // iOS fires pagehide (not unload) for background/BFCache scenarios.
+  window.addEventListener('pagehide', () => {
+    // _playing stays as-is — if it was playing, we want it to resume.
+    // Don't call pause() here — browser does it automatically.
+  });
+
+})(); // IIFE — no globals polluted
 
 // ── NAVBAR SCROLL CLASS ──
 window.addEventListener('scroll', () => {
