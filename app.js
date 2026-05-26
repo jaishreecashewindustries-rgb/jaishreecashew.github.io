@@ -159,17 +159,37 @@ try { cart = JSON.parse(localStorage.getItem('jsc_cart') || '[]'); } catch(e) { 
 let currentFilter = 'all';
 let modalProduct = null;
 const heroImages = [
-  "images/hero-main.webp",
-  "images/hero-w320-new.webp",
-  "images/hero-w240-new.webp"
+  "images/hero-cashews.webp",
+  "images/hero-mixed.webp",
+  "images/hero-almonds.webp",
+  "images/hero-pistachios.webp",
+  "images/hero-dates.webp",
+  "images/hero-walnuts.webp",
+  "images/hero-raisins.webp"
 ];
 let heroIdx = 0;
 
-// ── HERO SLIDER ──
+// ── HERO SLIDER with crossfade ──
 function setHero(idx) {
   heroIdx = idx;
   const bg = $('heroBg');
-  if(bg) bg.style.backgroundImage = 'url('+heroImages[idx]+')';
+  const bgNext = $('heroBgNext');
+  if(bg && bgNext) {
+    bgNext.style.backgroundImage = 'url('+heroImages[idx]+')';
+    bgNext.style.opacity = '0';
+    bgNext.style.transition = 'none';
+    // Force reflow
+    void bgNext.offsetHeight;
+    bgNext.style.transition = 'opacity 1.4s ease';
+    bgNext.style.opacity = '1';
+    setTimeout(() => {
+      bg.style.backgroundImage = 'url('+heroImages[idx]+')';
+      bgNext.style.opacity = '0';
+      bgNext.style.transition = 'none';
+    }, 1450);
+  } else if(bg) {
+    bg.style.backgroundImage = 'url('+heroImages[idx]+')';
+  }
   document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
 }
 setInterval(() => setHero((heroIdx+1) % heroImages.length), 5000);
