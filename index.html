@@ -12,7 +12,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js";
 
   const firebaseConfig = {
@@ -44,7 +44,19 @@
   window._serverTimestamp = serverTimestamp;
   window._signInWithEmail = (e,p) => signInWithEmailAndPassword(auth,e,p);
   window._createUser = (e,p) => createUserWithEmailAndPassword(auth,e,p);
-  window._signInGoogle = () => signInWithPopup(auth, googleProvider);
+  window._signInGoogle = async () => {
+    try {
+      return await signInWithPopup(auth, googleProvider);
+    } catch(e) {
+      // If popup blocked, fall back to redirect
+      if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
+        await signInWithRedirect(auth, googleProvider);
+        return null;
+      }
+      throw e;
+    }
+  };
+  window._signInGoogleRedirect = () => signInWithRedirect(auth, googleProvider);
   window._signOut = () => signOut(auth);
   window._updateProfile = (u,d) => updateProfile(u,d);
 
@@ -80,6 +92,17 @@
       );
     });
   };
+
+  // Check for redirect result (Google login redirect flow)
+  try {
+    const redirectResult = await getRedirectResult(auth);
+    if(redirectResult && redirectResult.user) {
+      window._currentUser = redirectResult.user;
+      if(typeof window.onAuthChange === 'function') window.onAuthChange(redirectResult.user);
+    }
+  } catch(e) {
+    console.warn('Redirect result:', e.code);
+  }
 
   // Auth state listener
   onAuthStateChanged(auth, (user) => {
@@ -151,9 +174,9 @@
     </div>
   </div>
   <div class="hero-dots">
-    <button class="hero-dot active" onclick="setHero(0,this)"></button>
-    <button class="hero-dot" onclick="setHero(1,this)"></button>
-    <button class="hero-dot" onclick="setHero(2,this)"></button>
+    <button class="hero-dot active" onclick="setHero(0)"></button>
+    <button class="hero-dot" onclick="setHero(1)"></button>
+    <button class="hero-dot" onclick="setHero(2)"></button>
   </div>
   <div class="hero-scroll"><div class="hero-scroll-line"></div>SCROLL</div>
 </section>
@@ -374,7 +397,7 @@
   <div class="founders-layout">
     <div class="founder-card fade-up">
       <div class="founder-img-wrap">
-        <img src="images/hero-export.webp" alt="Jitesh Pansari" class="founder-img">
+        <img src="images/founder-jitesh.webp" alt="Jitesh Pansari" class="founder-img" style="object-position:center top">
       </div>
       <div class="founder-name">Jitesh Pansari</div>
       <div class="founder-title">Founder & Managing Director</div>
@@ -383,7 +406,7 @@
     </div>
     <div class="founder-card fade-up stagger-2">
       <div class="founder-img-wrap">
-        <img src="images/gallery-production.webp" alt="Praveen Pansari" class="founder-img">
+        <img src="images/founder-praveen.webp" alt="Praveen Pansari" class="founder-img" style="object-position:center top">
       </div>
       <div class="founder-name">Praveen Pansari</div>
       <div class="founder-title">Co-Founder & Director</div>

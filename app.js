@@ -86,7 +86,11 @@ let cart = [];
 try { cart = JSON.parse(localStorage.getItem('jsc_cart') || '[]'); } catch(e) { cart = []; }
 let currentFilter = 'all';
 let modalProduct = null;
-const heroImages = ["images/hero-main.webp","images/hero-export.webp","images/gallery-1.webp"];
+const heroImages = [
+  "images/hero-main.webp",
+  "images/hero-w320-new.webp",
+  "images/hero-w240-new.webp"
+];
 let heroIdx = 0;
 
 // ── HERO SLIDER ──
@@ -96,7 +100,7 @@ function setHero(idx) {
   if(bg) bg.style.backgroundImage = 'url('+heroImages[idx]+')';
   document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
 }
-setInterval(() => setHero((heroIdx+1) % 3), 5000);
+setInterval(() => setHero((heroIdx+1) % heroImages.length), 5000);
 
 // ── RENDER PRODUCTS ──
 function renderProducts() {
@@ -312,6 +316,12 @@ window.onAuthChange = function(user) {
     const initials = (user.displayName || user.email).charAt(0).toUpperCase();
     safeSet('userAvatarNav', initials);
     safeSet('userNameNav', (user.displayName || 'Account').split(' ')[0]);
+    // If coming from redirect, auto-open dashboard
+    const wasRedirect = sessionStorage.getItem('jsc_google_redirect');
+    if(wasRedirect) {
+      sessionStorage.removeItem('jsc_google_redirect');
+      if(user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
+    }
   } else {
     loginBtn.style.display = 'flex';
     userBtn.style.display = 'none';
@@ -380,13 +390,25 @@ async function doSignup() {
 async function doGoogleLogin() {
   try {
     const result = await window._signInGoogle();
+    if(!result) {
+      // Redirect flow initiated - page will reload, handled by getRedirectResult
+      return;
+    }
     closeAuth();
     if(result.user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
   } catch(err) {
-    if(err.code !== 'auth/popup-closed-by-user') {
-      showAuthError('loginError', getAuthErrMsg(err.code));
-      showAuthError('signupError', getAuthErrMsg(err.code));
+    const code = err.code || '';
+    if(code === 'auth/popup-closed-by-user') return;
+    // If popup blocked, try redirect
+    if(code === 'auth/popup-blocked') {
+      if(window._signInGoogleRedirect) {
+        await window._signInGoogleRedirect();
+        return;
+      }
     }
+    const msg = getAuthErrMsg(code);
+    showAuthError('loginError', msg);
+    showAuthError('signupError', msg);
   }
 }
 
