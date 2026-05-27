@@ -1,0 +1,2439 @@
+
+// ── PRODUCTS DATA (live — populated from Firestore) ──
+// This array is kept in sync with Firestore via onSnapshot.
+// Do NOT hardcode products here; add/edit/delete via the Admin Panel.
+let PRODUCTS = [];
+
+// ── SEED PRODUCTS — written to Firestore once if collection is empty ──
+const SEED_PRODUCTS = [
+  {
+    name:"W180 Jumbo Whole", grade:"W180", cat:"whole",
+    price:1450, origPrice:1800,
+    weight:"250g", badge:"PREMIUM", featured:true,
+    desc:"The rarest grade — only 180 kernels per pound. Ideal for premium gifts and luxury confectionery.",
+    overview:"<h4>About W180 Jumbo Whole Cashews</h4><p>W180 is the crown jewel of cashew grades — only 180 kernels fit in one pound, making each kernel exceptionally large and visually striking. Sourced from the finest farms in West Africa and Vietnam, these kernels are processed at our RIICO facility in Kaladera using steam technology to ensure maximum hygiene and zero breakage.</p><p>Preferred by luxury confectioners, premium gift hamper brands, and 5-star hotels. The generous size makes every bite a statement of quality. Vacuum packed to preserve freshness for 12 months.</p>",
+    pros:["Exceptionally large kernel size","Maximum visual appeal for gifting","Rich, buttery flavour profile","Vacuum packed — 12 month shelf life","Zero artificial preservatives","Export-quality grading"],
+    cons:["Higher price point than W240/W320","Limited seasonal availability","May be over-specification for cooking use"],
+    specs:[["Grade","W180 (180 kernels per pound)"],["Origin","West Africa / Vietnam (RCN source)"],["Processed at","RIICO Industrial Area, Kaladera, Jaipur"],["Packet Size","250g (standard)"],["Available Sizes","100g · 250g · 500g · 1kg · 5kg (bulk)"],["Shell Life","12 months (vacuum packed)"],["Storage","Cool, dry place. Refrigerate after opening."],["Certifications","FSSAI Compliant"],["MOQ (Bulk)","5 kg"]],
+    sizes:["100g","250g","500g","1kg"],
+    img:"images/product-w180.webp", imgs:["images/hero-w180.webp"],
+    sortOrder:1
+  },
+  {
+    name:"W240 Large Whole", grade:"W240", cat:"whole",
+    price:1100, origPrice:1350,
+    weight:"250g", badge:"BESTSELLER", featured:true,
+    desc:"Generous whole kernels, perfectly uniform. The preferred choice of premium hotels, bakeries, and specialty retailers.",
+    overview:"<h4>About W240 Large Whole Cashews</h4><p>W240 strikes the perfect balance between size, flavour, and value. With 240 kernels per pound, these large whole cashews are the most versatile grade — equally at home in premium retail packs, bakery applications, and luxury snacking.</p><p>Our W240 is sourced from top-tier farms and processed at our state-of-the-art facility to deliver consistent colour, size uniformity, and minimal breakage. The benchmark grade for quality-conscious buyers.</p>",
+    pros:["Best balance of size and value","High uniformity — consistent appearance","Ideal for baking, snacking, gifting","Widely available all year round","Buttery, mild flavour"],
+    cons:["Slightly smaller than W180","More competitive market — check freshness dates"],
+    specs:[["Grade","W240 (240 kernels per pound)"],["Origin","West Africa / Vietnam"],["Processed at","RIICO Industrial Area, Kaladera, Jaipur"],["Packet Size","250g (standard)"],["Available Sizes","100g · 250g · 500g · 1kg · 5kg"],["Shell Life","12 months (vacuum packed)"],["MOQ (Bulk)","5 kg"]],
+    sizes:["100g","250g","500g","1kg"],
+    img:"images/product-w240.webp", imgs:["images/hero-w240.webp"],
+    sortOrder:2
+  },
+  {
+    name:"W320 Classic Whole", grade:"W320", cat:"whole",
+    price:850, origPrice:1000,
+    weight:"250g", badge:null, featured:true,
+    desc:"Our highest volume grade — the industry standard. Consistent quality that satisfies both domestic retailers and export buyers.",
+    overview:"<h4>About W320 Classic Whole Cashews</h4><p>W320 is the world's most traded cashew grade — and for good reason. With 320 kernels per pound, these are perfectly sized for everyday premium use: cooking, snacking, mithai-making, and retail. Our W320 kernels are known for exceptional whiteness, uniform size, and low moisture content.</p><p>Jai Shree Cashew's W320 is trusted by 300+ domestic distributors and retail chains across Rajasthan and beyond. Available year-round with reliable supply.</p>",
+    pros:["Most economical whole grade","Perfect for cooking and everyday use","Available in bulk quantities","Consistent supply all year","Industry-standard grade — easy to resell"],
+    cons:["Not suitable for premium gifting (smaller size)","Lower visual impact than W180/W240"],
+    specs:[["Grade","W320 (320 kernels per pound)"],["Origin","West Africa / Vietnam / India"],["Processed at","RIICO Industrial Area, Kaladera, Jaipur"],["Packet Size","250g (standard)"],["Available Sizes","250g · 500g · 1kg · 5kg · 10kg · 25kg"],["Shell Life","12 months (vacuum packed)"],["MOQ (Bulk)","10 kg"]],
+    sizes:["250g","500g","1kg","5kg"],
+    img:"images/product-w320.webp", imgs:["images/hero-w320.webp"],
+    sortOrder:3
+  },
+  {
+    name:"Roasted & Salted", grade:"ROASTED", cat:"processed",
+    price:780, origPrice:920,
+    weight:"200g", badge:"NEW", featured:false,
+    desc:"Perfectly roasted with a light sea salt finish. Our most popular ready-to-eat variant.",
+    overview:"<h4>About Roasted & Salted Cashews</h4><p>Made from our finest W320 whole kernels, roasted to perfection in a controlled-temperature oven and finished with premium sea salt. No oil added — dry roasted for a clean, satisfying crunch.</p><p>The perfect anytime snack and a bestseller in our retail range. Resealable pack ensures freshness after opening.</p>",
+    pros:["Ready-to-eat convenience","Dry roasted — no added oil","Light, even salt coating","W320 base kernels — consistent quality","Resealable packaging"],
+    cons:["Not suitable for cooking applications","Shorter shelf life than raw (6 months)","Contains salt — not suitable for low-sodium diets"],
+    specs:[["Type","Dry Roasted & Salted"],["Base Grade","W320 Whole"],["Salt","Sea Salt (0.8%)"],["Oil","None (Dry Roasted)"],["Packet Size","200g"],["Available Sizes","100g · 200g · 500g"],["Shell Life","6 months"]],
+    sizes:["100g","200g","500g"],
+    img:"images/product-pieces.webp", imgs:["images/gallery-2.webp"],
+    sortOrder:4
+  },
+  {
+    name:"Cashew Pieces", grade:"PIECES", cat:"processed",
+    price:620, origPrice:720,
+    weight:"250g", badge:null, featured:false,
+    desc:"Broken cashew pieces — perfect for cooking, mithai, ice cream, and bulk baking. Same quality, lower price.",
+    overview:"<h4>About Cashew Pieces</h4><p>Cashew pieces are the by-product of whole kernel grading — same premium quality, at a fraction of the cost. Ideal for applications where whole kernel presentation is not required: halwa, kheer, barfi, ice cream toppings, biryanis, and industrial baking.</p><p>Our pieces come in mixed sizes (W320 base) with the same flavour profile as our whole grades. A smart choice for high-volume buyers.</p>",
+    pros:["Most economical cashew option","Same flavour as whole grades","Ideal for cooking and mithai","High volume — consistent supply","Zero compromise on taste"],
+    cons:["Not suitable for retail gifting","Mixed sizes — not uniform","Lower shelf-life visibility"],
+    specs:[["Type","Cashew Pieces (Mixed)"],["Base Grade","W320"],["Origin","Kaladera Processing Unit"],["Packet Size","250g"],["Available Sizes","250g · 500g · 1kg · 10kg · 25kg"],["Shell Life","10 months (vacuum)"],["MOQ (Bulk)","5 kg"]],
+    sizes:["250g","500g","1kg"],
+    img:"images/product-roasted.webp", imgs:["images/gallery-production.webp"],
+    sortOrder:5
+  },
+  {
+    name:"Raw Cashew Nuts", grade:"RCN", cat:"raw",
+    price:480, origPrice:560,
+    weight:"500g", badge:null, featured:false,
+    desc:"Unprocessed raw cashew nuts for home roasting or industrial processing. Direct from source.",
+    overview:"<h4>About Raw Cashew Nuts (RCN)</h4><p>Raw Cashew Nuts are the unprocessed whole cashew in shell, sourced directly from our supplier network in West Africa and Vietnam. We offer RCN for buyers who prefer home roasting, traditional processing, or industrial use.</p><p>Note: RCN shells contain cashew shell liquid (CNSL) — please handle with care and process before consumption. Not for direct eating.</p>",
+    pros:["Unprocessed — maximum freshness potential","Available in bulk at wholesale prices","Suitable for home processing","Long shelf life (18 months unshelled)"],
+    cons:["Cannot be eaten directly — requires shelling","Shell contains CNSL — handle with gloves","Processing required before consumption"],
+    specs:[["Type","Raw Cashew Nut (In-Shell)"],["KOR","46–50 (depends on origin)"],["Origin","West Africa / Vietnam"],["Packet Size","500g"],["Available Sizes","500g · 1kg · 10kg · 50kg"],["Shell Life","18 months (unshelled)"],["MOQ (Bulk)","10 kg"]],
+    sizes:["500g","1kg","10kg"],
+    img:"images/product-raw.webp", imgs:["images/gallery-tree.webp"],
+    sortOrder:6
+  }
+];
+
+// ── FIRESTORE PRODUCT HELPERS ──
+
+// Convert a Firestore doc snapshot to the local product shape
+function _docToProduct(docSnap) {
+  const d = docSnap.data();
+  return {
+    // Use the Firestore doc ID as our product id (string is fine everywhere we do find/filter)
+    id: docSnap.id,
+    name: d.name || '',
+    grade: d.grade || '',
+    cat: d.cat || 'whole',
+    price: Number(d.price) || 0,
+    origPrice: d.origPrice ? Number(d.origPrice) : null,
+    weight: d.weight || '',
+    badge: d.badge || null,
+    featured: d.featured !== false,
+    desc: d.desc || '',
+    overview: d.overview || '',
+    pros: Array.isArray(d.pros) ? d.pros : [],
+    cons: Array.isArray(d.cons) ? d.cons : [],
+    specs: Array.isArray(d.specs) ? d.specs : [],
+    sizes: Array.isArray(d.sizes) ? d.sizes : [],
+    img: d.img || '',
+    imgs: Array.isArray(d.imgs) ? d.imgs : (d.img ? [d.img] : []),
+    sortOrder: Number(d.sortOrder) || 999,
+    stock: d.stock !== undefined ? Number(d.stock) : 999,
+    trackStock: d.trackStock === true,
+  };
+}
+
+// Start real-time Firestore listener — keeps PRODUCTS in sync automatically
+function _startProductsListener() {
+  if(!window._db || !window._collection || !window._query || !window._orderBy) return;
+  // Dynamically import onSnapshot (not exposed yet in index.html)
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy, getDocs, addDoc }) => {
+    const q = query(collection(window._db, 'products'), orderBy('sortOrder', 'asc'));
+    onSnapshot(q, async (snap) => {
+      if(snap.empty) {
+        // First run — seed default products
+        try {
+          for(let i = 0; i < SEED_PRODUCTS.length; i++) {
+            await addDoc(collection(window._db, 'products'), { ...SEED_PRODUCTS[i], sortOrder: i+1 });
+          }
+        } catch(e) { console.warn('Seed failed:', e); }
+        return; // onSnapshot will fire again after seed
+      }
+      // Rebuild PRODUCTS from Firestore
+      PRODUCTS.length = 0;
+      snap.docs.forEach(d => PRODUCTS.push(_docToProduct(d)));
+      // Refresh any visible grids
+      if(currentPage === 'shop') { renderProducts(); _renderShopGrid(); _updateCategoryCounts(); renderRecentlyViewed(); }
+      if(currentPage === 'home') renderFeaturedProducts();
+      renderAdminProducts();
+      safeSet('statProducts', PRODUCTS.length);
+      updateCartBadge();
+    }, (err) => {
+      console.warn('Products listener error:', err);
+    });
+  }).catch(e => console.warn('onSnapshot import failed:', e));
+}
+
+// ── SAFE DOM HELPER ──
+function $(id) { return document.getElementById(id); }
+function safeSet(id, val) { const el = $(id); if(el) el.textContent = val; }
+function safeHTML(id, html) { const el = $(id); if(el) el.innerHTML = html; }
+function safeStyle(id, prop, val) { const el = $(id); if(el) el.style[prop] = val; }
+
+// ── CART STATE ──
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem('jsc_cart') || '[]'); } catch(e) { cart = []; }
+let currentFilter = 'all';
+let modalProduct = null;
+// ── HERO VIDEO (replaces image slideshow) ──
+// Video autoplay handled by <video autoplay muted loop playsinline>
+// setHero is a no-op stub — kept to avoid errors if referenced elsewhere
+function setHero(idx) { /* no-op: video hero active */ }
+
+// ── HERO VIDEO LIFECYCLE MANAGER v3 ──
+// Fixes: readyState check, bounded retry loop, canplay fallback.
+// iOS Safari pipeline is not always ready at visibilitychange —
+// we probe readyState and retry up to MAX_RETRIES times.
+(function heroVideoLifecycle() {
+  var _vid         = null;
+  var _shouldPlay  = false;
+  var _pending     = false;
+  var _retryTimer  = null;
+  var _retryCount  = 0;
+  var MAX_RETRIES  = 8;
+  var RETRY_DELAY  = 250;
+
+  function getVid() {
+    if (!_vid) _vid = document.querySelector('.hero-video');
+    return _vid;
+  }
+  function clearPending() {
+    if (_retryTimer) { clearTimeout(_retryTimer); _retryTimer = null; }
+    _retryCount = 0;
+  }
+  function isPlaying(v) {
+    return v && !v.paused && !v.ended && v.readyState >= 2;
+  }
+
+  function attemptPlay() {
+    var v = getVid();
+    if (!v || _pending) return;
+    if (isPlaying(v)) { _shouldPlay = true; return; }
+
+    // Mark intent immediately — before ANY async path
+    // This is the fix: _shouldPlay=true must be set here, not deeper in the
+    // readyState>=2 branch, so the canplay callback can see it.
+    _shouldPlay = true;
+
+    // readyState < 2 means media pipeline not ready — wait for canplay event
+    if (v.readyState < 2) {
+      _pending = true;
+      var onCanPlay = function() {
+        v.removeEventListener('canplay', onCanPlay);
+        _pending = false;
+        if (_shouldPlay) attemptPlay(); // _shouldPlay is now true ✓
+      };
+      v.addEventListener('canplay', onCanPlay);
+      // Safety unblock after 3s if canplay never fires (network issue)
+      setTimeout(function() {
+        v.removeEventListener('canplay', onCanPlay);
+        _pending = false;
+      }, 3000);
+      return;
+    }
+
+    _pending = true;
+    v.muted = true;
+    v.playsInline = true;
+
+    var promise = v.play();
+    if (promise && typeof promise.then === 'function') {
+      promise.then(function() {
+        _pending = false;
+        _retryCount = 0;
+      }).catch(function(err) {
+        _pending = false;
+        if (!err) return;
+        if (err.name === 'NotAllowedError') {
+          _shouldPlay = false;
+          document.addEventListener('touchstart', function onFirstTouch() {
+            document.removeEventListener('touchstart', onFirstTouch);
+            _shouldPlay = true;
+            _retryCount = 0;
+            scheduleResume(0);
+          }, { once: true, passive: true });
+        }
+        // AbortError: harmless — browser self-resolves; keep _shouldPlay=true
+      });
+    } else {
+      _pending = false;
+    }
+  }
+
+  function scheduleResume(delay) {
+    clearPending();
+    if (!_shouldPlay) return;
+    _retryTimer = setTimeout(function() {
+      _retryTimer = null;
+      var v = getVid();
+      if (!v || !_shouldPlay) return;
+      if (isPlaying(v)) return;
+      if (_retryCount >= MAX_RETRIES) { _retryCount = 0; return; }
+      _retryCount++;
+      if (v.readyState >= 2) {
+        attemptPlay();
+      } else {
+        scheduleResume(RETRY_DELAY);
+      }
+    }, delay);
+  }
+
+  function onBecomeVisible() {
+    clearPending();
+    var v = getVid();
+    if (!v || isPlaying(v)) return;
+    // Always attempt — even if _shouldPlay is false.
+    // The video element has autoplay attr so it SHOULD be playing;
+    // if it's paused after backgrounding, we always want to resume.
+    _shouldPlay = true;
+    scheduleResume(200);
+  }
+
+  function init() {
+    var v = getVid();
+    if (!v) return;
+    v.muted = true;
+    v.playsInline = true;
+    attemptPlay();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+      onBecomeVisible();
+    } else {
+      clearPending(); // cancel pending retry when going to background
+    }
+  });
+
+  window.addEventListener('pageshow', function() {
+    onBecomeVisible();
+  });
+
+  window.addEventListener('focus', function() {
+    onBecomeVisible();
+  });
+
+  document.addEventListener('resume', function() {
+    onBecomeVisible();
+  });
+
+})(); // IIFE — zero globals
+
+// ── NAVBAR SCROLL CLASS ──
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if(nav) nav.classList.toggle('scrolled', window.scrollY > 40);
+}, {passive:true});
+
+// ── RENDER PRODUCTS — B2B Catalogue Style ──
+function renderProducts() {
+  const grid = $('productsGrid');
+  if(!grid) return;
+  if(!PRODUCTS.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-soft)"><div style="font-size:32px;margin-bottom:12px">⏳</div><div style="font-size:14px;letter-spacing:1px">Loading catalogue...</div></div>';
+    const countEl = $('products-count'); if(countEl) countEl.textContent = '—';
+    return;
+  }
+  const filtered = currentFilter==='all' ? PRODUCTS : PRODUCTS.filter(p => p.cat===currentFilter);
+  const countEl = $('products-count');
+  if(countEl) countEl.textContent = filtered.length + (filtered.length===1?' grade':' grades');
+  grid.innerHTML = filtered.map(p => {
+    return `
+    <div class="product-card" style="cursor:pointer;position:relative">
+      ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
+      <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
+        <img src="${p.img}" alt="${p.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">
+        <div class="prod-overlay"></div>
+        <div style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer" onclick="event.stopPropagation();openProductDetail('${p.id}')">VIEW DETAILS</div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-grade" style="font-size:11px;letter-spacing:1.5px;color:var(--gold2);font-weight:500;margin-bottom:4px">${p.grade}</div>
+        <div class="prod-name" onclick="openProductDetail('${p.id}')" style="cursor:pointer;font-size:16px;font-weight:600;color:var(--walnut);margin-bottom:6px">${p.name}</div>
+        <div style="font-size:12px;color:var(--text-soft);margin-bottom:14px">${p.desc ? p.desc.substring(0,80)+'...' : ''}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div style="font-size:11px;color:#7a6b5a;background:#f5efe2;border:1px solid #e4dace;padding:4px 10px;letter-spacing:.5px">Price on Request</div>
+          <a href="#page-contact" onclick="showPage('contact');return false;" style="font-size:11px;letter-spacing:1.5px;font-weight:600;color:var(--walnut);border:1.5px solid var(--walnut);padding:9px 16px;text-decoration:none;display:inline-block;transition:background .2s,color .2s" onmouseover="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--walnut');this.style.color='#fff'" onmouseout="this.style.background='';this.style.color=''">ENQUIRE →</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterProducts(cat, el) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderProducts();
+}
+
+// ── CART ──
+function saveCart() { try { localStorage.setItem('jsc_cart', JSON.stringify(cart)); } catch(e){} updateCartBadge(); }
+function updateCartBadge() {
+  const total = cart.reduce((a,b) => a+b.qty, 0);
+  const badge = $('cartBadge');
+  if(badge) badge.textContent = total;
+}
+function addToCart(id) {
+  id = String(id);
+  const p = PRODUCTS.find(x => String(x.id)===id);
+  if(!p) return;
+  if(p.stock === 0) { alert('This product is currently out of stock.'); return; }
+  const ex = cart.find(x => String(x.id)===id);
+  if(ex) ex.qty++; else cart.push({...p, qty:1});
+  saveCart(); renderCart(); openCart();
+}
+function addToCartFromModal() {
+  if(modalProduct) { addToCart(modalProduct.id); const mo = $('modalOverlay'); if(mo) mo.classList.remove('open'); }
+}
+function removeFromCart(id) {
+  id = String(id);
+  cart = cart.filter(x => String(x.id)!==id);
+  saveCart(); renderCart();
+}
+function updateQty(id, delta) {
+  id = String(id);
+  const item = cart.find(x => String(x.id)===id);
+  if(item) { item.qty += delta; if(item.qty<=0) removeFromCart(id); else { saveCart(); renderCart(); } }
+}
+function renderCart() {
+  const el = $('cartItems');
+  const footer = $('cartFooter');
+  if(!el) return;
+  if(!cart.length) {
+    el.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>Your cart is empty</p></div>';
+    if(footer) footer.style.display='none'; return;
+  }
+  if(footer) footer.style.display='block';
+  el.innerHTML = cart.map(item => {
+    const sid = String(item.id).replace(/'/g, "\\'");
+    return `
+    <div class="cart-item">
+      <img src="${item.img}" class="cart-item-img" alt="${item.name}">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">₹${item.price} × ${item.weight}</div>
+        <div class="cart-qty">
+          <button class="qty-btn" onclick="updateQty('${sid}',-1)">−</button>
+          <span>${item.qty}</span>
+          <button class="qty-btn" onclick="updateQty('${sid}',1)">+</button>
+        </div>
+      </div>
+      <div class="cart-item-total">₹${item.price*item.qty}</div>
+      <button class="cart-remove" onclick="removeFromCart('${sid}')">✕</button>
+    </div>`;
+  }).join('');
+  const raw = cart.reduce((a,b) => a+b.price*b.qty, 0);
+  const subtotalEl = $('cartSubtotal');
+  if(subtotalEl) subtotalEl.textContent = '₹'+raw.toLocaleString('en-IN');
+  if(appliedCoupon && raw > 0) {
+    const saving = Math.round(raw * appliedCoupon.pct / 100);
+    const final = raw - saving;
+    const savingsAmt = $('cartSavingsAmt');
+    if(savingsAmt) savingsAmt.textContent = '−₹'+saving.toLocaleString('en-IN');
+    const cartTotal = $('cartTotal');
+    if(cartTotal) cartTotal.textContent = '₹'+final.toLocaleString('en-IN');
+    const cartSavings = $('cartSavings');
+    if(cartSavings) cartSavings.classList.add('show');
+  } else {
+    const cartTotal = $('cartTotal');
+    if(cartTotal) cartTotal.textContent = '₹'+raw.toLocaleString('en-IN');
+    const cartSavings = $('cartSavings');
+    if(cartSavings) cartSavings.classList.remove('show');
+  }
+}
+function openCart() { const cs=$('cartSidebar'),co=$('cartOverlay'); if(cs) cs.classList.add('open'); if(co) co.classList.add('open'); renderCart(); }
+function closeCart() { const cs=$('cartSidebar'),co=$('cartOverlay'); if(cs) cs.classList.remove('open'); if(co) co.classList.remove('open'); }
+// ── CHECKOUT ADDRESS MODAL ──
+let _checkoutAddress = null;
+
+function checkout() {
+  if(!cart.length) { alert('Your cart is empty.'); return; }
+  if(typeof Razorpay === 'undefined') { alert('Payment gateway loading. Please try again.'); return; }
+  openCheckoutModal();
+}
+
+function openCheckoutModal() {
+  const m = $('checkoutModal');
+  if(!m) { proceedToPayment(); return; } // fallback if modal missing
+  // Pre-fill from logged-in user
+  const user = window._currentUser;
+  if(user) {
+    const nameEl = $('co-name'); if(nameEl && !nameEl.value) nameEl.value = user.displayName || '';
+    const emailEl = $('co-email'); if(emailEl && !emailEl.value) emailEl.value = user.email || '';
+  }
+  m.classList.add('open');
+}
+
+function closeCheckoutModal() { const m=$('checkoutModal'); if(m) m.classList.remove('open'); }
+
+function proceedToPayment() {
+  // Validate form
+  const get = id => { const el=$(id); return el ? el.value.trim() : ''; };
+  const name = get('co-name'), phone = get('co-phone'), line1 = get('co-address'),
+        city = get('co-city'), state = get('co-state'), pincode = get('co-pincode');
+  if(!name) { alert('Please enter your full name.'); return; }
+  if(!phone || phone.length < 10) { alert('Please enter a valid phone number.'); return; }
+  if(!line1) { alert('Please enter your delivery address.'); return; }
+  if(!city) { alert('Please enter your city.'); return; }
+  if(!pincode || !/^\d{6}$/.test(pincode)) { alert('Please enter a valid 6-digit pincode.'); return; }
+
+  _checkoutAddress = { name, phone, email: get('co-email'), line1, city, state: state||'Rajasthan', pincode, notes: get('co-notes') };
+  closeCheckoutModal();
+
+  const rawTotal = cart.reduce((a,b) => a+b.price*b.qty, 0);
+  const discount = (appliedCoupon && appliedCoupon.pct) ? Math.round(rawTotal * appliedCoupon.pct / 100) : 0;
+  const finalTotal = rawTotal - discount;
+
+  const options = {
+    key:'rzp_live_StJcfZp5KQLYuY',
+    amount: finalTotal * 100,
+    currency:'INR',
+    name:'Jai Shree Cashew Industries',
+    description:'Premium Cashew Order',
+    prefill: { name: _checkoutAddress.name, contact: _checkoutAddress.phone, email: _checkoutAddress.email },
+    theme:{color:'#C6A15B'},
+    handler: async function(response) {
+      const user = window._currentUser;
+      const orderId = 'ORD-'+Date.now().toString().slice(-6);
+      const cartSnapshot = cart.slice();
+      const order = {
+        id: orderId,
+        customer: _checkoutAddress.name,
+        email: _checkoutAddress.email || (user ? user.email : ''),
+        userId: user ? user.uid : null,
+        phone: _checkoutAddress.phone,
+        address: _checkoutAddress,
+        items: cartSnapshot.map(i=>({name:i.name, qty:i.qty, size:i.weight, price:i.price})),
+        total: finalTotal,
+        discount: discount,
+        coupon: appliedCoupon ? appliedCoupon.code : null,
+        status:'processing',
+        date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+        createdAt: window._serverTimestamp ? window._serverTimestamp() : new Date(),
+        payment:'Razorpay',
+        payStatus:'paid',
+        razorpay_payment_id: response.razorpay_payment_id||''
+      };
+      // Save to Firestore
+      try {
+        if(window._db && window._addDoc && window._collection) {
+          await window._addDoc(window._collection(window._db,'orders'), order);
+        }
+      } catch(err) { console.warn('Firestore order save failed:', err); }
+      // localStorage backup
+      let orders = [];
+      try { orders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
+      orders.unshift(order);
+      try { localStorage.setItem('jsc_orders', JSON.stringify(orders)); } catch(e){}
+      // Clear cart
+      cart = []; appliedCoupon = null;
+      saveCart(); renderCart(); closeCart();
+      alert('✓ Order placed successfully! Order ID: '+orderId);
+      // WhatsApp notification to admin
+      const addr = _checkoutAddress;
+      const waMsg = `🛒 *NEW ORDER — Jai Shree Cashew*\nOrder ID: ${orderId}\nCustomer: ${addr.name}\nPhone: ${addr.phone}\nAddress: ${addr.line1}, ${addr.city}, ${addr.state} - ${addr.pincode}\nItems:\n${order.items.map(i=>`• ${i.name} ×${i.qty} (${i.size}) = ₹${i.price*i.qty}`).join('\n')}\nTotal: ₹${order.total}\nPayment: Razorpay ✓ (${response.razorpay_payment_id})`;
+      window.open('https://wa.me/917568577968?text='+encodeURIComponent(waMsg),'_blank');
+    }
+  };
+  new Razorpay(options).open();
+}
+
+// ── QUICK VIEW ──
+function openModal(id) {
+  id = String(id);
+  const p = PRODUCTS.find(x => String(x.id)===id);
+  if(!p) return;
+  modalProduct = p;
+  const mi=$('modalImg'), mg=$('modalGrade'), mn=$('modalName'), mp=$('modalPrice'), md=$('modalDesc'), mo=$('modalOverlay');
+  if(mi) mi.src = p.img;
+  if(mg) mg.textContent = p.grade;
+  if(mn) mn.textContent = p.name;
+  if(mp) mp.textContent = '₹'+p.price;
+  if(md) md.textContent = p.desc;
+  if(mo) mo.classList.add('open');
+}
+function closeModal(e) { if(e.target===e.currentTarget) { const mo=$('modalOverlay'); if(mo) mo.classList.remove('open'); } }
+
+// ── WISHLIST ──
+function toggleWish(btn) {
+  if(btn.textContent==='♡') { btn.textContent='♥'; btn.style.color='var(--gold)'; btn.style.borderColor='var(--gold)'; }
+  else { btn.textContent='♡'; btn.style.color=''; btn.style.borderColor=''; }
+}
+
+// ── LIGHTBOX ──
+function openLightbox(src) { const li=$('lightboxImg'),lb=$('lightbox'); if(li) li.src=src; if(lb) lb.classList.add('open'); }
+function closeLightbox() { const lb=$('lightbox'); if(lb) lb.classList.remove('open'); }
+
+// ── MOBILE MENU ──
+function toggleMobile() { const mm=$('mobileMenu'); if(mm) mm.classList.toggle('open'); }
+
+// ── SCROLL ANIMATIONS ──
+try {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, {threshold:0.1});
+  document.querySelectorAll('.fade-up,.fade-in').forEach(el => observer.observe(el));
+} catch(e) {}
+
+// ── FIREBASE INQUIRY SUBMIT ──
+async function submitInquiry(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  if(!btn) return;
+  btn.textContent = 'SENDING...'; btn.disabled = true;
+  try {
+    if(window._db) {
+      await window._addDoc(window._collection(window._db, 'inquiries'), {
+        name: ($('fname')||{}).value||'',
+        phone: ($('fphone')||{}).value||'',
+        email: ($('femail')||{}).value||'',
+        type: ($('ftype')||{}).value||'',
+        grade: ($('fgrade')||{}).value||'',
+        qty: ($('fqty')||{}).value||'',
+        message: ($('fmsg')||{}).value||'',
+        timestamp: window._serverTimestamp ? window._serverTimestamp() : new Date(),
+        source: 'website',
+        status: 'new',
+        userId: window._currentUser ? window._currentUser.uid : null
+      });
+    }
+    const fs = $('formSuccess');
+    if(fs) fs.style.display='block';
+    const form = $('inquiryForm');
+    if(form) form.reset();
+  } catch(err) {
+    alert('Error submitting. Please WhatsApp us directly.');
+  }
+  btn.textContent='SEND ENQUIRY'; btn.disabled=false;
+}
+
+// ── CUSTOMER ORDERS (Firestore) ──
+async function loadCustomerOrders(userId, email) {
+  const container = $('dashOrders');
+  if(!container) return;
+  container.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">⏳</div><div class="dash-empty-text">Loading orders...</div></div>';
+  try {
+    const { getDocs, query, collection, where, orderBy } =
+      await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+    const q = query(collection(window._db,'orders'), where('userId','==',userId), orderBy('createdAt','desc'));
+    const snap = await getDocs(q);
+    if(snap.empty) {
+      container.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">📦</div><div class="dash-empty-text">No orders yet</div><div class="dash-empty-sub">Your orders will appear here after purchase.</div></div>';
+      return;
+    }
+    const statusColors = {pending:'#FFF3CD',processing:'#CCE5FF',shipped:'#D4EDDA',delivered:'#D4EDDA',cancelled:'#F8D7DA'};
+    const statusText = {pending:'Pending',processing:'Processing',shipped:'Shipped 🚚',delivered:'Delivered ✅',cancelled:'Cancelled ❌'};
+    container.innerHTML = snap.docs.map(d => {
+      const o = d.data();
+      const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : (o.date||'—');
+      return `<div class="dash-inquiry-card" style="margin-bottom:12px">
+        <div class="dash-inquiry-top">
+          <span style="font-weight:600;font-size:13px">${o.id}</span>
+          <span class="dash-inquiry-date">${date}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-soft);margin:6px 0">
+          ${(o.items||[]).map(i=>`${i.name} ×${i.qty}`).join(' · ')}
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <strong style="font-size:15px">₹${(o.total||0).toLocaleString('en-IN')}</strong>
+          <span style="font-size:11px;padding:3px 10px;background:${statusColors[o.status]||'#eee'}">${statusText[o.status]||o.status}</span>
+        </div>
+        ${o.address ? `<div style="font-size:11px;color:var(--text-soft);margin-top:6px">📍 ${o.address.line1}, ${o.address.city}</div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(err) {
+    console.error('Customer orders error:', err);
+    container.innerHTML = '<div class="dash-empty"><div class="dash-empty-text">Could not load orders</div></div>';
+  }
+}
+
+// ── CUSTOMER DASHBOARD TABS ──
+function switchDashTab(tab, el) {
+  document.querySelectorAll('#dashOverlay .auth-tab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  ['orders','enquiries','wishlist'].forEach(t => {
+    const sec = $('dSection-'+t);
+    if(sec) sec.style.display = t===tab ? 'block' : 'none';
+  });
+  if(tab==='enquiries' && window._currentUser) loadCustomerInquiries(window._currentUser.email);
+  if(tab==='orders' && window._currentUser) loadCustomerOrders(window._currentUser.uid, window._currentUser.email);
+}
+
+// ── FIREBASE AUTH + DASHBOARD ──
+window.onAuthChange = function(user) {
+  const loginBtn = $('loginNavBtn');
+  const userBtn = $('userNavBtn');
+  if(!loginBtn || !userBtn) return;
+  if(user) {
+    loginBtn.style.display = 'none';
+    userBtn.style.display = 'flex';
+    const initials = (user.displayName || user.email).charAt(0).toUpperCase();
+    safeSet('userAvatarNav', initials);
+    safeSet('userNameNav', (user.displayName || 'Account').split(' ')[0]);
+    // If coming from redirect, auto-open dashboard
+    const wasRedirect = sessionStorage.getItem('jsc_google_redirect');
+    if(wasRedirect) {
+      sessionStorage.removeItem('jsc_google_redirect');
+      if(user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
+    }
+  } else {
+    loginBtn.style.display = 'flex';
+    userBtn.style.display = 'none';
+  }
+};
+
+// ── AUTH MODAL ──
+function openAuth() { const ao=$('authOverlay'); if(ao) ao.classList.add('open'); }
+function closeAuth() { const ao=$('authOverlay'); if(ao) ao.classList.remove('open'); clearAuthErrors(); }
+
+function switchAuthTab(tab, el) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const formId = 'authForm'+tab.charAt(0).toUpperCase()+tab.slice(1);
+  const form = $(formId);
+  if(form) form.classList.add('active');
+  clearAuthErrors();
+}
+function clearAuthErrors() {
+  document.querySelectorAll('.auth-error').forEach(e => { e.classList.remove('show'); e.textContent = ''; });
+}
+function showAuthError(id, msg) {
+  const el = $(id);
+  if(el) { el.textContent = msg; el.classList.add('show'); }
+}
+function getAuthErrMsg(code) {
+  const msgs = {
+    // Email/password
+    'auth/user-not-found':        'No account found with this email.',
+    'auth/wrong-password':        'Incorrect password.',
+    'auth/email-already-in-use':  'Email already registered. Please sign in.',
+    'auth/weak-password':         'Password must be at least 6 characters.',
+    'auth/invalid-email':         'Invalid email address.',
+    'auth/too-many-requests':     'Too many attempts. Please try again later.',
+    'auth/invalid-credential':    'Invalid email or password.',
+    // Google / popup
+    'auth/popup-closed-by-user':       'Google sign-in was cancelled.',
+    'auth/cancelled-popup-request':    'Only one sign-in window at a time. Please try again.',
+    'auth/popup-blocked':              'Popup was blocked. Trying redirect instead...',
+    // Domain / config issues — most common cause of "Something went wrong"
+    'auth/unauthorized-domain':        'This domain is not authorised in Firebase.\nFix: Firebase Console → Authentication → Settings → Authorised Domains → Add your domain.',
+    'auth/operation-not-allowed':      'Google sign-in is not enabled.\nFix: Firebase Console → Authentication → Sign-in method → Enable Google.',
+    // Network
+    'auth/network-request-failed':     'Network error. Check your internet connection and try again.',
+    'auth/internal-error':             'Firebase internal error. Please try again in a moment.',
+    // Misc
+    'auth/user-disabled':              'This account has been disabled.',
+    'auth/account-exists-with-different-credential': 'An account already exists with this email using a different sign-in method.',
+    'auth/requires-recent-login':      'Please sign in again to continue.',
+    'auth/no-current-user':            'No user is currently signed in.',
+  };
+  const human = msgs[code];
+  if(human) return human;
+  // Unknown code — show it so developer knows what to fix
+  return code ? `Sign-in error (${code}). Check browser console for details.` : 'Sign-in failed. Please try again.';
+}
+
+async function doLogin() {
+  const emailEl = $('loginEmail'), passEl = $('loginPass');
+  const email = emailEl ? emailEl.value.trim() : '';
+  const pass = passEl ? passEl.value : '';
+  if(!email || !pass) { showAuthError('loginError','Please fill all fields.'); return; }
+  try {
+    await window._signInWithEmail(email, pass);
+    closeAuth();
+    if(email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
+  } catch(err) { console.error('[Auth] Email login FAILED. Code:', err.code, '|', err.message); showAuthError('loginError', getAuthErrMsg(err.code)); }
+}
+
+async function doSignup() {
+  const nameEl=$('signupName'), emailEl=$('signupEmail'), passEl=$('signupPass');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const email = emailEl ? emailEl.value.trim() : '';
+  const pass = passEl ? passEl.value : '';
+  if(!name || !email || !pass) { showAuthError('signupError','Please fill all fields.'); return; }
+  try {
+    const cred = await window._createUser(email, pass);
+    await window._updateProfile(cred.user, { displayName: name });
+    closeAuth(); openDashboard();
+  } catch(err) { console.error('[Auth] Signup FAILED. Code:', err.code, '|', err.message); showAuthError('signupError', getAuthErrMsg(err.code)); }
+}
+
+async function doGoogleLogin() {
+  // ── Helpers ──
+  const allGoogleBtns = () => document.querySelectorAll('.auth-btn-google');
+  const lockBtns = () => allGoogleBtns().forEach(b => {
+    b.disabled = true;
+    b.style.opacity = '0.55';
+    b.style.pointerEvents = 'none';
+    b._origText = b._origText || b.innerHTML;
+    b.innerHTML = b._origText.replace('Continue with Google','Connecting...');
+  });
+  const resetBtns = () => allGoogleBtns().forEach(b => {
+    b.disabled = false;
+    b.style.opacity = '';
+    b.style.pointerEvents = '';
+    if(b._origText) { b.innerHTML = b._origText; delete b._origText; }
+  });
+
+  // ── Check if a previous redirect left an error ──
+  const prevRedirectErr = sessionStorage.getItem('jsc_redirect_error');
+  if(prevRedirectErr) {
+    sessionStorage.removeItem('jsc_redirect_error');
+    const [errCode] = prevRedirectErr.split('|');
+    console.error('[Auth] Previous redirect failed. Code:', errCode);
+    const msg = getAuthErrMsg(errCode);
+    showAuthError('loginError', msg);
+    showAuthError('signupError', msg);
+    resetBtns(); // ensure buttons are usable
+    return;
+  }
+
+  // ── Guard: if already in-flight, ignore tap ──
+  if(allGoogleBtns().length && allGoogleBtns()[0].disabled) {
+    console.log('[Auth] Google login already in progress — ignoring tap.');
+    return;
+  }
+
+  lockBtns();
+
+  // ── Safety timeout: always re-enable after 15s ──
+  const safetyTimer = setTimeout(() => {
+    console.warn('[Auth] Safety timeout fired — re-enabling Google buttons.');
+    resetBtns();
+  }, 15000);
+
+  try {
+    console.log('[Auth] doGoogleLogin called. Domain:', location.hostname);
+    const result = await window._signInGoogle();
+
+    if(!result) {
+      // Redirect flow initiated — page will reload; keep buttons locked for UX
+      // But set a session flag so they reset if redirect fails
+      console.log('[Auth] Redirect flow started — awaiting page reload.');
+      clearTimeout(safetyTimer);
+      // Page is reloading — no need to reset; safety timer handles edge cases
+      return;
+    }
+
+    clearTimeout(safetyTimer);
+    resetBtns();
+    console.log('[Auth] Google login SUCCESS. User:', result.user.email);
+    closeAuth();
+    if(result.user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
+
+  } catch(err) {
+    clearTimeout(safetyTimer);
+    resetBtns(); // ALWAYS reset on any error path
+    const code = err.code || '';
+    console.error('[Auth] doGoogleLogin FAILED. Code:', code, '| Message:', err.message);
+
+    // Silent failures — user deliberately closed popup
+    if(code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      console.log('[Auth] User closed popup — no error shown, buttons re-enabled.');
+      return;
+    }
+
+    // Auth already in progress from another tab/attempt
+    if(code === 'auth/cancelled-popup-request') {
+      resetBtns();
+      return;
+    }
+
+    const msg = getAuthErrMsg(code);
+    showAuthError('loginError', msg);
+    showAuthError('signupError', msg);
+  }
+}
+
+async function doSignOut() {
+  try {
+    if(window._signOut) await window._signOut();
+  } catch(e) { console.warn('signOut error:', e); }
+  window._currentUser = null;
+  closeDashboard();
+  closeAdmin();
+  // Reset nav to show login button
+  const loginBtn = $('loginNavBtn'), userBtn = $('userNavBtn');
+  if(loginBtn) loginBtn.style.display = 'flex';
+  if(userBtn) userBtn.style.display = 'none';
+}
+
+// ── CUSTOMER DASHBOARD ──
+function openDashboard() {
+  const user = window._currentUser;
+  if(!user) { openAuth(); return; }
+  if(user.email === window.ADMIN_EMAIL) { openAdmin(); return; }
+  const overlay = $('dashOverlay');
+  if(overlay) overlay.classList.add('open');
+  safeSet('dashTitle', user.displayName || 'My Account');
+  safeSet('dashUserInfo', user.email);
+  const av = $('dashAvatarBig');
+  if(av) av.textContent = (user.displayName || user.email).charAt(0).toUpperCase();
+  // Show cart summary in dashboard
+  renderDashCartSummary();
+  switchDashTab('orders', $('dtab-orders'));
+  const user2 = window._currentUser;
+  if(user2) loadCustomerOrders(user2.uid, user2.email);
+}
+
+function renderDashCartSummary() {
+  const el = $('dashCartSummary');
+  const cartCountEl = $('dashCartCount');
+  const enqCountEl = $('dashEnqCount');
+  // Update stat cards
+  const cartTotal = cart.reduce((a,b)=>a+b.qty,0);
+  if(cartCountEl) cartCountEl.textContent = cartTotal;
+  // Count enquiries from localStorage
+  if(enqCountEl) {
+    const user = window._currentUser;
+    if(user && window._db) {
+      // Show loading then fetch
+      enqCountEl.textContent = '...';
+      window._getDocs(window._query(window._collection(window._db,'inquiries'),window._orderBy('timestamp','desc')))
+        .then(snap => {
+          const mine = snap.docs.filter(d=>(d.data().email||'').toLowerCase()===user.email.toLowerCase()).length;
+          enqCountEl.textContent = mine;
+        }).catch(()=>{ enqCountEl.textContent = '0'; });
+    } else { enqCountEl.textContent = '0'; }
+  }
+  if(!el) return;
+  if(!cart.length) { el.style.display='none'; return; }
+  el.style.display='block';
+  const total = cart.reduce((a,b)=>a+b.price*b.qty,0);
+  const count = cart.reduce((a,b)=>a+b.qty,0);
+  el.innerHTML = `
+    <div style="background:var(--cream);border:1px solid var(--gold);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:11px;letter-spacing:2px;color:var(--text-soft);text-transform:uppercase;margin-bottom:4px">Items in Cart</div>
+        <div style="font-size:20px;font-weight:600;color:var(--walnut)">${count} item${count>1?'s':''} · ₹${total.toLocaleString('en-IN')}</div>
+      </div>
+      <button onclick="closeDashboard();openCart()" style="background:var(--walnut);color:var(--gold2);border:none;padding:10px 20px;font-size:11px;letter-spacing:2px;cursor:pointer;font-family:'DM Sans',sans-serif">VIEW CART</button>
+    </div>
+  `;
+}
+function closeDashboard() { const d=$('dashOverlay'); if(d) d.classList.remove('open'); }
+
+async function loadCustomerInquiries(email) {
+  const container = $('dashInquiries');
+  if(!container) return;
+  container.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">⏳</div><div class="dash-empty-text">Loading enquiries...</div></div>';
+  try {
+    if(!window._db) { container.innerHTML = '<div class="dash-empty"><div class="dash-empty-text">Database not ready</div></div>'; return; }
+    const q = window._query(window._collection(window._db, 'inquiries'), window._orderBy('timestamp','desc'));
+    const snap = await window._getDocs(q);
+    const myDocs = snap.docs.filter(d => (d.data().email||'').toLowerCase() === email.toLowerCase());
+    if(!myDocs.length) {
+      container.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon">📋</div><div class="dash-empty-text">No enquiries yet</div><div class="dash-empty-sub">Submit a bulk or export enquiry from the contact section.</div></div>';
+      return;
+    }
+    container.innerHTML = myDocs.map(d => {
+      const data = d.data();
+      const date = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      const status = data.status || 'new';
+      const statusLabel = {new:'New',contacted:'Contacted',closed:'Closed'}[status] || status;
+      return `<div class="dash-inquiry-card">
+        <div class="dash-inquiry-top"><span class="dash-inquiry-grade">${data.grade||'General'}</span><span class="dash-inquiry-date">${date}</span></div>
+        <div class="dash-inquiry-type">${data.type||'Enquiry'}</div>
+        ${data.qty ? `<div class="dash-inquiry-qty">Quantity: ${data.qty}</div>` : ''}
+        ${data.message ? `<div class="dash-inquiry-msg">"${data.message.substring(0,100)}${data.message.length>100?'...':''}"</div>` : ''}
+        <span class="dash-inquiry-status status-${status}">${statusLabel}</span>
+      </div>`;
+    }).join('');
+  } catch(err) {
+    container.innerHTML = '<div class="dash-empty"><div class="dash-empty-text">Could not load enquiries</div></div>';
+  }
+}
+
+// ── ADMIN PANEL ──
+function openAdmin() {
+  const ap = $('adminPanel');
+  if(ap) ap.classList.add('open');
+  loadAdminInquiries();
+  loadAdminOrders();
+  renderAdminProducts();
+}
+function closeAdmin() { const ap=$('adminPanel'); if(ap) ap.classList.remove('open'); }
+
+// Real-time enquiries listener — unsubscribe handle
+let _enquiriesUnsub = null;
+
+function loadAdminInquiries() {
+  const container = $('adminTableContainer');
+  if(!container) return;
+  container.innerHTML = '<div class="admin-loading">Loading enquiries...</div>';
+  if(!window._db) { container.innerHTML = '<div class="admin-loading">Database not ready.</div>'; return; }
+  // Tear down any existing listener
+  if(_enquiriesUnsub) { _enquiriesUnsub(); _enquiriesUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy }) => {
+    const q = query(collection(window._db, 'inquiries'), orderBy('timestamp','desc'));
+    _enquiriesUnsub = onSnapshot(q, (snap) => {
+      const docs = snap.docs;
+      const total = docs.length;
+      const newCount = docs.filter(d => !d.data().status || d.data().status === 'new').length;
+      const contacted = docs.filter(d => d.data().status === 'contacted').length;
+      safeSet('statTotal', total);
+      safeSet('statNew', newCount);
+      safeSet('statContacted', contacted);
+      if(!total) { container.innerHTML = '<div class="admin-loading">No enquiries yet.</div>'; return; }
+      const filterVal = ($('adminEnqFilter')||{}).value || 'all';
+      const filtered = filterVal === 'all' ? docs : docs.filter(d => (d.data().status||'new') === filterVal);
+      const rows = filtered.map(d => {
+        const data = d.data();
+        const date = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Just now';
+        const status = data.status || 'new';
+        return `<tr>
+          <td><strong>${data.name||'—'}</strong><br><span style="font-size:11px;color:var(--text-soft)">${data.email||''}</span></td>
+          <td>${data.phone||'—'}</td>
+          <td><span style="font-size:11px;background:var(--cream);padding:2px 8px">${data.grade||'—'}</span></td>
+          <td>${data.type||'—'}</td><td>${data.qty||'—'}</td>
+          <td style="max-width:180px;font-size:12px;color:var(--text-soft)">${(data.message||'').substring(0,60)}${(data.message||'').length>60?'...':''}</td>
+          <td><span style="font-size:11px;color:var(--text-soft)">${date}</span></td>
+          <td><select class="admin-status-select" onchange="updateInquiryStatus('${d.id}',this.value)">
+            <option value="new" ${status==='new'?'selected':''}>🟡 New</option>
+            <option value="contacted" ${status==='contacted'?'selected':''}>🔵 Contacted</option>
+            <option value="closed" ${status==='closed'?'selected':''}>🟢 Closed</option>
+          </select></td>
+        </tr>`;
+      }).join('');
+      container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
+        <thead><tr><th>NAME / EMAIL</th><th>PHONE</th><th>GRADE</th><th>TYPE</th><th>QTY</th><th>MESSAGE</th><th>DATE</th><th>STATUS</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-soft)">No enquiries match the selected filter.</td></tr>'}</tbody></table></div>`;
+    }, (err) => {
+      container.innerHTML = '<div class="admin-loading">Error loading. Check Firestore rules.</div>';
+      console.error('Enquiries listener error:', err);
+    });
+  });
+}
+
+async function updateInquiryStatus(docId, newStatus) {
+  try {
+    if(!window._db) return;
+    await window._updateDoc(window._doc(window._db, 'inquiries', docId), { status: newStatus });
+  } catch(err) { alert('Could not update status.'); }
+}
+
+// ── SEARCH ──
+function navSearch(val) {
+  const drop = $('searchDropdown');
+  if(!drop) return;
+  val = (val||'').trim().toLowerCase();
+  if(!val) { drop.classList.remove('open'); return; }
+  const results = PRODUCTS.filter(p =>
+    p.name.toLowerCase().includes(val) ||
+    p.grade.toLowerCase().includes(val) ||
+    p.cat.toLowerCase().includes(val) ||
+    p.desc.toLowerCase().includes(val)
+  );
+  if(!results.length) {
+    drop.innerHTML = '<div class="search-no-results">No products found for "'+val+'"</div>';
+  } else {
+    drop.innerHTML = results.map(p => `
+      <div class="search-result-item" onclick="openProductDetail('${p.id}');closeNavSearch()">
+        <img src="${p.img}" class="search-result-img" alt="${p.name}">
+        <div><div class="search-result-name">${p.name}</div><div class="search-result-price">₹${p.price} / ${p.weight}</div></div>
+      </div>
+    `).join('');
+  }
+  drop.classList.add('open');
+}
+function closeNavSearch() {
+  const drop = $('searchDropdown');
+  if(drop) drop.classList.remove('open');
+  const inp = $('navSearchInput');
+  if(inp) inp.value = '';
+}
+
+// ── COUPON ──
+let appliedCoupon = null;
+async function applyCoupon() {
+  const ci=$('couponInput'), msg=$('couponMsg');
+  if(!ci || !msg) return;
+  const code = ci.value.trim().toUpperCase();
+  if(!code) { msg.className='cart-coupon-msg error'; msg.textContent='Please enter a promo code.'; return; }
+
+  msg.className='cart-coupon-msg'; msg.textContent='Checking...';
+
+  try {
+    const { getDocs, query, collection, where } =
+      await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+    const snap = await getDocs(query(
+      collection(window._db, 'coupons'),
+      where('code', '==', code),
+      where('active', '==', true)
+    ));
+    if(snap.empty) {
+      appliedCoupon = null;
+      msg.className='cart-coupon-msg error';
+      msg.textContent='Invalid or expired code.';
+      renderCart(); return;
+    }
+    const couponData = snap.docs[0].data();
+    const cartTotal = cart.reduce((a,b)=>a+b.price*b.qty,0);
+    if(couponData.minOrder && cartTotal < couponData.minOrder) {
+      msg.className='cart-coupon-msg error';
+      msg.textContent=`Minimum order ₹${couponData.minOrder} required for this code.`;
+      return;
+    }
+    if(couponData.expiry && couponData.expiry.toDate && couponData.expiry.toDate() < new Date()) {
+      msg.className='cart-coupon-msg error';
+      msg.textContent='This coupon has expired.';
+      return;
+    }
+    appliedCoupon = { code, pct: couponData.discount, type: couponData.type };
+    msg.className='cart-coupon-msg success';
+    msg.textContent=`✓ ${code} applied — ${couponData.discount}% off!`;
+    renderCart();
+  } catch(e) {
+    // Fallback to hardcoded coupons if Firestore fails
+    const FALLBACK = { 'CASHEW10':10, 'JAIPUR15':15, 'BULK20':20 };
+    if(FALLBACK[code]) {
+      appliedCoupon = { code, pct: FALLBACK[code] };
+      msg.className='cart-coupon-msg success';
+      msg.textContent=`✓ ${code} applied — ${FALLBACK[code]}% off!`;
+      renderCart();
+    } else {
+      appliedCoupon = null;
+      msg.className='cart-coupon-msg error';
+      msg.textContent='Invalid code.';
+      renderCart();
+    }
+  }
+}
+
+// ── RECENTLY VIEWED ──
+let recentlyViewed = [];
+try { recentlyViewed = JSON.parse(localStorage.getItem('jsc_recent')||'[]'); } catch(e) {}
+
+function trackRecentlyViewed(id) {
+  id = String(id);
+  recentlyViewed = recentlyViewed.filter(x => String(x)!==id);
+  recentlyViewed.unshift(id);
+  recentlyViewed = recentlyViewed.slice(0,6);
+  try { localStorage.setItem('jsc_recent', JSON.stringify(recentlyViewed)); } catch(e){}
+}
+
+function renderRecentlyViewed() {
+  const wrap = $('recentlyViewedWrap');
+  if(!wrap) return;
+  const ids = recentlyViewed.filter(id => PRODUCTS.find(p => String(p.id)===String(id)));
+  if(!ids.length) { wrap.style.display='none'; return; }
+  wrap.style.display = 'block';
+  const grid = $('recentlyViewedGrid');
+  if(!grid) return;
+  grid.innerHTML = ids.map(id => {
+    const p = PRODUCTS.find(x => String(x.id)===String(id));
+    if(!p) return '';
+    return `<div class="recently-viewed-item" onclick="openProductDetail('${p.id}')">
+      <img src="${p.img}" class="recently-viewed-img" alt="${p.name}">
+      <div class="recently-viewed-name">${p.name}</div>
+      <div class="recently-viewed-price">₹${p.price}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══ MULTI-PAGE SYSTEM ══
+let currentPage = 'home';
+let prevPage = 'home';
+
+// ── URL ROUTING — History API ──────────────────────────────────────
+// Maps internal page keys to clean URL paths and back.
+// Works with existing showPage() — zero Firebase/auth/cart impact.
+// ── URL ROUTING — Hash-based ─────────────────────────────────────
+// Uses location.hash (#/shop, #/about) instead of pushState paths.
+// Why hash routing here:
+//   • Works on ALL static hosts — Firebase Hosting, GitHub Pages, any CDN
+//   • No server rewrites needed — hash never reaches the server
+//   • Refresh preserves the correct page (hash survives reload)
+//   • Back/forward button works natively
+//   • 100% reliable on mobile Safari, Chrome, all Android browsers
+//   • Share links work: yoursite.com/#/about opens About page directly
+// ─────────────────────────────────────────────────────────────────
+
+var HASH_ROUTES = {
+  'home':           '#/',
+  'shop':           '#/shop',
+  'grades':         '#/grades',
+  'about':          '#/about',
+  'contact':        '#/contact',
+  'privacy':        '#/privacy-policy',
+  'terms':          '#/terms',
+  'returns':        '#/return-policy'
+};
+
+var HASH_TO_PAGE = {};
+(function() {
+  Object.keys(HASH_ROUTES).forEach(function(p) {
+    HASH_TO_PAGE[HASH_ROUTES[p]] = p;
+  });
+})();
+
+// Set the hash URL for a page
+var _ignoreHashChange = false; // suppress our own hashchange events
+
+function pushPageUrl(page) {
+  var hash = HASH_ROUTES[page];
+  if (!hash) return;
+  if (window.location.hash === hash) return; // already correct
+  try {
+    _ignoreHashChange = true; // prevent hashchange from re-triggering showPage
+    if (window.history && window.history.pushState) {
+      // pushState changes hash without triggering hashchange event
+      window.history.pushState(null, '', window.location.pathname + hash);
+    } else {
+      window.location.hash = hash; // fallback — will trigger hashchange but _ignoreHashChange guards it
+    }
+    // Reset flag after browser has processed the state change
+    setTimeout(function() { _ignoreHashChange = false; }, 50);
+  } catch(e) { _ignoreHashChange = false; }
+}
+
+// Replace current hash (no new history entry — used on init)
+function replacePageUrl(page) {
+  var hash = HASH_ROUTES[page] || '#/';
+  try {
+    // replaceState keeps URL clean without a reload
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname + hash);
+    } else {
+      window.location.replace(window.location.pathname + hash);
+    }
+  } catch(e) {}
+}
+
+// Read current hash and return the matching page key
+function pageFromUrl() {
+  var hash = window.location.hash || '#/';
+  // Exact match
+  if (HASH_TO_PAGE[hash]) return HASH_TO_PAGE[hash];
+  // Strip trailing slash variant: '#/about/' → '#/about'
+  var trimmed = hash.replace(/\/$/, '') || '#/';
+  if (HASH_TO_PAGE[trimmed]) return HASH_TO_PAGE[trimmed];
+  // No match — default to home
+  return 'home';
+}
+
+// Back/forward button — hashchange fires reliably on all mobile browsers
+window.addEventListener('hashchange', function() {
+  if (_ignoreHashChange) return; // our own push — skip
+  var page = pageFromUrl();
+  _showPageInternal(page, false); // don't push — hash already changed
+});
+// ─────────────────────────────────────────────────────────────────
+
+function showPage(page) {
+  _showPageInternal(page, true);
+}
+
+function _showPageInternal(page, pushUrl) {
+  try {
+    // Hide all pages
+    document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+    prevPage = currentPage !== page ? currentPage : prevPage;
+    currentPage = page;
+    // Show target page
+    const target = $('page-'+page);
+    if(target) {
+      target.classList.add('active');
+    } else {
+      // fallback: show home
+      const home = $('page-home');
+      if(home) home.classList.add('active');
+      currentPage = 'home';
+    }
+    // ── URL routing: push clean URL into history ──
+    if (pushUrl) {
+      pushPageUrl(currentPage);
+    }
+    // Page-specific init
+    if(page === 'home') {
+      renderFeaturedProducts();
+      updateCartBadge();
+    } else if(page === 'shop') {
+      renderProducts();
+      _renderShopGrid();
+      _updateCategoryCounts();
+      updateCartBadge();
+      renderRecentlyViewed();
+    }
+    // Nav active state
+    document.querySelectorAll('.nav-page-link').forEach(a => {
+      a.classList.toggle('active', a.dataset.page === currentPage);
+    });
+    // Scroll top
+    window.scrollTo({top:0, behavior:'smooth'});
+    updateStickyCartBar();
+  } catch(err) {
+    console.error('showPage error:', err);
+  }
+}
+
+function renderFeaturedProducts() {
+  const grid = $('featuredProductsGrid');
+  if(!grid) return;
+  // Always use live PRODUCTS array (reflects admin edits)
+  const featured = PRODUCTS.filter(p => p.img).slice(0,3);
+  grid.innerHTML = featured.map(p => {
+    const hasDiscount = p.origPrice && p.origPrice > p.price;
+    const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
+    const outOfStock = p.stock === 0;
+    const lowStock = p.stock > 0 && p.stock <= 10;
+    const stockBadge = outOfStock
+      ? `<div class="badge-new" style="background:#e74c3c">OUT OF STOCK</div>`
+      : lowStock ? `<div class="badge-new" style="background:#f39c12">ONLY ${p.stock} LEFT</div>` : '';
+    return `<div class="product-card" style="cursor:pointer">
+      ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
+      ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
+      ${stockBadge}
+      <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
+        <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <div class="prod-overlay"></div>
+        <button class="prod-quick" onclick="event.stopPropagation();openModal('${p.id}')">QUICK VIEW</button>
+      </div>
+      <div class="prod-info">
+        <div class="prod-grade">${p.grade||''}</div>
+        <div class="prod-name" onclick="openProductDetail('${p.id}')">${p.name}</div>
+        <div class="prod-weight">${p.weight} pack</div>
+        <div class="prod-price-row">
+          <span class="prod-price">₹${p.price}</span>
+          ${hasDiscount ? `<span class="prod-price-original">₹${p.origPrice}</span><span class="prod-discount">−${discPct}%</span>` : ''}
+        </div>
+        <div class="prod-btns">
+          <button class="btn-cart" onclick="addToCart('${p.id}')" ${outOfStock ? 'disabled style="background:#aaa;cursor:not-allowed"' : ''}>
+            ${outOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
+          </button>
+          <button class="btn-wish" onclick="toggleWish(this)">♡</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══ PRODUCT DETAIL PAGE ══
+let currentPDP = null;
+let pdpSelectedSize = '';
+let pdpSelectedRating = 0;
+
+function openProductDetail(id) {
+  id = String(id);
+  const p = PRODUCTS.find(x => String(x.id) === id);
+  if(!p) return;
+  currentPDP = p;
+  pdpSelectedSize = p.sizes ? p.sizes[0] : p.weight;
+
+  try {
+    safeSet('pdp-breadcrumb-name', p.name);
+    safeSet('pdpGradeTag', 'Grade · '+p.grade);
+    safeSet('pdpTitle', p.name);
+
+    const bNew = $('pdpBadgeNew'), bSale = $('pdpBadgeSale');
+    if(bNew) { bNew.textContent = p.badge||''; bNew.style.display = p.badge ? '' : 'none'; }
+    const hasDiscount = p.origPrice && p.origPrice > p.price;
+    const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
+    if(bSale) { bSale.textContent = discPct+'% OFF'; bSale.style.display = hasDiscount ? '' : 'none'; }
+
+    safeSet('pdpPrice', '₹'+p.price);
+    const origEl = $('pdpPriceOriginal');
+    if(origEl) { origEl.textContent = hasDiscount ? '₹'+p.origPrice : ''; origEl.style.display = hasDiscount ? '' : 'none'; }
+    const discBadge = $('pdpDiscountBadge');
+    if(discBadge) { discBadge.textContent = discPct+'% OFF'; discBadge.style.display = hasDiscount ? '' : 'none'; }
+    safeSet('pdpPerUnit', 'Per '+pdpSelectedSize+' pack · Inclusive of all taxes');
+
+    // Stock badge
+    const stockBadge = $('pdpStockBadge');
+    if(stockBadge) {
+      if(p.stock === 0) {
+        stockBadge.textContent = 'OUT OF STOCK';
+        stockBadge.style.color = '#e74c3c';
+      } else if(p.stock <= 10) {
+        stockBadge.textContent = 'ONLY '+p.stock+' LEFT — ORDER NOW';
+        stockBadge.style.color = '#f39c12';
+      } else {
+        stockBadge.textContent = '✓ In Stock — Ships in 2–3 days';
+        stockBadge.style.color = '#27ae60';
+      }
+    }
+
+    const allImgs = p.imgs && p.imgs.length ? p.imgs : [p.img];
+    const mainImg = $('pdpMainImg');
+    if(mainImg) mainImg.src = allImgs[0];
+
+    const thumbsEl = $('pdpThumbs');
+    if(thumbsEl) thumbsEl.innerHTML = allImgs.map((src,i) =>
+      `<img src="${src}" class="pdp-thumb${i===0?' active':''}" alt="${p.name}" onclick="pdpSetMainImg(this,'${src}')">`
+    ).join('');
+
+    const sizesEl = $('pdpSizeBtns');
+    const sizes = p.sizes || [p.weight];
+    if(sizesEl) sizesEl.innerHTML = sizes.map((s,i) =>
+      `<button class="pdp-size-btn${i===0?' active':''}" onclick="pdpSelectSize(this,'${s}')">${s}</button>`
+    ).join('');
+
+    const qtyVal = $('pdpQtyVal');
+    if(qtyVal) qtyVal.value = 1;
+
+    loadPDPReviews(id);
+
+    const overviewEl = $('pdpOverviewText');
+    if(overviewEl) overviewEl.innerHTML = p.overview || '<p>'+p.desc+'</p>';
+    safeHTML('pdpProsList', (p.pros||[]).map(x=>`<li>${x}</li>`).join(''));
+    safeHTML('pdpConsList', (p.cons||[]).map(x=>`<li>${x}</li>`).join(''));
+    safeHTML('pdpSpecsTable', (p.specs||[]).map(row=>`<tr><td>${row[0]}</td><td>${row[1]}</td></tr>`).join(''));
+
+    pdpSwitchTab('overview', $('tab-overview'));
+  } catch(err) {
+    console.error('openProductDetail error:', err);
+  }
+
+  showPage('product-detail');
+  trackRecentlyViewed(id);
+  updateStickyCartBar();
+}
+
+function pdpSetMainImg(thumb, src) {
+  const main = $('pdpMainImg');
+  if(main) main.src = src;
+  document.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('active'));
+  if(thumb) thumb.classList.add('active');
+}
+
+function pdpSelectSize(btn, size) {
+  document.querySelectorAll('.pdp-size-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  pdpSelectedSize = size;
+  if(currentPDP) safeSet('pdpPerUnit', 'Per '+size+' pack · Inclusive of all taxes');
+}
+
+function pdpQtyChange(delta) {
+  const inp = $('pdpQtyVal');
+  if(!inp) return;
+  const val = Math.max(1, parseInt(inp.value||1) + delta);
+  inp.value = val;
+}
+
+function pdpAddToCart() {
+  if(!currentPDP) return;
+  if(currentPDP.stock === 0) { alert('This product is currently out of stock.'); return; }
+  const qtyEl = $('pdpQtyVal');
+  const qty = qtyEl ? parseInt(qtyEl.value||1) : 1;
+  for(let i=0;i<qty;i++) addToCart(currentPDP.id);
+  const btn = document.querySelector('.pdp-btn-cart');
+  if(btn) {
+    btn.textContent = '✓ ADDED TO CART';
+    btn.style.background = '#27ae60';
+    setTimeout(()=>{ btn.textContent='ADD TO CART'; btn.style.background=''; }, 2000);
+  }
+}
+
+function pdpToggleWish(btn) {
+  if(btn.textContent==='♡') { btn.textContent='♥'; btn.style.color='var(--gold)'; btn.style.borderColor='var(--gold)'; }
+  else { btn.textContent='♡'; btn.style.color=''; btn.style.borderColor=''; }
+}
+
+function pdpWhatsApp() {
+  if(!currentPDP) return;
+  const msg = `Hello, I am interested in *${currentPDP.name}* (${pdpSelectedSize}) at ₹${currentPDP.price}. Please confirm availability.`;
+  window.open('https://wa.me/917568577968?text='+encodeURIComponent(msg), '_blank');
+}
+
+function pdpSwitchTab(tab, el) {
+  document.querySelectorAll('.pdp-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pdp-tab-content').forEach(c => c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const tc = $('pdptab-'+tab);
+  if(tc) tc.classList.add('active');
+}
+
+// ══ REVIEWS ══
+let allReviews = [];
+try { allReviews = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
+
+const defaultReviews = [
+  {id:'r1',productId:1,name:'Ramesh Agarwal',location:'Mumbai',rating:5,title:'Finest cashews I have ever tasted',text:'Ordered W180 for our Diwali gift boxes. The size and quality exceeded expectations. Clients were thoroughly impressed.',date:'12 Nov 2024',verified:true,helpful:8},
+  {id:'r2',productId:1,name:'Sunita Mehta',location:'Delhi',rating:5,title:'Premium quality, on-time delivery',text:'Best W180 in Rajasthan. We use it exclusively for our premium gift hampers. Kernel size and whiteness is outstanding.',date:'8 Oct 2024',verified:true,helpful:5},
+  {id:'r3',productId:2,name:'Ashok Sharma',location:'Jaipur',rating:4,title:'Good quality, slightly expensive',text:'W240 is excellent — very uniform. Bulk pricing is competitive. The vacuum packing extends shelf life perfectly.',date:'2 Jan 2025',verified:true,helpful:3},
+  {id:'r4',productId:3,name:'Priya Verma',location:'Pune',rating:5,title:'Consistent quality every time',text:'W320 is my go-to for cooking. 4 years of ordering and not once has quality disappointed.',date:'15 Mar 2025',verified:true,helpful:12},
+  {id:'r5',productId:4,name:'Vikram Singh',location:'Udaipur',rating:5,title:'Perfect dry roast — no oily aftertaste',text:'Finally a dry roasted cashew that actually tastes like cashew, not oil. The sea salt balance is perfect.',date:'20 Feb 2025',verified:true,helpful:7},
+];
+
+function getAllReviews(productId) {
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
+  // Only show approved reviews on the website
+  const all = [...defaultReviews, ...stored.filter(r=>!r.pending||r.approved)]
+    .filter(r => !productId || String(r.productId) === String(productId));
+  return all;
+}
+
+function _renderPDPReviews(reviews) {
+  const count = reviews.length;
+  safeSet('pdpReviewCount', count);
+  safeSet('pdpTabReviewCount', count);
+  safeSet('pdpBigCount', count+' ratings');
+  if(!count) {
+    safeHTML('pdpReviewList', '<div class="dash-empty">No reviews yet. Be the first to review!</div>');
+    safeSet('pdpBigScore', '—');
+    return;
+  }
+  const avg = (reviews.reduce((a,b) => a+(b.rating||0),0)/count).toFixed(1);
+  safeSet('pdpBigScore', avg);
+  safeSet('pdpRatingNum', avg);
+  const full = Math.floor(avg); const half = avg - full >= 0.5;
+  safeSet('pdpStars', '★'.repeat(full)+(half?'½':'')+'☆'.repeat(5-full-(half?1:0)));
+  [1,2,3,4,5].forEach(star => {
+    const cnt = reviews.filter(r => r.rating===star).length;
+    const pct = count ? (cnt/count*100).toFixed(0) : 0;
+    const bar = $('bar'+star); if(bar) bar.style.width = pct+'%';
+    const cntEl = $('cnt'+star); if(cntEl) cntEl.textContent = cnt;
+  });
+  const rvList = $('pdpReviewList');
+  if(rvList) rvList.innerHTML = reviews.slice().reverse().map(r => {
+    const stars = '★'.repeat(r.rating||0)+'☆'.repeat(5-(r.rating||0));
+    return `<div class="pdp-review-card">
+      <div class="pdp-review-top">
+        <div class="pdp-review-author">
+          <div class="pdp-review-avatar">${(r.name||'?').charAt(0).toUpperCase()}</div>
+          <div><div class="pdp-review-name">${r.name}</div><div class="pdp-review-location">${r.location||''}</div></div>
+        </div>
+        <div class="pdp-review-date">${r.date||''}</div>
+      </div>
+      <div class="pdp-review-stars">${stars}</div>
+      <div class="pdp-review-title">${r.title||''}</div>
+      <div class="pdp-review-text">${r.text||''}</div>
+      ${r.verified?'<div class="pdp-review-verified">✓ Verified Purchase</div>':''}
+      <div class="pdp-review-helpful"><span>Helpful?</span>
+        <button onclick="var n=parseInt(this.dataset.count||'${r.helpful||0}');n++;this.dataset.count=n;this.textContent='👍 '+n;this.disabled=true" data-count="${r.helpful||0}">👍 ${r.helpful||0}</button>
+        <button>👎</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function loadPDPReviews(productId) {
+  // Start with local/default reviews immediately for fast render
+  const localReviews = getAllReviews(productId);
+  _renderPDPReviews(localReviews);
+  // Then fetch from Firestore for live approved reviews
+  if(!window._db) return;
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ getDocs, query, collection, where, orderBy }) => {
+    // Query approved reviews for this product
+    const q = query(
+      collection(window._db, 'reviews'),
+      where('productId', '==', productId),
+      where('approved', '==', true),
+      orderBy('createdAt', 'desc')
+    );
+    getDocs(q).then(snap => {
+      const firestoreReviews = snap.docs.map(d => ({ firestoreId:d.id, ...d.data() }));
+      // Merge with defaults, deduplicate by id
+      const combined = [...defaultReviews, ...firestoreReviews];
+      const seen = new Set();
+      const deduped = combined.filter(r => { const k = r.firestoreId||r.id; if(seen.has(k)) return false; seen.add(k); return true; });
+      _renderPDPReviews(deduped.filter(r => !productId || String(r.productId)===String(productId)));
+    }).catch(() => { /* keep local reviews shown */ });
+  }).catch(() => {});
+}
+
+function pdpSelectStar(val) {
+  pdpSelectedRating = val;
+  document.querySelectorAll('.pdp-star-select span').forEach((s,i) => {
+    s.classList.toggle('active', i < val);
+  });
+}
+
+async function submitReview() {
+  const nameEl=$('rv-name'), locEl=$('rv-loc'), titleEl=$('rv-title'), textEl=$('rv-text');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const loc = locEl ? locEl.value.trim() : '';
+  const title = titleEl ? titleEl.value.trim() : '';
+  const text = textEl ? textEl.value.trim() : '';
+  if(!pdpSelectedRating) { alert('Please select a star rating.'); return; }
+  if(!name || !text) { alert('Please enter your name and review.'); return; }
+  const review = {
+    id: 'u'+Date.now(),
+    productId: currentPDP ? currentPDP.id : 0,
+    productName: currentPDP ? currentPDP.name : '',
+    name, location:loc, rating:pdpSelectedRating,
+    title, text,
+    date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+    createdAt: window._serverTimestamp ? window._serverTimestamp() : new Date(),
+    verified: !!window._currentUser,
+    userId: window._currentUser ? window._currentUser.uid : null,
+    userEmail: window._currentUser ? window._currentUser.email : null,
+    helpful: 0,
+    pending: true,
+    approved: false
+  };
+  // Save to Firestore
+  try {
+    if(window._db && window._addDoc && window._collection) {
+      await window._addDoc(window._collection(window._db,'reviews'), review);
+    }
+  } catch(e) { console.warn('Firestore review save failed:', e); }
+  // Also keep localStorage backup
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
+  stored.push(review);
+  try { localStorage.setItem('jsc_reviews', JSON.stringify(stored)); } catch(e){}
+  const success = $('rv-success');
+  if(success) success.style.display = 'block';
+  if(nameEl) nameEl.value=''; if(locEl) locEl.value='';
+  if(titleEl) titleEl.value=''; if(textEl) textEl.value='';
+  pdpSelectedRating = 0;
+  document.querySelectorAll('.pdp-star-select span').forEach(s => s.classList.remove('active'));
+  setTimeout(()=>{ if(success) success.style.display='none'; }, 5000);
+}
+
+// ══ SORT PRODUCTS ══
+function sortProducts(val) {
+  if(val==='price-asc') PRODUCTS.sort((a,b) => a.price-b.price);
+  else if(val==='price-desc') PRODUCTS.sort((a,b) => b.price-a.price);
+  else if(val==='discount') PRODUCTS.sort((a,b) => {
+    const da=a.origPrice?Math.round((1-a.price/a.origPrice)*100):0;
+    const db=b.origPrice?Math.round((1-b.price/b.origPrice)*100):0;
+    return db-da;
+  });
+  else PRODUCTS.sort((a,b) => (a.sortOrder||0)-(b.sortOrder||0));
+  renderProducts();
+  if(currentPage === 'shop') _renderShopGrid();
+}
+
+// ══ ADMIN TAB SWITCHING ══
+function adminSwitchTab(tab, el) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const tc = $('admintab-'+tab);
+  if(tc) tc.classList.add('active');
+  if(tab==='enquiries') loadAdminInquiries();
+  if(tab==='orders') loadAdminOrders();
+  if(tab==='products') renderAdminProducts();
+  if(tab==='payments') loadAdminPayments();
+  if(tab==='reviews') loadAdminReviews();
+  if(tab==='coupons') loadAdminCoupons();
+}
+
+// ══ ADMIN PRODUCTS ══
+function renderAdminProducts() {
+  const grid = $('adminProductsGrid');
+  if(!grid) return;
+  safeSet('statProducts', PRODUCTS.length);
+  if(!PRODUCTS.length) {
+    grid.innerHTML = '<div class="admin-loading" style="padding:40px;text-align:center"><div style="font-size:28px;margin-bottom:12px">🛍️</div><div>Loading products from database...</div></div>';
+    return;
+  }
+  grid.innerHTML = PRODUCTS.map(p => `
+    <div class="admin-product-card">
+      <img src="${p.img || 'images/product-w320.webp'}" alt="${p.name}" class="admin-product-img" onerror="this.src='images/product-w320.webp'">
+      <div class="admin-product-body">
+        <div class="admin-product-name">${p.name}</div>
+        <div class="admin-product-price">₹${p.price} ${p.origPrice?`<span style="text-decoration:line-through;color:var(--text-soft);font-size:11px">₹${p.origPrice}</span>`:''}</div>
+        <div class="admin-product-actions">
+          <button class="btn-edit" onclick="openProductModal('${p.id}')">✏ EDIT</button>
+          <button class="btn-delete" onclick="deleteProduct('${p.id}')">✕ DELETE</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openProductModal(id) {
+  const modal = $('adminProductModal');
+  if(!modal) return;
+  modal.classList.add('open');
+  if(!id) {
+    safeSet('adminProductModalTitle', 'Add New Product');
+    const eid=$('editProductId'); if(eid) eid.value='';
+    ['ap-name','ap-grade','ap-weight','ap-desc','ap-overview','ap-pros','ap-cons','ap-sizes','ap-badge','ap-specs'].forEach(f=>{ const el=$(f); if(el) el.value=''; });
+    const ap=$('ap-price'); if(ap) ap.value='';
+    const aop=$('ap-origprice'); if(aop) aop.value='';
+    safeHTML('adminPhotoPreview','');
+  } else {
+    const p = PRODUCTS.find(x => String(x.id)===String(id));
+    if(!p) return;
+    safeSet('adminProductModalTitle', 'Edit Product: '+p.name);
+    const eid=$('editProductId'); if(eid) eid.value=String(p.id);  // Firestore doc ID
+    const setVal=(fid,val)=>{ const el=$(fid); if(el) el.value=val||''; };
+    setVal('ap-name',p.name); setVal('ap-grade',p.grade); setVal('ap-cat',p.cat);
+    setVal('ap-weight',p.weight); setVal('ap-price',p.price); setVal('ap-origprice',p.origPrice||'');
+    setVal('ap-desc',p.desc);
+    setVal('ap-overview',(p.overview||'').replace(/<[^>]+>/g,''));
+    setVal('ap-pros',(p.pros||[]).join('\n'));
+    setVal('ap-cons',(p.cons||[]).join('\n'));
+    setVal('ap-sizes',(p.sizes||[]).join(', '));
+    setVal('ap-badge',p.badge||'');
+    setVal('ap-specs',(p.specs||[]).map(r=>r[0]+' | '+r[1]).join('\n'));
+    setVal('ap-stock', p.stock !== undefined ? p.stock : 999);
+    const tsEl = $('ap-track-stock'); if(tsEl) tsEl.value = p.trackStock ? 'true' : 'false';
+    const preview = $('adminPhotoPreview');
+    const imgs = p.imgs||[p.img];
+    if(preview) preview.innerHTML = imgs.map((src,i)=>`<div class="admin-photo-preview-item"><img src="${src}"><button class="admin-photo-remove" onclick="this.parentElement.remove()">✕</button></div>`).join('');
+  }
+}
+
+function closeProductModal() { const m=$('adminProductModal'); if(m) m.classList.remove('open'); }
+
+function previewProductPhotos(input) {
+  const preview = $('adminPhotoPreview');
+  if(!preview || !input.files) return;
+  Array.from(input.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.className = 'admin-photo-preview-item';
+      div.innerHTML = `<img src="${e.target.result}"><button class="admin-photo-remove" onclick="this.parentElement.remove()">✕</button>`;
+      preview.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── ADMIN PRODUCTS — Firestore-backed save & delete ──
+
+// ── Helper: convert a data: URL to a Blob for uploading ──
+function _dataURLtoBlob(dataURL) {
+  const [header, b64] = dataURL.split(',');
+  const mime = header.match(/:(.*?);/)[1];
+  const binary = atob(b64);
+  const arr = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) arr[i]=binary.charCodeAt(i);
+  return new Blob([arr], {type: mime});
+}
+
+// ── Helper: upload a single file/blob to Firebase Storage, return download URL ──
+async function _uploadToStorage(fileOrBlob, folder, baseName, onProgress) {
+  if(!window._uploadProductImage) throw new Error('Firebase Storage not ready. Please refresh and try again.');
+  // Use the existing uploader — wrap Blob as a File-like object
+  const ext = (fileOrBlob.name||baseName||'img.jpg').split('.').pop().replace(/[^a-z0-9]/gi,'') || 'jpg';
+  const fakeFile = fileOrBlob instanceof File ? fileOrBlob : new File([fileOrBlob], `${baseName||'photo'}.${ext}`, {type: fileOrBlob.type||'image/jpeg'});
+  const tmpId = folder || ('prod_'+Date.now());
+  return await window._uploadProductImage(fakeFile, tmpId, onProgress);
+}
+
+async function saveProduct() {
+  const idEl = $('editProductId');
+  const firestoreId = idEl ? idEl.value.trim() : '';
+  const nameEl=$('ap-name'), priceEl=$('ap-price');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const price = priceEl ? parseInt(priceEl.value) : 0;
+  if(!name || !price) { alert('Product name and price are required.'); return; }
+
+  const saveBtn = document.querySelector('#adminProductModal .admin-form-save-btn');
+  if(saveBtn) { saveBtn.textContent = 'SAVING...'; saveBtn.disabled = true; }
+
+  const getVal = (fid) => { const el=$(fid); return el ? el.value : ''; };
+  const preview = $('adminPhotoPreview');
+
+  // ── Progress indicator ──
+  const progressDiv = document.createElement('div');
+  progressDiv.style.cssText = 'padding:8px 0;font-size:12px;color:var(--gold);font-weight:600;letter-spacing:1px';
+  progressDiv.textContent = '';
+  if(preview) preview.appendChild(progressDiv);
+
+  const setProgress = (msg) => { progressDiv.textContent = msg; };
+
+  let finalImgUrls = [];
+
+  try {
+    // ── Step 1: Collect all preview items (img tags in adminPhotoPreview) ──
+    const previewItems = Array.from(document.querySelectorAll('#adminPhotoPreview .admin-photo-preview-item img'));
+    const existingUrls  = previewItems.map(i=>i.src).filter(s => s && s.startsWith('http'));  // already on Firebase
+    const dataURLs      = previewItems.map(i=>i.src).filter(s => s && s.startsWith('data:')); // local preview blobs
+
+    // ── Step 2: Also grab newly selected files from input (may not be in preview yet) ──
+    const fileInput = $('ap-photos');
+    const newFiles  = fileInput && fileInput.files ? Array.from(fileInput.files) : [];
+
+    // ── Step 3: If there's anything to upload, check Storage is ready ──
+    const needsUpload = dataURLs.length > 0 || newFiles.length > 0;
+    if(needsUpload && !window._uploadProductImage) {
+      if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
+      if(saveBtn) { saveBtn.textContent='SAVE PRODUCT'; saveBtn.disabled=false; }
+      alert('Firebase Storage is not ready yet. Please wait a moment and try again.\n\nIf this keeps happening, refresh the page.');
+      return;
+    }
+
+    const uploadFolder = firestoreId || ('prod_'+Date.now());
+    let uploadIdx = 0;
+    const totalUploads = dataURLs.length + newFiles.length;
+
+    // ── Step 4: Upload data: URLs (local previews from previewProductPhotos) ──
+    for(const dataURL of dataURLs) {
+      uploadIdx++;
+      setProgress(`Uploading image ${uploadIdx}/${totalUploads}...`);
+      const blob = _dataURLtoBlob(dataURL);
+      const ext = blob.type.split('/')[1] || 'jpg';
+      const fakeFile = new File([blob], `photo_${Date.now()}.${ext}`, {type: blob.type});
+      const url = await window._uploadProductImage(fakeFile, uploadFolder, pct => {
+        setProgress(`Uploading image ${uploadIdx}/${totalUploads}... ${pct}%`);
+      });
+      finalImgUrls.push(url);
+    }
+
+    // ── Step 5: Upload any newly selected files from the file input ──
+    for(const file of newFiles) {
+      uploadIdx++;
+      setProgress(`Uploading image ${uploadIdx}/${totalUploads}...`);
+      const url = await window._uploadProductImage(file, uploadFolder, pct => {
+        setProgress(`Uploading image ${uploadIdx}/${totalUploads}... ${pct}%`);
+      });
+      finalImgUrls.push(url);
+    }
+
+    // ── Step 6: Combine existing (already on Firebase) + newly uploaded ──
+    const allImgs = [...existingUrls, ...finalImgUrls].filter(Boolean);
+    const mainImg = allImgs[0] || '';
+
+    if(fileInput) fileInput.value = '';
+    setProgress(allImgs.length ? `✓ ${allImgs.length} image(s) ready. Saving product...` : 'Saving product...');
+
+    // ── Step 7: Build product data — NEVER store data: URLs in Firestore ──
+    const productData = {
+      name,
+      grade: getVal('ap-grade'),
+      cat: getVal('ap-cat'),
+      weight: getVal('ap-weight'),
+      price,
+      origPrice: parseInt(getVal('ap-origprice')) || null,
+      desc: getVal('ap-desc'),
+      overview: '<p>' + getVal('ap-overview').replace(/\n/g,'</p><p>') + '</p>',
+      pros: getVal('ap-pros').split('\n').filter(x=>x.trim()),
+      cons: getVal('ap-cons').split('\n').filter(x=>x.trim()),
+      sizes: getVal('ap-sizes').split(',').map(s=>s.trim()).filter(Boolean),
+      specs: getVal('ap-specs').split('\n').filter(x=>x.includes('|')).map(line=>{
+        const parts = line.split('|'); return [parts[0].trim(), parts.slice(1).join('|').trim()];
+      }),
+      badge: getVal('ap-badge') || null,
+      featured: getVal('ap-featured') !== 'false',
+      stock: parseInt(getVal('ap-stock')) || 999,
+      trackStock: getVal('ap-track-stock') === 'true',
+      img: mainImg,
+      imgs: allImgs,
+    };
+
+    // ── Step 8: Save to Firestore ──
+    if(!window._db) throw new Error('Firestore not ready');
+    if(firestoreId) {
+      await window._updateDoc(window._doc(window._db, 'products', firestoreId), productData);
+    } else {
+      const maxOrder = PRODUCTS.length ? Math.max(...PRODUCTS.map(p => p.sortOrder||0)) : 0;
+      productData.sortOrder = maxOrder + 1;
+      await window._addDoc(window._collection(window._db, 'products'), productData);
+    }
+
+    if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
+    closeProductModal();
+    alert('\u2713 Product saved successfully!' + (allImgs.length ? '\nImage uploaded to Firebase Storage.' : '\nNo image — you can edit and add one later.'));
+
+  } catch(err) {
+    console.error('Save product error:', err);
+    if(preview && preview.contains(progressDiv)) preview.removeChild(progressDiv);
+    alert('Error saving product:\n' + (err.message || err) + '\n\nCheck:\n1. Firebase Storage rules allow write\n2. You are logged in as admin\n3. Internet connection is stable');
+  } finally {
+    if(saveBtn) { saveBtn.textContent = 'SAVE PRODUCT'; saveBtn.disabled = false; }
+  }
+}
+
+async function deleteProduct(id) {
+  if(!confirm('Delete this product? This cannot be undone.')) return;
+  id = String(id);
+  try {
+    if(!window._db) throw new Error('Firestore not ready');
+    const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+    await deleteDoc(doc(window._db, 'products', id));
+    alert('\u2713 Product deleted.');
+  } catch(err) {
+    console.error('Delete product error:', err);
+    alert('Error deleting product: ' + (err.message || err));
+  }
+}
+
+
+// ══ ADMIN ORDERS — Firestore real-time ══
+let adminAllOrders = [];
+let adminOrderFilter = 'all';
+let _ordersUnsub = null;
+
+function loadAdminOrders() {
+  const container = $('adminOrdersContainer');
+  if(!container) return;
+  container.innerHTML = '<div class="admin-loading">Loading orders...</div>';
+  if(!window._db) {
+    // Fallback to localStorage only
+    try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){ adminAllOrders=[]; }
+    renderAdminOrders();
+    _updateOrderStats();
+    return;
+  }
+  // Tear down existing listener
+  if(_ordersUnsub) { _ordersUnsub(); _ordersUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy }) => {
+    const q = query(collection(window._db, 'orders'), orderBy('createdAt','desc'));
+    _ordersUnsub = onSnapshot(q, (snap) => {
+      // Merge Firestore docs + any localStorage orders not yet in Firestore (migration safety)
+      const firestoreOrders = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+      let localOrders = [];
+      try { localOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
+      // Deduplicate: prefer Firestore, fallback to local orders not yet saved
+      const firestoreIds = new Set(firestoreOrders.map(o => o.id));
+      const localOnly = localOrders.filter(o => !firestoreIds.has(o.id));
+      adminAllOrders = [...firestoreOrders, ...localOnly];
+      renderAdminOrders();
+      _updateOrderStats();
+    }, (err) => {
+      console.warn('Orders listener error:', err);
+      // Fallback to localStorage
+      try { adminAllOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){ adminAllOrders=[]; }
+      renderAdminOrders();
+      _updateOrderStats();
+    });
+  });
+}
+
+function _updateOrderStats() {
+  safeSet('statOrders', adminAllOrders.length);
+  const revenue = adminAllOrders.filter(o=>o.payStatus==='paid').reduce((a,b)=>a+(Number(b.total)||0),0);
+  safeSet('statRevenue', revenue > 0 ? '₹'+revenue.toLocaleString('en-IN') : '₹0');
+}
+
+function filterAdminOrders(status, el) {
+  adminOrderFilter = status;
+  document.querySelectorAll('.admin-orders-filter button').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderAdminOrders();
+}
+
+function renderAdminOrders() {
+  const container = $('adminOrdersContainer');
+  if(!container) return;
+  const filtered = adminOrderFilter==='all' ? adminAllOrders : adminAllOrders.filter(o=>o.status===adminOrderFilter);
+  if(!filtered.length) { 
+    container.innerHTML='<div class="admin-loading" style="padding:40px;text-align:center"><div style="font-size:32px;margin-bottom:12px">📦</div><div style="color:var(--text-soft)">No orders yet.<br><small>Orders appear here after customers complete Razorpay checkout.</small></div></div>'; 
+    return; 
+  }
+  const statusColors = {pending:'#FFF3CD',processing:'#CCE5FF',shipped:'#D4EDDA',delivered:'#D4EDDA',cancelled:'#F8D7DA'};
+  const statusText = {pending:'🟡 Pending',processing:'🔵 Processing',shipped:'🚚 Shipped',delivered:'✅ Delivered',cancelled:'❌ Cancelled'};
+  container.innerHTML = `<div class="admin-orders-table-wrap"><table class="admin-orders-table">
+    <thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>ITEMS</th><th>TOTAL</th><th>DATE</th><th>PAYMENT</th><th>STATUS</th><th>ACTION</th></tr></thead>
+    <tbody>${filtered.map(o=>`<tr>
+      <td><strong>${o.id}</strong></td>
+      <td><strong>${o.customer}</strong><br><span style="font-size:11px;color:var(--text-soft)">${o.phone}</span></td>
+      <td style="font-size:12px">${o.items.map(i=>`${i.name} ×${i.qty} (${i.size})`).join('<br>')}</td>
+      <td><strong>₹${o.total.toLocaleString('en-IN')}</strong><br><span style="font-size:11px;color:${o.payStatus==='paid'?'#27ae60':'#e74c3c'}">${o.payStatus}</span></td>
+      <td style="font-size:12px">${o.date}</td>
+      <td style="font-size:12px">${o.payment}</td>
+      <td><span class="admin-status-badge" style="background:${statusColors[o.status]||'#eee'}">${statusText[o.status]||o.status}</span></td>
+      <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="border:1px solid var(--border);padding:5px;font-size:12px;font-family:'DM Sans',sans-serif">
+        <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+        <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
+        <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped</option>
+        <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
+        <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
+      </select></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+async function updateOrderStatus(orderId, status) {
+  const order = adminAllOrders.find(o=>o.id===orderId);
+  if(!order) return;
+  order.status = status;
+  // Update in Firestore if we have the firestoreId
+  if(order.firestoreId && window._db && window._updateDoc && window._doc) {
+    try {
+      await window._updateDoc(window._doc(window._db,'orders',order.firestoreId), { status });
+    } catch(e) { console.warn('Order status update failed:', e); }
+  }
+  // Also update localStorage backup
+  let local = [];
+  try { local = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
+  const li = local.find(o=>o.id===orderId);
+  if(li) { li.status = status; try{localStorage.setItem('jsc_orders',JSON.stringify(local));}catch(e){} }
+  renderAdminOrders();
+}
+
+// ══ ADMIN PAYMENTS — driven from Firestore orders collection ══
+let _paymentsUnsub = null;
+
+function loadAdminPayments() {
+  const container = $('adminPaymentsContainer');
+  if(!container) return;
+  container.innerHTML = '<div class="admin-loading">Loading payments...</div>';
+  if(!window._db) {
+    _renderPaymentsFromOrders(adminAllOrders);
+    return;
+  }
+  if(_paymentsUnsub) { _paymentsUnsub(); _paymentsUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy }) => {
+    const q = query(collection(window._db, 'orders'), orderBy('createdAt','desc'));
+    _paymentsUnsub = onSnapshot(q, (snap) => {
+      const firestoreOrders = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+      let localOrders = [];
+      try { localOrders = JSON.parse(localStorage.getItem('jsc_orders')||'[]'); } catch(e){}
+      const ids = new Set(firestoreOrders.map(o=>o.id));
+      const allPay = [...firestoreOrders, ...localOrders.filter(o=>!ids.has(o.id))];
+      _renderPaymentsFromOrders(allPay);
+    }, () => {
+      _renderPaymentsFromOrders(adminAllOrders);
+    });
+  });
+}
+
+function _renderPaymentsFromOrders(orders) {
+  const paidOrders = orders.filter(o=>o.payStatus==='paid');
+  const pendingOrders = orders.filter(o=>o.payStatus!=='paid');
+  const total = paidOrders.reduce((a,b)=>a+(Number(b.total)||0),0);
+  const pending = pendingOrders.reduce((a,b)=>a+(Number(b.total)||0),0);
+  const now = new Date(); const thisMonth = now.getMonth(); const thisYear = now.getFullYear();
+  const monthPaid = paidOrders.filter(o=>{
+    try {
+      // createdAt may be a Firestore Timestamp or a date string
+      const d = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.date);
+      return d.getMonth()===thisMonth && d.getFullYear()===thisYear;
+    } catch(e){ return false; }
+  });
+  const monthTotal = monthPaid.reduce((a,b)=>a+(Number(b.total)||0),0);
+  safeSet('payTotal','₹'+total.toLocaleString('en-IN'));
+  safeSet('payMonth','₹'+monthTotal.toLocaleString('en-IN'));
+  safeSet('payPending','₹'+pending.toLocaleString('en-IN'));
+  safeSet('payCount', orders.length);
+  // Also update dashboard revenue stat
+  safeSet('statRevenue', total > 0 ? '₹'+total.toLocaleString('en-IN') : '₹0');
+  const container = $('adminPaymentsContainer');
+  if(!container) return;
+  if(!orders.length) {
+    container.innerHTML='<div class="admin-loading" style="padding:40px;text-align:center"><div style="font-size:32px;margin-bottom:12px">💳</div><div style="color:var(--text-soft)">No payments yet.<br><small>Payment records appear after customers checkout via Razorpay.</small></div></div>';
+    return;
+  }
+  container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
+    <thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>AMOUNT</th><th>DATE</th><th>METHOD</th><th>RAZORPAY ID</th><th>STATUS</th></tr></thead>
+    <tbody>${orders.map(o=>`<tr>
+      <td><strong>${o.id||'—'}</strong></td>
+      <td>${o.customer||'Guest'}<br><span style="font-size:11px;color:var(--text-soft)">${o.email||''}</span></td>
+      <td><strong>₹${(Number(o.total)||0).toLocaleString('en-IN')}</strong></td>
+      <td>${o.date||'—'}</td>
+      <td>${o.payment||'—'}</td>
+      <td style="font-size:11px;color:var(--text-soft)">${o.razorpay_payment_id||'—'}</td>
+      <td><span style="font-size:11px;padding:3px 10px;background:${o.payStatus==='paid'?'#d4edda':'#fff3cd'};color:${o.payStatus==='paid'?'#155724':'#856404'}">${(o.payStatus||'pending').toUpperCase()}</span></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+// ══ ADMIN REVIEWS ══
+// ══ ADMIN REVIEWS — Firestore real-time ══
+let _reviewsUnsub = null;
+let _allAdminReviews = []; // cached for approve/delete by local id
+
+function loadAdminReviews() {
+  const container = $('adminReviewsContainer');
+  if(!container) return;
+  container.innerHTML = '<div class="admin-loading">Loading reviews...</div>';
+  if(!window._db) {
+    _renderAdminReviewsLocal();
+    return;
+  }
+  if(_reviewsUnsub) { _reviewsUnsub(); _reviewsUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({ onSnapshot, query, collection, orderBy }) => {
+    const q = query(collection(window._db, 'reviews'), orderBy('createdAt','desc'));
+    _reviewsUnsub = onSnapshot(q, (snap) => {
+      const firestoreReviews = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+      // Merge with defaults (hardcoded approved reviews shown too)
+      const defaults = defaultReviews.map(r=>({...r, pending:false, approved:true}));
+      _allAdminReviews = [...firestoreReviews, ...defaults];
+      _renderAdminReviewsData(_allAdminReviews);
+    }, () => { _renderAdminReviewsLocal(); });
+  });
+}
+
+function _renderAdminReviewsLocal() {
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
+  _allAdminReviews = [...defaultReviews.map(r=>({...r,pending:false,approved:true})), ...stored];
+  _renderAdminReviewsData(_allAdminReviews);
+}
+
+function _renderAdminReviewsData(all) {
+  const filterEl = $('adminReviewFilter');
+  const filter = filterEl ? filterEl.value : 'all';
+  const filtered = filter==='all' ? all : filter==='pending' ? all.filter(r=>r.pending&&!r.approved) : all.filter(r=>r.approved||(!r.pending));
+  const container = $('adminReviewsContainer');
+  if(!container) return;
+  if(!filtered.length) { container.innerHTML='<div class="admin-loading">No reviews found.</div>'; return; }
+  container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
+    <thead><tr><th>PRODUCT</th><th>REVIEWER</th><th>RATING</th><th>TITLE</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr></thead>
+    <tbody>${filtered.map(r=>`<tr>
+      <td style="font-size:12px">${r.productName || PRODUCTS.find(p=>String(p.id)===String(r.productId))?.name||'General'}</td>
+      <td><strong>${r.name}</strong><br><span style="font-size:11px;color:var(--text-soft)">${r.location||''}</span></td>
+      <td style="color:#f5a623">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</td>
+      <td style="font-size:12px">${r.title||(r.text||'').substring(0,40)+'...'}</td>
+      <td style="font-size:11px">${r.date||''}</td>
+      <td><span style="font-size:10px;padding:3px 8px;background:${r.pending&&!r.approved?'#fff3cd':'#d4edda'};color:${r.pending&&!r.approved?'#856404':'#155724'}">${r.pending&&!r.approved?'PENDING':'APPROVED'}</span></td>
+      <td>
+        ${r.pending&&!r.approved?`<button onclick="approveReview('${r.firestoreId||r.id}')" style="border:1px solid #27ae60;background:none;padding:4px 10px;font-size:11px;cursor:pointer;color:#27ae60;font-family:'DM Sans',sans-serif">Approve</button>`:''}
+        <button onclick="deleteReview('${r.firestoreId||r.id}')" style="border:1px solid #e74c3c;background:none;padding:4px 10px;font-size:11px;cursor:pointer;color:#e74c3c;font-family:'DM Sans',sans-serif;margin-left:4px">Delete</button>
+      </td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+async function approveReview(id) {
+  // Try Firestore first (id is firestoreId if from Firestore)
+  if(window._db && window._updateDoc && window._doc) {
+    try {
+      await window._updateDoc(window._doc(window._db,'reviews',id), { pending:false, approved:true });
+      return; // onSnapshot will re-render
+    } catch(e) { /* might be local id, fall through */ }
+  }
+  // Fallback: localStorage
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
+  const r = stored.find(x=>x.id===id||x.firestoreId===id);
+  if(r) { r.pending=false; r.approved=true; try{localStorage.setItem('jsc_reviews',JSON.stringify(stored));}catch(e){} }
+  loadAdminReviews();
+}
+
+async function deleteReview(id) {
+  if(!confirm('Delete this review?')) return;
+  // Try Firestore first
+  if(window._db) {
+    try {
+      const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+      await deleteDoc(doc(window._db,'reviews',id));
+      return; // onSnapshot will re-render
+    } catch(e) { /* might be local id, fall through */ }
+  }
+  // Fallback: localStorage
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('jsc_reviews')||'[]'); } catch(e){}
+  stored = stored.filter(x=>x.id!==id&&x.firestoreId!==id);
+  try { localStorage.setItem('jsc_reviews',JSON.stringify(stored)); } catch(e){}
+  loadAdminReviews();
+}
+
+// ══ SHARE ══
+function pdpShareWA() {
+  if(!currentPDP) return;
+  const msg = `Check out *${currentPDP.name}* from Jai Shree Cashew Industries — ₹${currentPDP.price}/${currentPDP.weight}. Visit: https://jaishreecashewindustries-rgb.github.io/cashewpro/`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+function pdpCopyLink() {
+  const url = window.location.href.split('#')[0]+'#product-'+(currentPDP?.id||'');
+  navigator.clipboard.writeText(url).then(()=>{
+    const el=$('pdpCopyConfirm');
+    if(el) { el.style.display='inline'; setTimeout(()=>el.style.display='none',2500); }
+  }).catch(()=>{ alert('Link: '+url); });
+}
+
+// ══ STICKY CART BAR ══
+function updateStickyCartBar() {
+  const bar = $('stickyCartBar');
+  if(!bar) return;
+  if(currentPage === 'product-detail' && currentPDP) {
+    safeSet('stickyCartPrice','₹'+currentPDP.price);
+    safeSet('stickyCartSize', pdpSelectedSize || currentPDP.weight);
+    bar.style.display = 'flex';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+// ══ ADMIN COUPONS ══
+let _couponsUnsub = null;
+
+function loadAdminCoupons() {
+  const container = $('adminCouponsContainer');
+  if(!container) return;
+  if(_couponsUnsub) { _couponsUnsub(); _couponsUnsub = null; }
+  import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({onSnapshot, collection, query, orderBy}) => {
+    _couponsUnsub = onSnapshot(query(collection(window._db,'coupons'), orderBy('code')), snap => {
+      if(snap.empty) { container.innerHTML='<div class="admin-loading">No coupons yet. Add one above.</div>'; return; }
+      container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
+        <thead><tr><th>CODE</th><th>DISCOUNT</th><th>MIN ORDER</th><th>USES</th><th>MAX USES</th><th>ACTIVE</th><th>EXPIRY</th><th>ACTION</th></tr></thead>
+        <tbody>${snap.docs.map(d => {
+          const c = d.data();
+          const exp = c.expiry?.toDate ? c.expiry.toDate().toLocaleDateString('en-IN') : 'No expiry';
+          return `<tr>
+            <td><strong>${c.code}</strong></td>
+            <td>${c.discount}%</td>
+            <td>₹${c.minOrder||0}</td>
+            <td>${c.uses||0}</td>
+            <td>${c.maxUses||'∞'}</td>
+            <td><span style="color:${c.active?'#27ae60':'#e74c3c'}">${c.active?'✓ Active':'✕ Off'}</span></td>
+            <td style="font-size:11px">${exp}</td>
+            <td>
+              <button onclick="openCouponModal('${d.id}')" style="border:1px solid var(--border);background:none;padding:4px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">Edit</button>
+              <button onclick="deleteCoupon('${d.id}')" style="border:1px solid #e74c3c;background:none;padding:4px 10px;font-size:11px;cursor:pointer;color:#e74c3c;font-family:'DM Sans',sans-serif;margin-left:4px">Delete</button>
+            </td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>`;
+    });
+  });
+}
+
+function openCouponModal(id) {
+  const m = $('adminCouponModal'); if(!m) return;
+  m.classList.add('open');
+  const eid = $('editCouponId'); if(eid) eid.value = id || '';
+  if(!id) {
+    safeSet('couponModalTitle','Add Coupon');
+    ['cp-code','cp-discount','cp-minorder','cp-maxuses','cp-expiry'].forEach(f=>{ const el=$(f); if(el) el.value=''; });
+    const ca=$('cp-active'); if(ca) ca.value='true';
+  } else {
+    import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js").then(({getDoc, doc}) => {
+      getDoc(doc(window._db,'coupons',id)).then(d => {
+        if(!d.exists()) return;
+        const c = d.data();
+        safeSet('couponModalTitle','Edit Coupon: '+c.code);
+        const sv=(fid,v)=>{ const el=$(fid); if(el) el.value=v||''; };
+        sv('cp-code',c.code); sv('cp-discount',c.discount); sv('cp-minorder',c.minOrder||0);
+        sv('cp-maxuses',c.maxUses||0);
+        const ca=$('cp-active'); if(ca) ca.value=c.active?'true':'false';
+        if(c.expiry?.toDate) { sv('cp-expiry', c.expiry.toDate().toISOString().split('T')[0]); }
+      });
+    });
+  }
+}
+
+function closeCouponModal() { const m=$('adminCouponModal'); if(m) m.classList.remove('open'); }
+
+async function saveCoupon() {
+  const id = ($('editCouponId')||{}).value;
+  const code = (($('cp-code')||{}).value||'').trim().toUpperCase();
+  const discount = parseInt(($('cp-discount')||{}).value)||0;
+  if(!code || !discount) { alert('Code and discount % required.'); return; }
+  const expiryVal = ($('cp-expiry')||{}).value;
+  const { addDoc, updateDoc, doc, collection, Timestamp } =
+    await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+  const data = {
+    code, discount, type:'percent',
+    minOrder: parseInt(($('cp-minorder')||{}).value)||0,
+    maxUses: parseInt(($('cp-maxuses')||{}).value)||0,
+    active: ($('cp-active')||{}).value !== 'false',
+    expiry: expiryVal ? Timestamp.fromDate(new Date(expiryVal)) : null,
+    uses: 0
+  };
+  try {
+    if(id) await updateDoc(doc(window._db,'coupons',id), data);
+    else await addDoc(collection(window._db,'coupons'), data);
+    closeCouponModal();
+  } catch(e) { alert('Error saving coupon: '+e.message); }
+}
+
+async function deleteCoupon(id) {
+  if(!confirm('Delete this coupon?')) return;
+  const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+  try { await deleteDoc(doc(window._db,'coupons',id)); } catch(e) { alert('Error: '+e.message); }
+}
+
+// ══ INIT — runs after DOM is ready ══
+function init() {
+  // Cart badge
+  updateCartBadge();
+
+  // Auth overlay click-outside
+  const authOverlay = $('authOverlay');
+  if(authOverlay) authOverlay.addEventListener('click', function(e){ if(e.target===this) closeAuth(); });
+
+  // Dashboard overlay click-outside
+  const dashOverlay = $('dashOverlay');
+  if(dashOverlay) dashOverlay.addEventListener('click', function(e){ if(e.target===this) closeDashboard(); });
+
+  // User nav button
+  const userNavBtn = $('userNavBtn');
+  if(userNavBtn) userNavBtn.addEventListener('click', function(){
+    const user = window._currentUser;
+    if(user && user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
+  });
+
+  // Enter key on auth forms
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter') return;
+    const ao = $('authOverlay');
+    if(!ao || !ao.classList.contains('open')) return;
+    const loginForm = $('authFormLogin');
+    const signupForm = $('authFormSignup');
+    if(loginForm && loginForm.classList.contains('active')) doLogin();
+    else if(signupForm && signupForm.classList.contains('active')) doSignup();
+  });
+
+  // Pre-fill inquiry form if logged in
+  const inquiryForm = $('inquiryForm');
+  if(inquiryForm) {
+    inquiryForm.addEventListener('focusin', function(){
+      const user = window._currentUser;
+      if(user) {
+        const fname=$('fname'), femail=$('femail');
+        if(user.displayName && fname && !fname.value) fname.value = user.displayName;
+        if(user.email && femail && !femail.value) femail.value = user.email;
+      }
+    });
+  }
+
+  // ── Routing-aware startup ──
+  // On fresh load: read URL path, show correct page, set history entry
+  var startPage = pageFromUrl();
+  replacePageUrl(startPage);    // set clean URL without adding history entry
+  _showPageInternal(startPage, false);  // show page, don't push (already replaced)
+
+  // ── Start Firestore products real-time listener ──
+  // Waits for Firebase to be ready (it's loaded as a module before app.js)
+  function tryStartListener(retries) {
+    if(window._db && window._collection) {
+      _startProductsListener();
+    } else if(retries > 0) {
+      setTimeout(() => tryStartListener(retries - 1), 300);
+    } else {
+      console.warn('Firestore not available — products will not load from database.');
+    }
+  }
+  tryStartListener(15);  // retry up to 15×300ms = 4.5s
+}
+
+// Run init when DOM is ready
+if(document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+// ══════════════════════════════════════
+// SHOP PAGE — SIDEBAR FILTERS & VIEW MODES
+// ══════════════════════════════════════
+
+let _shopFilters = { cat: 'all', search: '', priceMin: 0, priceMax: 99999, sale: false, instock: false, featured: false };
+let _shopViewMode = 'grid';
+
+function _getShopFiltered() {
+  return PRODUCTS.filter(p => {
+    if(_shopFilters.cat !== 'all' && p.cat !== _shopFilters.cat) return false;
+    if(_shopFilters.search) {
+      const q = _shopFilters.search.toLowerCase();
+      if(!p.name.toLowerCase().includes(q) && !(p.grade||'').toLowerCase().includes(q) && !(p.desc||'').toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function sidebarCat(cat, el) {
+  _shopFilters.cat = cat;
+  document.querySelectorAll('.sidebar-radio').forEach(r => r.classList.remove('active'));
+  if(el) el.classList.add('active');
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function shopSearch(val) {
+  _shopFilters.search = val || '';
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function applyPriceFilter() {
+  const mn = parseInt(($('priceMin')||{}).value) || 0;
+  const mx = parseInt(($('priceMax')||{}).value) || 99999;
+  _shopFilters.priceMin = mn;
+  _shopFilters.priceMax = mx > 0 ? mx : 99999;
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function setPricePreset(min, max) {
+  const mn = $('priceMin'), mx = $('priceMax');
+  if(mn) mn.value = min || '';
+  if(mx) mx.value = max >= 99999 ? '' : max;
+  _shopFilters.priceMin = min;
+  _shopFilters.priceMax = max;
+  document.querySelectorAll('.sidebar-preset').forEach(b => b.classList.remove('active'));
+  if(event && event.target) event.target.classList.add('active');
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function applySpecialFilter() {
+  _shopFilters.sale     = ($('chk-sale')||{}).checked || false;
+  _shopFilters.instock  = ($('chk-instock')||{}).checked || false;
+  _shopFilters.featured = ($('chk-featured')||{}).checked || false;
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function resetShopFilters() {
+  _shopFilters = { cat: 'all', search: '', priceMin: 0, priceMax: 99999, sale: false, instock: false, featured: false };
+  const mn = $('priceMin'), mx = $('priceMax'), ss = $('sidebarSearch');
+  if(mn) mn.value = ''; if(mx) mx.value = ''; if(ss) ss.value = '';
+  ['chk-sale','chk-instock','chk-featured'].forEach(id => { const el=$(id); if(el) el.checked=false; });
+  document.querySelectorAll('.sidebar-radio').forEach(r => r.classList.remove('active'));
+  const allR = $('scat-all'); if(allR) allR.classList.add('active');
+  document.querySelectorAll('input[name="scat"]').forEach((r,i) => r.checked = i===0);
+  document.querySelectorAll('.sidebar-preset').forEach(b => b.classList.remove('active'));
+  _renderShopGrid();
+  _updateActiveFilterChips();
+}
+
+function setViewMode(mode, btn) {
+  _shopViewMode = mode;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const grid = $('productsGrid');
+  if(grid) {
+    grid.classList.toggle('products-list-view', mode === 'list');
+  }
+}
+
+function _updateCategoryCounts() {
+  const cats = ['all','whole','processed','raw'];
+  cats.forEach(cat => {
+    const el = $('scnt-'+cat);
+    if(!el) return;
+    const count = cat === 'all' ? PRODUCTS.length : PRODUCTS.filter(p => p.cat === cat).length;
+    el.textContent = count ? `(${count})` : '';
+  });
+}
+
+function _updateActiveFilterChips() {
+  const row = $('activeFiltersRow');
+  if(!row) return;
+  const chips = [];
+  if(_shopFilters.cat !== 'all') chips.push({label: _shopFilters.cat, clear: () => sidebarCat('all', $('scat-all'))});
+  if(_shopFilters.search) chips.push({label: `"${_shopFilters.search}"`, clear: () => { const s=$('sidebarSearch'); if(s)s.value=''; _shopFilters.search=''; _renderShopGrid(); _updateActiveFilterChips(); }});
+  if(_shopFilters.priceMin > 0 || _shopFilters.priceMax < 99999) chips.push({label: `₹${_shopFilters.priceMin}–₹${_shopFilters.priceMax < 99999 ? _shopFilters.priceMax : '∞'}`, clear: () => setPricePreset(0,99999)});
+  if(_shopFilters.sale) chips.push({label: 'On Sale', clear: () => { const el=$('chk-sale'); if(el)el.checked=false; _shopFilters.sale=false; _renderShopGrid(); _updateActiveFilterChips(); }});
+  if(_shopFilters.instock) chips.push({label: 'In Stock', clear: () => { const el=$('chk-instock'); if(el)el.checked=false; _shopFilters.instock=false; _renderShopGrid(); _updateActiveFilterChips(); }});
+  row.innerHTML = chips.map((c,i) => `<span class="filter-chip">${c.label} <button onclick="_clearChip(${i})" style="background:none;border:none;cursor:pointer;margin-left:4px;font-size:12px;color:var(--text-soft)">✕</button></span>`).join('');
+  row._clearFns = chips.map(c => c.clear);
+}
+
+window._clearChip = function(i) {
+  const row = $('activeFiltersRow');
+  if(row && row._clearFns && row._clearFns[i]) row._clearFns[i]();
+};
+
+function _renderShopGrid() {
+  const grid = $('productsGrid');
+  const noRes = $('shopNoResults');
+  const countEl = $('products-count');
+  if(!grid) return;
+
+  const filtered = _getShopFiltered();
+  if(countEl) countEl.textContent = filtered.length + (filtered.length === 1 ? ' grade' : ' grades');
+
+  if(!filtered.length) {
+    grid.innerHTML = '';
+    if(noRes) noRes.style.display = 'block';
+    return;
+  }
+  if(noRes) noRes.style.display = 'none';
+
+  grid.innerHTML = filtered.map(p => {
+    const outOfStock = p.stock === 0;
+    return `
+    <div class="product-card shop-card" style="cursor:pointer;position:relative">
+      ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
+      <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
+        <img src="${p.img}" alt="${p.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">
+        <div class="prod-overlay"></div>
+        <div style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer" onclick="event.stopPropagation();openProductDetail('${p.id}')">VIEW DETAILS</div>
+      </div>
+      <div class="prod-info shop-prod-info">
+        <div class="prod-grade" style="font-size:11px;letter-spacing:1.5px;color:var(--gold2);font-weight:500;margin-bottom:4px">${p.grade}</div>
+        <div class="prod-name" onclick="openProductDetail('${p.id}')" style="cursor:pointer;font-size:16px;font-weight:600;color:var(--walnut);margin-bottom:6px">${p.name}</div>
+        <div style="font-size:12px;color:var(--text-soft);margin-bottom:16px;line-height:1.5">${(p.desc||'').substring(0,90)}${(p.desc||'').length>90?'...':''}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div style="font-size:11px;color:#7a6b5a;background:#f5efe2;border:1px solid #e4dace;padding:4px 10px;letter-spacing:.5px">${outOfStock ? 'Currently Unavailable' : 'Price on Request'}</div>
+          <a href="#" onclick="showPage('contact');return false;" style="font-size:11px;letter-spacing:1.5px;font-weight:600;color:var(--walnut);border:1.5px solid var(--walnut);padding:9px 16px;text-decoration:none;display:inline-block">ENQUIRE →</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
