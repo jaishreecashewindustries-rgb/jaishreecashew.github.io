@@ -1315,53 +1315,48 @@ function openProductDetail(id) {
     safeSet('pdpGradeTag', 'Grade · '+p.grade);
     safeSet('pdpTitle', p.name);
 
-    const bNew = $('pdpBadgeNew'), bSale = $('pdpBadgeSale');
+    const bNew = $('pdpBadgeNew');
     if(bNew) { bNew.textContent = p.badge||''; bNew.style.display = p.badge ? '' : 'none'; }
-    const hasDiscount = p.origPrice && p.origPrice > p.price;
-    const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
-    if(bSale) { bSale.textContent = discPct+'% OFF'; bSale.style.display = hasDiscount ? '' : 'none'; }
+    const bSale = $('pdpBadgeSale');
+    if(bSale) bSale.style.display = 'none';
 
-    safeSet('pdpPrice', '₹'+p.price);
-    const origEl = $('pdpPriceOriginal');
-    if(origEl) { origEl.textContent = hasDiscount ? '₹'+p.origPrice : ''; origEl.style.display = hasDiscount ? '' : 'none'; }
-    const discBadge = $('pdpDiscountBadge');
-    if(discBadge) { discBadge.textContent = discPct+'% OFF'; discBadge.style.display = hasDiscount ? '' : 'none'; }
-    safeSet('pdpPerUnit', 'Per '+pdpSelectedSize+' pack · Inclusive of all taxes');
+    // B2B: hide retail price, show price-on-request
+    ['pdpPrice','pdpPriceOriginal','pdpDiscountBadge','pdpPerUnit'].forEach(id => {
+      const el = $(id); if(el) el.style.display = 'none';
+    });
 
-    // Stock badge
-    const stockBadge = $('pdpStockBadge');
-    if(stockBadge) {
-      if(p.stock === 0) {
-        stockBadge.textContent = 'OUT OF STOCK';
-        stockBadge.style.color = '#e74c3c';
-      } else if(p.stock <= 10) {
-        stockBadge.textContent = 'ONLY '+p.stock+' LEFT — ORDER NOW';
-        stockBadge.style.color = '#f39c12';
+    // Inject B2B enquiry zone after grade tag if not already there
+    const infoEl = $('pdpInfo') || document.querySelector('.pdp-info');
+    if(infoEl && !infoEl.querySelector('.pdp-b2b-zone')) {
+      const zone = document.createElement('div');
+      zone.className = 'pdp-b2b-zone';
+      zone.style.cssText = 'margin:20px 0;padding:18px 20px;background:#f5efe2;border-left:3px solid var(--gold)';
+      zone.innerHTML = `
+        <div style="font-size:10px;letter-spacing:2px;color:var(--gold);font-weight:600;margin-bottom:6px">PRICING</div>
+        <div style="font-size:16px;font-weight:500;color:var(--walnut);margin-bottom:4px">Price on Request</div>
+        <div style="font-size:12px;color:var(--text-soft);margin-bottom:14px">Contact our sales team for bulk pricing, MOQ &amp; availability.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a href="#" onclick="showPage('contact');return false;" style="background:var(--walnut);color:var(--gold2);padding:12px 22px;font-size:11px;letter-spacing:2px;font-weight:600;text-decoration:none;display:inline-block;font-family:var(--font-sans)">REQUEST QUOTE →</a>
+          <a href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+${encodeURIComponent(p.name)}+bulk+pricing." target="_blank" style="background:#25D366;color:#fff;padding:12px 22px;font-size:11px;letter-spacing:1px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-family:var(--font-sans)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WHATSAPP
+          </a>
+        </div>`;
+      const titleEl = infoEl.querySelector('.pdp-title') || infoEl.querySelector('h1');
+      if(titleEl && titleEl.nextSibling) {
+        infoEl.insertBefore(zone, titleEl.nextSibling.nextSibling || null);
       } else {
-        stockBadge.textContent = '✓ In Stock — Ships in 2–3 days';
-        stockBadge.style.color = '#27ae60';
+        infoEl.appendChild(zone);
       }
     }
 
     const allImgs = p.imgs && p.imgs.length ? p.imgs : [p.img];
     const mainImg = $('pdpMainImg');
     if(mainImg) mainImg.src = allImgs[0];
-
     const thumbsEl = $('pdpThumbs');
     if(thumbsEl) thumbsEl.innerHTML = allImgs.map((src,i) =>
       `<img src="${src}" class="pdp-thumb${i===0?' active':''}" alt="${p.name}" onclick="pdpSetMainImg(this,'${src}')">`
     ).join('');
-
-    const sizesEl = $('pdpSizeBtns');
-    const sizes = p.sizes || [p.weight];
-    if(sizesEl) sizesEl.innerHTML = sizes.map((s,i) =>
-      `<button class="pdp-size-btn${i===0?' active':''}" onclick="pdpSelectSize(this,'${s}')">${s}</button>`
-    ).join('');
-
-    const qtyVal = $('pdpQtyVal');
-    if(qtyVal) qtyVal.value = 1;
-
-    loadPDPReviews(id);
 
     const overviewEl = $('pdpOverviewText');
     if(overviewEl) overviewEl.innerHTML = p.overview || '<p>'+p.desc+'</p>';
@@ -1376,7 +1371,6 @@ function openProductDetail(id) {
 
   showPage('product-detail');
   trackRecentlyViewed(id);
-  updateStickyCartBar();
 }
 
 function pdpSetMainImg(thumb, src) {
@@ -1597,9 +1591,73 @@ function adminSwitchTab(tab, el) {
   if(tab==='enquiries') loadAdminInquiries();
   if(tab==='orders') loadAdminOrders();
   if(tab==='products') renderAdminProducts();
+  if(tab==='gallery') loadAdminGallery();
   if(tab==='payments') loadAdminPayments();
   if(tab==='reviews') loadAdminReviews();
   if(tab==='coupons') loadAdminCoupons();
+}
+
+// ══ ADMIN GALLERY ══
+async function loadAdminGallery() {
+  const grid = $('adminGalleryGrid');
+  if(!grid) return;
+  grid.innerHTML = '<div class="admin-loading">Loading gallery images...</div>';
+  try {
+    const snap = await window._getDocs(window._collection(window._db, 'gallery'));
+    if(snap.empty) {
+      grid.innerHTML = '<div class="admin-loading" style="padding:32px">No images yet. Upload images above.</div>';
+      return;
+    }
+    grid.innerHTML = snap.docs.map(d => {
+      const data = d.data();
+      return `<div class="admin-gallery-item">
+        <img src="${data.url}" alt="${data.name||'Gallery'}">
+        <div class="overlay">
+          <button class="admin-gallery-delete" onclick="deleteGalleryImage('${d.id}','${data.url}',this)">DELETE</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '<div class="admin-loading" style="color:#e74c3c">Error loading gallery: '+e.message+'</div>';
+  }
+}
+
+async function handleGalleryUpload(input) {
+  const files = Array.from(input.files);
+  if(!files.length) return;
+  const progress = $('galleryUploadProgress');
+  const grid = $('adminGalleryGrid');
+  if(progress) progress.style.display = 'block';
+  let uploaded = 0;
+  for(const file of files) {
+    try {
+      if(progress) progress.textContent = `Uploading ${uploaded+1}/${files.length}: ${file.name}...`;
+      const url = await window._uploadGalleryImage(file, 'gallery_'+Date.now());
+      await window._addDoc(window._collection(window._db, 'gallery'), {
+        url, name: file.name, uploadedAt: window._serverTimestamp()
+      });
+      uploaded++;
+    } catch(e) {
+      console.error('Gallery upload failed:', file.name, e.message);
+    }
+  }
+  if(progress) { progress.textContent = `✓ ${uploaded}/${files.length} uploaded successfully`; setTimeout(()=>{ progress.style.display='none'; },3000); }
+  input.value = '';
+  loadAdminGallery();
+}
+
+async function deleteGalleryImage(docId, url, btn) {
+  if(!confirm('Delete this image permanently?')) return;
+  try {
+    if(btn) { btn.textContent = '...'; btn.disabled = true; }
+    await window._doc && window._updateDoc(window._doc(window._db,'gallery',docId),{deleted:true});
+    const { deleteDoc } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    await deleteDoc(window._doc(window._db,'gallery',docId));
+    loadAdminGallery();
+  } catch(e) {
+    alert('Delete failed: '+e.message);
+    if(btn) { btn.textContent = 'DELETE'; btn.disabled = false; }
+  }
 }
 
 // ══ ADMIN PRODUCTS ══

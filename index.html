@@ -932,14 +932,6 @@ nav .logo span {
     &nbsp;&nbsp;&nbsp;PREMIUM CASHEW KERNEL MANUFACTURER, JAIPUR, INDIA &nbsp;✦&nbsp; W180 · W210 · W240 · W320 · SPLITS · TUKDI · BABY BITS &nbsp;✦&nbsp; FACTORY-DIRECT BULK SUPPLY &nbsp;✦&nbsp; FOB MUNDRA · PAN INDIA DELIVERY &nbsp;✦&nbsp; FSSAI CERTIFIED · VACUUM PACKED &nbsp;✦&nbsp; WHOLESALE · EXPORT · PRIVATE LABEL &nbsp;✦&nbsp; EST. 2016 · KALADERA, JAIPUR &nbsp;&nbsp;&nbsp;
   </div>
 </div>
-<style>
-@keyframes ticker {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.ann-bar { background: var(--walnut, #3b2f1e); color: var(--gold2, #c9922f); }
-</style>
-
 <!-- Navbar -->
 <nav>
   <div class="nav-inner">
@@ -1700,15 +1692,6 @@ nav .logo span {
     </div>
   </div>
 </section>
-
-<style>
-@media (max-width: 640px) {
-  .ftf-grid { grid-template-columns: 1fr !important; }
-  .ftf-reverse .ftf-text-dark,
-  .ftf-reverse .ftf-text-light { order: 1 !important; }
-  .ftf-reverse > div:last-child { order: 2 !important; }
-}
-</style>
 
 <!-- FOUNDERS / ABOUT -->
 <section id="about" class="founders">
@@ -2619,12 +2602,13 @@ nav .logo span {
 
     <!-- Tabs -->
     <div class="admin-tabs">
-      <button class="admin-tab active" onclick="adminSwitchTab('enquiries',this)">📋 ENQUIRIES</button>
-      <button class="admin-tab" onclick="adminSwitchTab('orders',this)">📦 ORDERS</button>
-      <button class="admin-tab" onclick="adminSwitchTab('products',this)">🛍️ PRODUCTS</button>
-      <button class="admin-tab" onclick="adminSwitchTab('payments',this)">💰 PAYMENTS</button>
-      <button class="admin-tab" onclick="adminSwitchTab('reviews',this)">⭐ REVIEWS</button>
-      <button class="admin-tab" onclick="adminSwitchTab('coupons',this)">🎟️ COUPONS</button>
+      <button class="admin-tab active" onclick="adminSwitchTab('enquiries',this)">ENQUIRIES</button>
+      <button class="admin-tab" onclick="adminSwitchTab('orders',this)">ORDERS</button>
+      <button class="admin-tab" onclick="adminSwitchTab('products',this)">PRODUCTS</button>
+      <button class="admin-tab" onclick="adminSwitchTab('gallery',this)">GALLERY</button>
+      <button class="admin-tab" onclick="adminSwitchTab('payments',this)">PAYMENTS</button>
+      <button class="admin-tab" onclick="adminSwitchTab('reviews',this)">REVIEWS</button>
+      <button class="admin-tab" onclick="adminSwitchTab('coupons',this)">COUPONS</button>
     </div>
 
     <!-- TAB: ENQUIRIES -->
@@ -2717,6 +2701,26 @@ nav .logo span {
           </div>
         </div>
         <div id="adminReviewsContainer"><div class="admin-loading">Loading reviews...</div></div>
+      </div>
+    </div>
+
+    <!-- TAB: GALLERY -->
+    <div class="admin-tab-content" id="admintab-gallery">
+      <div class="admin-table-wrap" style="padding:24px">
+        <div class="admin-table-header" style="padding:0 0 20px;border-bottom:1px solid var(--border)">
+          <div class="admin-table-title">Gallery Images</div>
+          <button class="admin-add-product-btn" onclick="document.getElementById('galleryUploadInput').click()">+ UPLOAD IMAGES</button>
+        </div>
+        <input type="file" id="galleryUploadInput" accept="image/*" multiple style="display:none" onchange="handleGalleryUpload(this)">
+        <div class="admin-upload-zone" onclick="document.getElementById('galleryUploadInput').click()" style="margin-top:20px">
+          <div style="font-size:32px;color:var(--border)">+</div>
+          <p><strong>Click to upload</strong> or drag images here</p>
+          <p style="font-size:11px;margin-top:4px;color:var(--text-muted)">JPG, PNG, WEBP · Multiple files supported</p>
+        </div>
+        <div id="galleryUploadProgress" style="display:none;padding:12px 0;font-size:13px;color:var(--gold);letter-spacing:1px">Uploading...</div>
+        <div class="admin-gallery-grid" id="adminGalleryGrid">
+          <div class="admin-loading">Loading gallery...</div>
+        </div>
       </div>
     </div>
 
