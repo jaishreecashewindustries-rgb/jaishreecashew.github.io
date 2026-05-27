@@ -935,11 +935,11 @@ nav .logo span {
 <!-- Navbar -->
 <nav>
   <div class="nav-inner">
-    <a href="#home" class="logo" onclick="showPage('home');return false;" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-      <img src="images/logo.png" alt="Jai Shree Cashews" style="height:44px;width:auto;display:block" onerror="this.style.display='none'">
-      <span style="display:flex;flex-direction:column;line-height:1.1">
-        <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:#1B2E4B;letter-spacing:.3px">Jai Shree Cashew</span>
-        <span style="font-size:9px;letter-spacing:2px;color:var(--gold2);text-transform:uppercase;font-weight:500">Industries · Est. 2016</span>
+    <a href="#home" class="logo" onclick="showPage('home');return false;" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+      <img src="images/logo.png" alt="Jai Shree Cashews" style="height:48px;width:auto;display:block" onerror="this.style.display='none'" id="nav-logo-img">
+      <span style="display:flex;flex-direction:column;line-height:1.15">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#1B2E4B;letter-spacing:.3px">Jai Shree Cashew</span>
+        <span style="font-size:9.5px;letter-spacing:2.5px;color:var(--gold2);text-transform:uppercase;font-weight:600">Industries · Est. 2016</span>
       </span>
     </a>
     <ul class="nav-links">
@@ -950,7 +950,6 @@ nav .logo span {
       <li><a href="#" onclick="showPage('contact');return false;" class="nav-cta nav-page-link" data-page="contact">BULK ENQUIRY</a></li>
     </ul>
     <div class="nav-icons">
-      <a href="https://wa.me/917568577968" target="_blank" style="display:flex;align-items:center;gap:7px;font-size:10.5px;letter-spacing:1px;color:#fff;text-decoration:none;font-weight:700;background:#25D366;border:none;padding:9px 16px;border-radius:2px">💬 WHATSAPP</a>
       <button class="hamburger" onclick="toggleMobile()"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -989,6 +988,7 @@ nav .logo span {
     autoplay muted loop playsinline
     preload="metadata"
     poster="images/hero-poster.jpg">
+    <source src="images/hero-video-mobile.mp4" type="video/mp4" media="(max-width:768px)">
     <source src="images/hero-video.mp4" type="video/mp4">
     <source src="images/hero-video-2.mp4" type="video/mp4">
   </video>
@@ -1200,13 +1200,13 @@ nav .logo span {
     <div class="divider fade-up" style="margin:20px auto"></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;max-width:960px;margin:0 auto">
-    <div class="industry-card fade-up"><div class="industry-icon">🏪</div><div class="industry-name">Wholesalers &amp; Distributors</div></div>
-    <div class="industry-card fade-up stagger-1"><div class="industry-icon">🚢</div><div class="industry-name">Importers &amp; Exporters</div></div>
-    <div class="industry-card fade-up stagger-2"><div class="industry-icon">🏨</div><div class="industry-name">Hotels &amp; Hospitality</div></div>
-    <div class="industry-card fade-up stagger-3"><div class="industry-icon">🍰</div><div class="industry-name">Bakeries &amp; Confectionery</div></div>
-    <div class="industry-card fade-up stagger-4"><div class="industry-icon">🏷️</div><div class="industry-name">Private Label Brands</div></div>
-    <div class="industry-card fade-up"><div class="industry-icon">🏭</div><div class="industry-name">Food Manufacturers</div></div>
-    <div class="industry-card fade-up stagger-1"><div class="industry-icon">🛒</div><div class="industry-name">Retail Chains</div></div>
+    <div class="industry-card fade-up"><div class="industry-icon">🏬</div><div class="industry-name">Wholesalers &amp; Distributors</div></div>
+    <div class="industry-card fade-up stagger-1"><div class="industry-icon">✈️</div><div class="industry-name">Importers &amp; Exporters</div></div>
+    <div class="industry-card fade-up stagger-2"><div class="industry-icon">🏩</div><div class="industry-name">Hotels &amp; Hospitality</div></div>
+    <div class="industry-card fade-up stagger-3"><div class="industry-icon">🧁</div><div class="industry-name">Bakeries &amp; Confectionery</div></div>
+    <div class="industry-card fade-up stagger-4"><div class="industry-icon">🎀</div><div class="industry-name">Private Label Brands</div></div>
+    <div class="industry-card fade-up"><div class="industry-icon">🏗️</div><div class="industry-name">Food Manufacturers</div></div>
+    <div class="industry-card fade-up stagger-1"><div class="industry-icon">🛍️</div><div class="industry-name">Retail Chains</div></div>
     <div class="industry-card fade-up stagger-2"><div class="industry-icon">🎁</div><div class="industry-name">Gift &amp; Hamper Brands</div></div>
   </div>
 </section>
@@ -1263,7 +1263,7 @@ nav .logo span {
 <section style="padding:80px 5%;background:#1B2E4B">
   <div style="text-align:center;margin-bottom:50px">
     <div class="sec-tag fade-up" style="color:var(--gold2)">Our Advantage</div>
-    <h2 class="sec-title fade-up" style="color:var(--bg2)">Why Buyers <em>Choose Us</em></h2>
+    <h2 class="sec-title fade-up" style="color:var(--bg2)">Why Buy <em>From Us</em></h2>
     <div class="divider fade-up" style="margin:20px auto"></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;max-width:1000px;margin:0 auto">
@@ -1310,9 +1310,9 @@ nav .logo span {
       <div class="footer-brand">Jai Shree Cashew <span>Industries</span></div>
       <p class="footer-desc">Premium cashew kernel manufacturer and bulk supplier from Kaladera, Jaipur, Rajasthan. Factory-direct supply for wholesalers, distributors, importers &amp; private label buyers since 2016.</p>
       <div class="footer-social">
-        <a href="https://wa.me/917568577968" target="_blank" title="WhatsApp">💬</a>
-        <a href="mailto:info@jaishreecashew.com" title="Email">✉</a>
-        <a href="#" title="Instagram">📷</a>
+        <a href="https://wa.me/917568577968" target="_blank" title="WhatsApp" style="font-size:20px">📲</a>
+        <a href="mailto:info@jaishreecashew.com" title="Email" style="font-size:20px">📧</a>
+        <a href="#" title="Instagram" style="font-size:20px">📸</a>
       </div>
       <div class="footer-cert">
         <span class="footer-cert-badge">FSSAI</span>
@@ -1361,14 +1361,14 @@ nav .logo span {
           <li><a href="tel:+917568577968">+91 75685 77968</a></li>
           <li><a href="tel:+919950062186">+91 99500 62186</a></li>
           <li><a href="mailto:info@jaishreecashew.com">info@jaishreecashew.com</a></li>
-          <li style="color:rgba(255,255,255,0.62);font-size:13px;cursor:default">B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801</li>
+          <li style="color:rgba(255,255,255,.75);font-size:13px;cursor:default;line-height:1.6">41, Barah Ji Ki Gali, Gangauri Bazar, Jaipur — 302002</li>
         </ul>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
     <span>© 2026 Jai Shree Cashew Industries. All rights reserved.</span>
-    <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH · Kaladera, Jaipur — 303801</span>
+    <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH · Jaipur, Rajasthan</span>
   </div>
 </footer>
 
@@ -1737,31 +1737,157 @@ nav .logo span {
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
-<section class="testimonials">
-  <div style="text-align:center">
-    <div class="sec-tag fade-up">Client Testimonials</div>
-    <h2 class="sec-title fade-up">Trusted by <em>2000+ Buyers</em></h2>
-    <div class="divider fade-up" style="margin:24px auto"></div>
+<!-- TESTIMONIALS — SVP Style Auto-Slider -->
+<section class="testimonials" style="background:#fff;padding:80px 0 60px">
+  <div style="text-align:center;padding:0 5%;margin-bottom:44px">
+    <div class="sec-tag fade-up" style="color:var(--gold2)">What Our Buyers Say</div>
+    <h2 class="sec-title fade-up" style="color:#1B2E4B">Trusted by <em>2000+ Buyers</em></h2>
+    <div class="divider fade-up" style="margin:20px auto"></div>
   </div>
-  <div class="testi-grid">
-    <div class="testi-card fade-up">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-quote">"Jai Shree Cashew has been our W320 supplier for 4 years. Consistent quality, honest weights, and always on time. Never had a bad batch."</p>
-      <div class="testi-author"><div class="testi-avatar">R</div><div><div class="testi-name">Ramesh Agarwal</div><div class="testi-from">Confectionery Manufacturer · Ahmedabad</div></div></div>
+
+  <!-- Review Slider -->
+  <div class="review-slider-wrap" style="overflow:hidden;position:relative;padding:0 0 48px">
+    <div class="review-track" id="reviewTrack" style="display:flex;gap:20px;transition:transform .55s cubic-bezier(.4,0,.2,1);padding:0 5%">
+
+      <div class="review-card" style="min-width:320px;max-width:340px;flex-shrink:0;background:#F8FAFE;border:1px solid #E2E8F0;padding:28px 26px">
+        <div style="display:flex;gap:3px;margin-bottom:14px">★★★★★</div>
+        <p style="font-size:14px;line-height:1.7;color:#3a4a5c;margin-bottom:20px;font-style:italic">"Jai Shree Cashew has been our W320 supplier for 4 years. Consistent quality, honest weights, and always on time. Never had a bad batch."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#1B2E4B;color:#E2C06A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;flex-shrink:0">R</div>
+          <div><div style="font-weight:600;font-size:14px;color:#1B2E4B">Ramesh Agarwal</div><div style="font-size:11.5px;color:#7a8a9a;letter-spacing:.3px">Confectionery Manufacturer · Ahmedabad</div></div>
+        </div>
+      </div>
+
+      <div class="review-card" style="min-width:320px;max-width:340px;flex-shrink:0;background:#F8FAFE;border:1px solid #E2E8F0;padding:28px 26px">
+        <div style="display:flex;gap:3px;margin-bottom:14px">★★★★★</div>
+        <p style="font-size:14px;line-height:1.7;color:#3a4a5c;margin-bottom:20px;font-style:italic">"Best W180 in Rajasthan. We use it exclusively for our premium Diwali gift hampers. The kernel size and whiteness is unmatched at this price."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#1B2E4B;color:#E2C06A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;flex-shrink:0">S</div>
+          <div><div style="font-weight:600;font-size:14px;color:#1B2E4B">Sunita Mehta</div><div style="font-size:11.5px;color:#7a8a9a;letter-spacing:.3px">Dry Fruit Retailer · Jaipur</div></div>
+        </div>
+      </div>
+
+      <div class="review-card" style="min-width:320px;max-width:340px;flex-shrink:0;background:#F8FAFE;border:1px solid #E2E8F0;padding:28px 26px">
+        <div style="display:flex;gap:3px;margin-bottom:14px">★★★★★</div>
+        <p style="font-size:14px;line-height:1.7;color:#3a4a5c;margin-bottom:20px;font-style:italic">"Their bulk pricing for W240 is very competitive. The vacuum packing extends shelf life perfectly. Our hotel kitchen has been ordering for 2 years."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#1B2E4B;color:#E2C06A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;flex-shrink:0">A</div>
+          <div><div style="font-weight:600;font-size:14px;color:#1B2E4B">Ashok Sharma</div><div style="font-size:11.5px;color:#7a8a9a;letter-spacing:.3px">Procurement Head · 5-Star Hotel · Delhi</div></div>
+        </div>
+      </div>
+
+      <div class="review-card" style="min-width:320px;max-width:340px;flex-shrink:0;background:#F8FAFE;border:1px solid #E2E8F0;padding:28px 26px">
+        <div style="display:flex;gap:3px;margin-bottom:14px">★★★★★</div>
+        <p style="font-size:14px;line-height:1.7;color:#3a4a5c;margin-bottom:20px;font-style:italic">"We've been sourcing W180 and W240 for our export containers. Jai Shree always delivers on time with proper documentation. FOB process is smooth."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#1B2E4B;color:#E2C06A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;flex-shrink:0">M</div>
+          <div><div style="font-weight:600;font-size:14px;color:#1B2E4B">Mohammed Al-Rashidi</div><div style="font-size:11.5px;color:#7a8a9a;letter-spacing:.3px">Importer · Dubai, UAE</div></div>
+        </div>
+      </div>
+
+      <div class="review-card" style="min-width:320px;max-width:340px;flex-shrink:0;background:#F8FAFE;border:1px solid #E2E8F0;padding:28px 26px">
+        <div style="display:flex;gap:3px;margin-bottom:14px">★★★★★</div>
+        <p style="font-size:14px;line-height:1.7;color:#3a4a5c;margin-bottom:20px;font-style:italic">"Factory-direct pricing makes a real difference for our margins. W320 quality is excellent — low breakage, clean testa. Highly recommended."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#1B2E4B;color:#E2C06A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;flex-shrink:0">V</div>
+          <div><div style="font-weight:600;font-size:14px;color:#1B2E4B">Vikram Joshi</div><div style="font-size:11.5px;color:#7a8a9a;letter-spacing:.3px">Wholesale Distributor · Mumbai</div></div>
+        </div>
+      </div>
+
+      <div class="review-card" style="min-width:320px;max-width:340px;flex-shrink:0;background:#F8FAFE;border:1px solid #E2E8F0;padding:28px 26px">
+        <div style="display:flex;gap:3px;margin-bottom:14px">★★★★★</div>
+        <p style="font-size:14px;line-height:1.7;color:#3a4a5c;margin-bottom:20px;font-style:italic">"We sell branded dry fruits across North India. Jai Shree's private label service is excellent — good packaging, consistent grade, and no minimum hassle."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#1B2E4B;color:#E2C06A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;flex-shrink:0">P</div>
+          <div><div style="font-weight:600;font-size:14px;color:#1B2E4B">Priya Bansal</div><div style="font-size:11.5px;color:#7a8a9a;letter-spacing:.3px">Private Label Brand Owner · Delhi</div></div>
+        </div>
+      </div>
+
+      <div class="review-card" style="min-width:320px;max-width:340px;flex-shrink:0;background:#F8FAFE;border:1px solid #E2E8F0;padding:28px 26px">
+        <div style="display:flex;gap:3px;margin-bottom:14px">★★★★★</div>
+        <p style="font-size:14px;line-height:1.7;color:#3a4a5c;margin-bottom:20px;font-style:italic">"FSSAI certified, RIICO facility — this gives our food safety team confidence. Audit-ready documentation and clean processing every single time."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#1B2E4B;color:#E2C06A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;flex-shrink:0">K</div>
+          <div><div style="font-weight:600;font-size:14px;color:#1B2E4B">Kavita Nair</div><div style="font-size:11.5px;color:#7a8a9a;letter-spacing:.3px">QA Manager · Food Processing Co. · Pune</div></div>
+        </div>
+      </div>
+
+      <div class="review-card" style="min-width:320px;max-width:340px;flex-shrink:0;background:#F8FAFE;border:1px solid #E2E8F0;padding:28px 26px">
+        <div style="display:flex;gap:3px;margin-bottom:14px">★★★★★</div>
+        <p style="font-size:14px;line-height:1.7;color:#3a4a5c;margin-bottom:20px;font-style:italic">"Ordered W210 for our bakery chain. Uniform size, great colour, and the vacuum packing really extends freshness. Will reorder every season."</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#1B2E4B;color:#E2C06A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;flex-shrink:0">D</div>
+          <div><div style="font-weight:600;font-size:14px;color:#1B2E4B">Deepak Khanna</div><div style="font-size:11.5px;color:#7a8a9a;letter-spacing:.3px">Bakery Chain Owner · Chandigarh</div></div>
+        </div>
+      </div>
+
+    </div><!-- end review-track -->
+
+    <!-- Dot indicators -->
+    <div style="display:flex;justify-content:center;gap:8px;margin-top:28px" id="reviewDots"></div>
+
+    <!-- Write a Review CTA -->
+    <div style="text-align:center;margin-top:32px;padding:0 5%">
+      <p style="font-size:13px;color:#7a8a9a;margin-bottom:14px;letter-spacing:.3px">Happy with our cashews? Share your experience.</p>
+      <a href="https://wa.me/917568577968?text=Hi%2C+I+would+like+to+share+my+review+for+Jai+Shree+Cashew+Industries." target="_blank" style="display:inline-flex;align-items:center;gap:9px;background:#fff;border:1.5px solid #1B2E4B;color:#1B2E4B;padding:12px 28px;font-size:11px;letter-spacing:2px;font-weight:600;text-decoration:none;transition:.2s" onmouseover="this.style.background='#1B2E4B';this.style.color='#E2C06A'" onmouseout="this.style.background='#fff';this.style.color='#1B2E4B'">✍ WRITE A REVIEW</a>
     </div>
-    <div class="testi-card fade-up stagger-1">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-quote">"Best W180 in Rajasthan. We use it exclusively for our premium Diwali gift hampers. The kernel size and whiteness is unmatched at this price."</p>
-      <div class="testi-author"><div class="testi-avatar">S</div><div><div class="testi-name">Sunita Mehta</div><div class="testi-from">Dry Fruit Retailer · Jaipur</div></div></div>
-    </div>
-    <div class="testi-card fade-up stagger-2">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-quote">"Their bulk pricing for W240 is very competitive. The vacuum packing extends shelf life perfectly. Our hotel kitchen has been ordering for 2 years."</p>
-      <div class="testi-author"><div class="testi-avatar">A</div><div><div class="testi-name">Ashok Sharma</div><div class="testi-from">Procurement Head · 5-Star Hotel · Delhi</div></div></div>
-    </div>
-  </div>
+
+  </div><!-- end slider-wrap -->
 </section>
+
+<script>
+(function(){
+  var track = document.getElementById('reviewTrack');
+  if(!track) return;
+  var cards = track.querySelectorAll('.review-card');
+  var total = cards.length;
+  var current = 0;
+  var autoInterval;
+  var dotsWrap = document.getElementById('reviewDots');
+
+  // Build dots
+  for(var i=0;i<total;i++){
+    var d = document.createElement('button');
+    d.style.cssText='width:8px;height:8px;border-radius:50%;border:none;background:'+(i===0?'#C9A84C':'rgba(27,46,75,.25)');
+    d.style.cursor='pointer';
+    d.style.padding='0';
+    d.style.transition='background .3s';
+    (function(idx){d.onclick=function(){goTo(idx);resetAuto();};})(i);
+    dotsWrap.appendChild(d);
+  }
+
+  function getCardWidth(){
+    var c = track.querySelector('.review-card');
+    if(!c) return 340;
+    var gap = 20;
+    return c.offsetWidth + gap;
+  }
+
+  function goTo(idx){
+    current = (idx + total) % total;
+    var offset = current * getCardWidth();
+    track.style.transform = 'translateX(-'+offset+'px)';
+    var dots = dotsWrap.querySelectorAll('button');
+    dots.forEach(function(d,i){d.style.background = i===current?'#C9A84C':'rgba(27,46,75,.25)';});
+  }
+
+  function resetAuto(){
+    clearInterval(autoInterval);
+    autoInterval = setInterval(function(){goTo(current+1);}, 3500);
+  }
+
+  goTo(0);
+  resetAuto();
+
+  // Touch/swipe support
+  var startX=0;
+  track.addEventListener('touchstart',function(e){startX=e.touches[0].clientX;},{passive:true});
+  track.addEventListener('touchend',function(e){
+    var diff = startX - e.changedTouches[0].clientX;
+    if(Math.abs(diff)>40){goTo(diff>0?current+1:current-1);resetAuto();}
+  },{passive:true});
+})();
+</script>
 
 </div><!-- end page-about -->
 <div id="page-contact" class="page-section">
@@ -1848,9 +1974,9 @@ nav .logo span {
       <div class="footer-brand">Jai Shree Cashew <span>Industries</span></div>
       <p class="footer-desc">Premium cashew kernel manufacturer and bulk supplier from Kaladera, Jaipur, Rajasthan. Factory-direct supply for wholesalers, distributors, importers &amp; private label buyers since 2016.</p>
       <div class="footer-social">
-        <a href="https://wa.me/917568577968" target="_blank" title="WhatsApp">💬</a>
-        <a href="mailto:info@jaishreecashew.com" title="Email">✉</a>
-        <a href="#" title="Instagram">📷</a>
+        <a href="https://wa.me/917568577968" target="_blank" title="WhatsApp" style="font-size:20px">📲</a>
+        <a href="mailto:info@jaishreecashew.com" title="Email" style="font-size:20px">📧</a>
+        <a href="#" title="Instagram" style="font-size:20px">📸</a>
       </div>
       <div class="footer-cert">
         <span class="footer-cert-badge">FSSAI</span>
@@ -1899,14 +2025,14 @@ nav .logo span {
           <li><a href="tel:+917568577968">+91 75685 77968</a></li>
           <li><a href="tel:+919950062186">+91 99500 62186</a></li>
           <li><a href="mailto:info@jaishreecashew.com">info@jaishreecashew.com</a></li>
-          <li style="color:rgba(255,255,255,0.62);font-size:13px;cursor:default">B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801</li>
+          <li style="color:rgba(255,255,255,.75);font-size:13px;cursor:default;line-height:1.6">41, Barah Ji Ki Gali, Gangauri Bazar, Jaipur — 302002</li>
         </ul>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
     <span>© 2026 Jai Shree Cashew Industries. All rights reserved.</span>
-    <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH · Kaladera, Jaipur — 303801</span>
+    <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH · Jaipur, Rajasthan</span>
   </div>
 </footer>
 

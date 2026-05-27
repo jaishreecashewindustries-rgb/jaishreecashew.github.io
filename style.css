@@ -342,12 +342,12 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,.52);padding:64px 5% 3
 .footer-grid{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:48px;margin-bottom:52px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.07)}
 .footer-brand{font-family:var(--font-sans);font-size:18px;color:#fff;margin-bottom:10px;letter-spacing:.3px;font-weight:700}
 .footer-brand span{color:var(--gold2)}
-.footer-desc{font-size:13px;line-height:1.85;max-width:260px;font-weight:300;margin-bottom:20px}
+.footer-desc{font-size:13px;line-height:1.85;max-width:260px;font-weight:300;margin-bottom:20px;color:rgba(255,255,255,.75)}
 .footer-cert{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
 .footer-cert-badge{border:1px solid rgba(201,168,76,.28);color:var(--gold2);padding:4px 11px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
 .footer-title{color:var(--gold2);font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:18px;font-weight:700}
 .footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
-.footer-links a{color:rgba(255,255,255,.42);font-size:13px;transition:color .2s}
+.footer-links a{color:rgba(255,255,255,.78);font-size:13px;transition:color .2s}
 .footer-links a:hover{color:var(--gold2)}
 .footer-newsletter{margin-top:14px}
 .footer-nl-row{display:flex;gap:0}
@@ -702,7 +702,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,.52);padding:64px 5% 3
 .brand-link:hover{color:var(--gold)!important}
 a[href^="tel"],a[href^="mailto"]{color:inherit!important;text-decoration:none!important}
 a[href^="tel"]:hover{color:var(--gold)!important}
-.footer-links a[href^="tel"],.footer-links a[href^="mailto"]{color:rgba(255,255,255,.42)!important}
+.footer-links a[href^="tel"],.footer-links a[href^="mailto"]{color:rgba(255,255,255,.78)!important}
 .footer-links a[href^="tel"]:hover,.footer-links a[href^="mailto"]:hover{color:var(--gold2)!important}
 *{-webkit-text-fill-color:inherit}
 
@@ -798,4 +798,11 @@ a[href^="tel"]:hover{color:var(--gold)!important}
   .hero-content{padding:0 5% max(48px,env(safe-area-inset-bottom,48px))}
   .hero h1{font-size:32px}
   .hero-btns .btn-gold,.hero-btns .btn-outline{padding:12px 14px;font-size:10px;letter-spacing:1.2px}
+}
+
+/* ════ REVIEW SLIDER ════ */
+.review-card .testi-stars, .review-card > div:first-child {color:#C9A84C;font-size:16px;letter-spacing:2px}
+.review-track {will-change:transform}
+@media(max-width:640px){
+  .review-card{min-width:280px!important;max-width:290px!important;padding:22px 18px!important}
 }
