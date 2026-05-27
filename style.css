@@ -63,7 +63,7 @@ nav{
   transition:box-shadow var(--transition);
 }
 nav.scrolled{box-shadow:var(--shadow-md)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px;gap:20px}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:80px;gap:20px}
 
 /* Logo */
 .logo{display:flex!important;align-items:center!important;gap:10px!important;text-decoration:none!important;flex-shrink:0}
@@ -735,7 +735,7 @@ a[href^="tel"]:hover{color:var(--gold)!important}
   .ftf-grid > div{min-height:240px}
   .shop-hero-badges{display:none}
   nav{padding:0 4%}
-  .nav-inner{height:64px}
+  .nav-inner{height:72px!important}
   .logo-img-wrap img{height:40px}
   .logo-name{font-size:13px}
   .logo-tagline{font-size:7.5px}
