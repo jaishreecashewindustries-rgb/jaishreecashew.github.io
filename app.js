@@ -314,49 +314,34 @@ window.addEventListener('scroll', () => {
   if(nav) nav.classList.toggle('scrolled', window.scrollY > 40);
 }, {passive:true});
 
-// ── RENDER PRODUCTS ──
+// ── RENDER PRODUCTS — B2B Catalogue Style ──
 function renderProducts() {
   const grid = $('productsGrid');
   if(!grid) return;
   if(!PRODUCTS.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-soft)"><div style="font-size:32px;margin-bottom:12px">☕</div><div style="font-size:14px;letter-spacing:1px">Loading products...</div></div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-soft)"><div style="font-size:32px;margin-bottom:12px">⏳</div><div style="font-size:14px;letter-spacing:1px">Loading catalogue...</div></div>';
     const countEl = $('products-count'); if(countEl) countEl.textContent = '—';
     return;
   }
   const filtered = currentFilter==='all' ? PRODUCTS : PRODUCTS.filter(p => p.cat===currentFilter);
   const countEl = $('products-count');
-  if(countEl) countEl.textContent = filtered.length + ' products';
+  if(countEl) countEl.textContent = filtered.length + (filtered.length===1?' grade':' grades');
   grid.innerHTML = filtered.map(p => {
-    const hasDiscount = p.origPrice && p.origPrice > p.price;
-    const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
-    const outOfStock = p.stock === 0;
-    const lowStock = p.stock > 0 && p.stock <= 10;
-    const stockBadge = outOfStock
-      ? `<div class="badge-new" style="background:#e74c3c">OUT OF STOCK</div>`
-      : lowStock ? `<div class="badge-new" style="background:#f39c12">ONLY ${p.stock} LEFT</div>` : '';
     return `
-    <div class="product-card" style="cursor:pointer">
+    <div class="product-card" style="cursor:pointer;position:relative">
       ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
-      ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
-      ${stockBadge}
       <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
-        <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <img src="${p.img}" alt="${p.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">
         <div class="prod-overlay"></div>
-        <button class="prod-quick" onclick="event.stopPropagation();openModal('${p.id}')">QUICK VIEW</button>
+        <div style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer" onclick="event.stopPropagation();openProductDetail('${p.id}')">VIEW DETAILS</div>
       </div>
       <div class="prod-info">
-        <div class="prod-grade">${p.grade}</div>
-        <div class="prod-name" onclick="openProductDetail('${p.id}')" style="cursor:pointer">${p.name}</div>
-        <div class="prod-weight">${p.weight} pack</div>
-        <div class="prod-price-row">
-          <div class="prod-price" style="display:inline">₹${p.price}</div>
-          ${hasDiscount ? `<span class="prod-price-original">₹${p.origPrice}</span><span class="prod-discount">−${discPct}%</span>` : ''}
-        </div>
-        <div class="prod-btns">
-          <button class="btn-cart" onclick="addToCart('${p.id}')" ${outOfStock ? 'disabled style="background:#aaa;cursor:not-allowed"' : ''}>
-            ${outOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
-          </button>
-          <button class="btn-wish" onclick="toggleWish(this)">♡</button>
+        <div class="prod-grade" style="font-size:11px;letter-spacing:1.5px;color:var(--gold2);font-weight:500;margin-bottom:4px">${p.grade}</div>
+        <div class="prod-name" onclick="openProductDetail('${p.id}')" style="cursor:pointer;font-size:16px;font-weight:600;color:var(--walnut);margin-bottom:6px">${p.name}</div>
+        <div style="font-size:12px;color:var(--text-soft);margin-bottom:14px">${p.desc ? p.desc.substring(0,80)+'...' : ''}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div style="font-size:11px;color:#7a6b5a;background:#f5efe2;border:1px solid #e4dace;padding:4px 10px;letter-spacing:.5px">Price on Request</div>
+          <a href="#page-contact" onclick="showPage('contact');return false;" style="font-size:11px;letter-spacing:1.5px;font-weight:600;color:var(--walnut);border:1.5px solid var(--walnut);padding:9px 16px;text-decoration:none;display:inline-block;transition:background .2s,color .2s" onmouseover="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--walnut');this.style.color='#fff'" onmouseout="this.style.background='';this.style.color=''">ENQUIRE →</a>
         </div>
       </div>
     </div>`;
@@ -2313,12 +2298,8 @@ function _getShopFiltered() {
     if(_shopFilters.cat !== 'all' && p.cat !== _shopFilters.cat) return false;
     if(_shopFilters.search) {
       const q = _shopFilters.search.toLowerCase();
-      if(!p.name.toLowerCase().includes(q) && !p.grade.toLowerCase().includes(q) && !p.desc.toLowerCase().includes(q)) return false;
+      if(!p.name.toLowerCase().includes(q) && !(p.grade||'').toLowerCase().includes(q) && !(p.desc||'').toLowerCase().includes(q)) return false;
     }
-    if(p.price < _shopFilters.priceMin || p.price > _shopFilters.priceMax) return false;
-    if(_shopFilters.sale && !(p.origPrice && p.origPrice > p.price)) return false;
-    if(_shopFilters.instock && p.stock === 0) return false;
-    if(_shopFilters.featured && !p.featured) return false;
     return true;
   });
 }
@@ -2424,7 +2405,7 @@ function _renderShopGrid() {
   if(!grid) return;
 
   const filtered = _getShopFiltered();
-  if(countEl) countEl.textContent = filtered.length + (filtered.length === 1 ? ' product' : ' products');
+  if(countEl) countEl.textContent = filtered.length + (filtered.length === 1 ? ' grade' : ' grades');
 
   if(!filtered.length) {
     grid.innerHTML = '';
@@ -2434,42 +2415,22 @@ function _renderShopGrid() {
   if(noRes) noRes.style.display = 'none';
 
   grid.innerHTML = filtered.map(p => {
-    const hasDiscount = p.origPrice && p.origPrice > p.price;
-    const discPct = hasDiscount ? Math.round((1-p.price/p.origPrice)*100) : 0;
     const outOfStock = p.stock === 0;
-    const lowStock = p.stock > 0 && p.stock <= 10;
-    const stockBadge = outOfStock
-      ? `<div class="badge-new" style="background:#e74c3c">OUT OF STOCK</div>`
-      : lowStock ? `<div class="badge-new" style="background:#f39c12">ONLY ${p.stock} LEFT</div>` : '';
-    const savings = hasDiscount ? `<div class="prod-savings">You save ₹${(p.origPrice - p.price).toLocaleString('en-IN')}</div>` : '';
-    const ratingStars = '★★★★★';
     return `
-    <div class="product-card shop-card" style="cursor:pointer">
+    <div class="product-card shop-card" style="cursor:pointer;position:relative">
       ${p.badge ? `<div class="badge-new">${p.badge}</div>` : ''}
-      ${hasDiscount ? `<div class="badge-sale">${discPct}% OFF</div>` : ''}
-      ${stockBadge}
       <div class="prod-img-wrap" onclick="openProductDetail('${p.id}')">
-        <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <img src="${p.img}" alt="${p.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">
         <div class="prod-overlay"></div>
-        <button class="prod-quick" onclick="event.stopPropagation();openModal('${p.id}')">QUICK VIEW</button>
+        <div style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;letter-spacing:1px;padding:5px 10px;cursor:pointer" onclick="event.stopPropagation();openProductDetail('${p.id}')">VIEW DETAILS</div>
       </div>
       <div class="prod-info shop-prod-info">
-        <div class="prod-grade">${p.grade}</div>
-        <div class="prod-name" onclick="openProductDetail('${p.id}')" style="cursor:pointer">${p.name}</div>
-        <div class="prod-weight">${p.weight} pack</div>
-        <div class="shop-card-rating"><span style="color:#f5a623;font-size:12px">${ratingStars}</span> <span style="font-size:11px;color:var(--text-soft)">(${(p.reviewCount||0)+5})</span></div>
-        <div class="prod-price-row">
-          <div class="prod-price" style="display:inline">₹${p.price.toLocaleString('en-IN')}</div>
-          ${hasDiscount ? `<span class="prod-price-original">₹${p.origPrice.toLocaleString('en-IN')}</span><span class="prod-discount">−${discPct}%</span>` : ''}
-        </div>
-        ${savings}
-        <div class="shop-card-delivery">🚚 ${p.price >= 2000 ? '<span style="color:#27ae60">FREE delivery</span>' : 'Free delivery on ₹2000+'}</div>
-        <div class="prod-btns">
-          <button class="btn-cart shop-add-btn" onclick="addToCart('${p.id}')" ${outOfStock ? 'disabled style="background:#aaa;cursor:not-allowed"' : ''}>
-            ${outOfStock ? 'OUT OF STOCK' : '🛒 ADD TO CART'}
-          </button>
-          <button class="btn-wish" onclick="toggleWish(this)" title="Wishlist">♡</button>
-          <button class="btn-compare" onclick="addToCompare('${p.id}')" title="Compare">⚖️</button>
+        <div class="prod-grade" style="font-size:11px;letter-spacing:1.5px;color:var(--gold2);font-weight:500;margin-bottom:4px">${p.grade}</div>
+        <div class="prod-name" onclick="openProductDetail('${p.id}')" style="cursor:pointer;font-size:16px;font-weight:600;color:var(--walnut);margin-bottom:6px">${p.name}</div>
+        <div style="font-size:12px;color:var(--text-soft);margin-bottom:16px;line-height:1.5">${(p.desc||'').substring(0,90)}${(p.desc||'').length>90?'...':''}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div style="font-size:11px;color:#7a6b5a;background:#f5efe2;border:1px solid #e4dace;padding:4px 10px;letter-spacing:.5px">${outOfStock ? 'Currently Unavailable' : 'Price on Request'}</div>
+          <a href="#" onclick="showPage('contact');return false;" style="font-size:11px;letter-spacing:1.5px;font-weight:600;color:var(--walnut);border:1.5px solid var(--walnut);padding:9px 16px;text-decoration:none;display:inline-block">ENQUIRE →</a>
         </div>
       </div>
     </div>`;
