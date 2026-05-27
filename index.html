@@ -188,60 +188,191 @@
   });
 </script>
 <style>
-/* ══════════════════════════════════════════════════
-   B2B REPOSITIONING + MOBILE UX — Surgical Additions
-   ══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   JAI SHREE CASHEW — COMPLETE B2B STYLE SYSTEM
+   International standards · Mobile-first · High contrast
+   ══════════════════════════════════════════════════════════ */
 
-/* ── B2B Grade Cards ── */
+/* ── Announcement Bar ── */
+.ann-bar {
+  font-size: 11px !important;
+  letter-spacing: 1.5px !important;
+  padding: 10px 16px !important;
+  line-height: 1.5 !important;
+}
+@media (max-width: 640px) {
+  .ann-bar {
+    font-size: 10px !important;
+    letter-spacing: 1px !important;
+    padding: 9px 12px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+/* ── Navbar ── */
+nav .logo {
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  letter-spacing: .5px !important;
+}
+nav .logo span {
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+  display: block !important;
+  margin-top: 1px !important;
+}
+.nav-links li a {
+  font-size: 11px !important;
+  letter-spacing: 1.5px !important;
+  font-weight: 500 !important;
+}
+.nav-cta {
+  font-size: 11px !important;
+  letter-spacing: 1.5px !important;
+  padding: 10px 20px !important;
+}
+
+/* ── Hero Badge ── */
+.hero-badge {
+  font-size: 11px !important;
+  letter-spacing: 2px !important;
+  margin-bottom: 18px !important;
+  opacity: 1 !important;
+}
+
+/* ── Hero H1 ── */
+.hero-content h1 {
+  font-size: clamp(40px, 5.5vw, 72px) !important;
+  line-height: 1.08 !important;
+  margin-bottom: 20px !important;
+}
+
+/* ── Hero Sub ── */
+.hero-sub {
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+  max-width: 560px !important;
+  margin-bottom: 28px !important;
+  opacity: 1 !important;
+}
+
+/* ── Hero Trust Pills ── */
+.hero-trust-item {
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+  padding: 7px 14px !important;
+}
+
+/* ── Hero Buttons ── */
+.btn-gold {
+  font-size: 12px !important;
+  letter-spacing: 2px !important;
+  padding: 16px 32px !important;
+}
+.btn-outline {
+  font-size: 12px !important;
+  letter-spacing: 2px !important;
+  padding: 16px 32px !important;
+}
+
+/* ── Stats ── */
+.stat-num {
+  font-size: clamp(36px, 4vw, 52px) !important;
+  line-height: 1 !important;
+  margin-bottom: 8px !important;
+}
+.stat-label {
+  font-size: 12px !important;
+  letter-spacing: .5px !important;
+  line-height: 1.4 !important;
+  color: var(--text-soft) !important;
+}
+
+/* ── Trust Strip ── */
+.trust-item strong {
+  font-size: 14px !important;
+  display: block !important;
+  margin-bottom: 3px !important;
+  color: var(--walnut) !important;
+}
+.trust-label {
+  font-size: 12px !important;
+  color: var(--text-soft) !important;
+  line-height: 1.4 !important;
+}
+
+/* ── Section tags / labels ── */
+.sec-tag {
+  font-size: 11px !important;
+  letter-spacing: 2.5px !important;
+}
+
+/* ── Section titles ── */
+.sec-title {
+  font-size: clamp(30px, 4vw, 52px) !important;
+  line-height: 1.1 !important;
+}
+
+/* ── Section sub-text ── */
+.sec-sub {
+  font-size: 15px !important;
+  line-height: 1.75 !important;
+  color: var(--text-soft) !important;
+}
+
+/* ══ B2B GRADE CARDS ══ */
 .b2b-grade-card {
   background: #fff;
-  border: 1px solid #e8e0d0;
+  border: 1px solid #e4dace;
   padding: 32px 28px;
   position: relative;
-  transition: box-shadow .25s, transform .25s;
+  transition: box-shadow .25s, transform .2s;
 }
 .b2b-grade-card:hover {
-  box-shadow: 0 8px 40px rgba(0,0,0,.1);
-  transform: translateY(-3px);
+  box-shadow: 0 6px 32px rgba(0,0,0,.1);
+  transform: translateY(-2px);
 }
 .b2b-grade-badge {
   position: absolute;
   top: -1px;
-  right: 24px;
+  right: 20px;
   background: var(--gold2, #c9922f);
   color: #fff;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   padding: 5px 12px;
 }
 .b2b-grade-code {
   font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 38px;
+  font-size: 40px;
   font-weight: 500;
   color: var(--walnut, #3b2f1e);
   line-height: 1;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   letter-spacing: -1px;
 }
 .b2b-grade-name {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 500;
   color: var(--walnut, #3b2f1e);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  line-height: 1.2;
 }
 .b2b-grade-spec {
   font-size: 11px;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   color: var(--gold2, #c9922f);
   text-transform: uppercase;
   margin-bottom: 20px;
 }
 .b2b-grade-divider {
   height: 1px;
-  background: #e8e0d0;
-  margin-bottom: 20px;
+  background: #e4dace;
+  margin-bottom: 18px;
 }
 .b2b-grade-specs {
   display: flex;
@@ -252,8 +383,9 @@
 .b2b-spec-row {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
-  color: var(--text-soft, #6b5c46);
+  font-size: 13px;
+  color: #5a4d3e;
+  line-height: 1.4;
 }
 .b2b-spec-row span:first-child {
   font-weight: 500;
@@ -262,12 +394,12 @@
 .b2b-grade-cta {
   display: block;
   text-align: center;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 2px;
   font-weight: 600;
   color: var(--walnut, #3b2f1e);
-  border: 1px solid var(--walnut, #3b2f1e);
-  padding: 12px 20px;
+  border: 1.5px solid var(--walnut, #3b2f1e);
+  padding: 14px 20px;
   text-decoration: none;
   transition: background .2s, color .2s;
 }
@@ -276,39 +408,53 @@
   color: #fff;
 }
 
-/* ── Industry Cards ── */
+/* Price on Request tag */
+.b2b-price-tag {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #7a6b5a;
+  background: #f5efe2;
+  border: 1px solid #e4dace;
+  padding: 4px 10px;
+  margin-bottom: 16px;
+}
+
+/* ══ Industry Cards ══ */
 .industry-card {
-  background: var(--cream, #f5efe2);
-  border: 1px solid #e8e0d0;
-  padding: 32px 20px;
+  background: #fff;
+  border: 1px solid #e4dace;
+  padding: 28px 16px;
   text-align: center;
-  transition: box-shadow .2s;
+  transition: box-shadow .2s, transform .15s;
 }
 .industry-card:hover {
   box-shadow: 0 4px 20px rgba(0,0,0,.08);
+  transform: translateY(-2px);
 }
 .industry-icon {
-  font-size: 32px;
-  margin-bottom: 14px;
+  font-size: 28px;
+  margin-bottom: 12px;
+  display: block;
 }
 .industry-name {
   font-size: 13px;
   font-weight: 500;
   color: var(--walnut, #3b2f1e);
-  letter-spacing: .5px;
+  letter-spacing: .3px;
   line-height: 1.4;
 }
 
-/* ── Why Buyers Cards ── */
+/* ══ Why Buyers Cards ══ */
 .why-card {
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255,255,255,.1);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.12);
 }
-@media(min-width:768px) {
+@media (min-width: 768px) {
   .why-card {
     border-bottom: none;
-    border-left: 2px solid rgba(255,255,255,.15);
-    padding: 8px 24px;
+    border-left: 2px solid rgba(255,255,255,.2);
+    padding: 10px 24px;
   }
 }
 .why-num {
@@ -320,78 +466,247 @@
 }
 .why-title {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 600;
-  color: var(--cream, #f5efe2);
+  color: #f5efe2;
   margin-bottom: 10px;
+  line-height: 1.2;
 }
 .why-desc {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
-  color: rgba(245,239,226,.65);
+  color: rgba(245,239,226,.82);
   font-weight: 300;
 }
 
-/* ══════════════════════════════════════════════════
-   MOBILE-FIRST B2B UX IMPROVEMENTS
-   ══════════════════════════════════════════════════ */
+/* ══ Country Tags ══ */
+.country-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--walnut, #3b2f1e);
+  border: 1px solid #d4c8b4;
+  padding: 7px 14px;
+  background: #fff;
+}
 
-/* ── Announcement bar — smaller, cleaner on mobile ── */
-@media (max-width: 640px) {
-  .ann-bar {
-    font-size: 9px !important;
-    letter-spacing: 1px !important;
-    padding: 8px 12px !important;
-  }
+/* ══ Export section dark box ══ */
+.export-stat-label {
+  color: rgba(245,239,226,.82) !important;
+  font-size: 12px !important;
+  margin-top: 4px !important;
+}
 
-  /* ── Hero: cleaner text zone, readable hierarchy ── */
+/* ══ Process Steps ══ */
+.step-num {
+  font-size: 13px !important;
+  letter-spacing: 1px !important;
+}
+.step-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  margin-bottom: 6px !important;
+}
+.step-desc {
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+}
+
+/* ══ Testimonials ══ */
+.testi-quote {
+  font-size: 15px !important;
+  line-height: 1.7 !important;
+}
+.testi-name {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+.testi-from {
+  font-size: 12px !important;
+}
+
+/* ══ Founder Cards ══ */
+.founder-name {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+}
+.founder-title {
+  font-size: 12px !important;
+  letter-spacing: 1.5px !important;
+}
+.founder-bio {
+  font-size: 15px !important;
+  line-height: 1.75 !important;
+}
+
+/* ══ Factory Features ══ */
+.feat-title {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  margin-bottom: 4px !important;
+}
+.feat-desc {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+}
+
+/* ══ Contact Form ══ */
+.form-card label {
+  font-size: 12px !important;
+  letter-spacing: 1px !important;
+  font-weight: 500 !important;
+}
+.form-card input,
+.form-card select,
+.form-card textarea {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* ══ Footer ══ */
+.footer-brand {
+  font-size: 20px !important;
+  letter-spacing: .5px !important;
+}
+.footer-desc {
+  font-size: 13px !important;
+  line-height: 1.75 !important;
+  color: rgba(255,255,255,.65) !important;
+}
+.footer-title {
+  font-size: 11px !important;
+  letter-spacing: 2px !important;
+}
+.footer-links li a {
+  font-size: 13px !important;
+  line-height: 2 !important;
+}
+.footer-bottom {
+  font-size: 12px !important;
+}
+.footer-gstin {
+  font-size: 11px !important;
+  letter-spacing: 1px !important;
+}
+.footer-nl-input {
+  font-size: 13px !important;
+}
+/* Fix footer address opacity */
+.footer-links li[style*="rgba(255,255,255,0.3)"],
+.footer-links li[style*="color:rgba"] {
+  color: rgba(255,255,255,.6) !important;
+  font-size: 13px !important;
+}
+
+/* ══ Grade Page Cards ══ */
+.grade-tag {
+  font-size: 10px !important;
+  letter-spacing: 2px !important;
+}
+.grade-name {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+}
+.grade-desc {
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+}
+
+/* ══ Shop Sidebar ══ */
+.sidebar-title {
+  font-size: 11px !important;
+  letter-spacing: 1.5px !important;
+  font-weight: 600 !important;
+}
+.sidebar-radio {
+  font-size: 14px !important;
+  line-height: 1.8 !important;
+}
+
+/* ══ Mobile Menu ══ */
+.mobile-logo {
+  font-size: 28px !important;
+  margin-bottom: 32px !important;
+}
+.mob-link {
+  font-size: 24px !important;
+  letter-spacing: 1px !important;
+  padding: 10px 0 !important;
+}
+.mob-secondary {
+  font-size: 14px !important;
+  letter-spacing: 1px !important;
+}
+.mob-cta {
+  font-size: 13px !important;
+  letter-spacing: 2px !important;
+  padding: 18px 28px !important;
+  margin-top: 12px !important;
+}
+.mob-contact {
+  font-size: 12px !important;
+  line-height: 1.8 !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — Complete overhaul
+   ══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+  /* Nav */
+  nav .logo { font-size: 15px !important; }
+  nav .logo span { font-size: 9px !important; }
+
+  /* Hero */
   .hero-content {
-    padding: 0 20px 60px !important;
+    padding: 0 20px 56px !important;
     max-width: 100% !important;
   }
   .hero-badge {
-    font-size: 9px !important;
+    font-size: 10px !important;
     letter-spacing: 1.5px !important;
-    margin-bottom: 16px !important;
+    margin-bottom: 14px !important;
   }
   .hero-content h1 {
-    font-size: clamp(36px, 10vw, 56px) !important;
-    line-height: 1.1 !important;
+    font-size: clamp(34px, 9.5vw, 52px) !important;
+    line-height: 1.08 !important;
     margin-bottom: 16px !important;
   }
   .hero-sub {
-    font-size: 14px !important;
+    font-size: 15px !important;
     line-height: 1.65 !important;
-    max-width: 100% !important;
     margin-bottom: 20px !important;
-    opacity: .9 !important;
   }
   .hero-trust {
-    gap: 8px !important;
+    gap: 7px !important;
     flex-wrap: wrap !important;
-    margin-bottom: 24px !important;
+    margin-bottom: 22px !important;
   }
   .hero-trust-item {
-    font-size: 9px !important;
-    padding: 6px 12px !important;
+    font-size: 10px !important;
+    padding: 7px 12px !important;
     letter-spacing: 1px !important;
   }
   .hero-btns {
     flex-direction: column !important;
-    gap: 12px !important;
-    align-items: flex-start !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    max-width: 360px !important;
   }
   .hero-btns .btn-gold,
   .hero-btns .btn-outline {
-    font-size: 11px !important;
-    padding: 16px 28px !important;
-    letter-spacing: 1.5px !important;
-    width: 100% !important;
+    font-size: 12px !important;
+    padding: 16px 20px !important;
+    letter-spacing: 2px !important;
     text-align: center !important;
+    width: 100% !important;
     box-sizing: border-box !important;
   }
 
-  /* ── Stats: cleaner 2x2 grid ── */
+  /* Stats — 2x2 grid */
   .stats-grid {
     grid-template-columns: 1fr 1fr !important;
     gap: 1px !important;
@@ -400,39 +715,45 @@
     padding: 28px 16px !important;
   }
   .stat-num {
-    font-size: 36px !important;
-    margin-bottom: 6px !important;
+    font-size: 34px !important;
+    margin-bottom: 8px !important;
   }
   .stat-label {
     font-size: 11px !important;
-    letter-spacing: .5px !important;
+    letter-spacing: .3px !important;
+    line-height: 1.4 !important;
   }
 
-  /* ── Trust strip: stacked, readable ── */
+  /* Trust strip — stacked rows */
   .trust-strip-inner {
     flex-direction: column !important;
     gap: 0 !important;
   }
   .trust-item {
     border-right: none !important;
-    border-bottom: 1px solid rgba(0,0,0,.06) !important;
-    padding: 16px 20px !important;
+    border-bottom: 1px solid rgba(0,0,0,.07) !important;
+    padding: 14px 20px !important;
     flex-direction: row !important;
     text-align: left !important;
+    align-items: center !important;
     gap: 14px !important;
   }
-  .trust-label {
-    font-size: 13px !important;
-    line-height: 1.4 !important;
+  .trust-icon {
+    font-size: 20px !important;
+    flex-shrink: 0 !important;
   }
-  .trust-label strong {
-    display: block !important;
-    font-size: 13px !important;
+  .trust-item strong {
+    font-size: 14px !important;
+    margin-bottom: 1px !important;
+  }
+  .trust-label {
+    font-size: 12px !important;
+    line-height: 1.3 !important;
   }
 
-  /* ── B2B Grade cards mobile ── */
+  /* Grade cards — 2 col on mobile */
   .b2b-grade-card {
-    padding: 28px 22px !important;
+    padding: 24px 18px !important;
   }
   .b2b-grade-code {
     font-size: 32px !important;
@@ -440,63 +761,164 @@
   .b2b-grade-name {
     font-size: 16px !important;
   }
+  .b2b-grade-spec {
+    font-size: 10px !important;
+    margin-bottom: 14px !important;
+  }
   .b2b-spec-row {
     font-size: 13px !important;
-    padding: 2px 0 !important;
   }
   .b2b-grade-cta {
     font-size: 11px !important;
-    padding: 15px !important;
+    padding: 14px !important;
+    letter-spacing: 1.5px !important;
   }
 
-  /* ── Industries: 2-col grid on mobile ── */
+  /* Industry cards */
   .industry-card {
-    padding: 24px 16px !important;
+    padding: 22px 12px !important;
   }
   .industry-icon {
-    font-size: 28px !important;
-    margin-bottom: 10px !important;
+    font-size: 26px !important;
+    margin-bottom: 8px !important;
   }
   .industry-name {
     font-size: 12px !important;
   }
 
-  /* ── Why cards: clean stacked list ── */
+  /* Why Buyers */
   .why-card {
     padding: 20px 0 !important;
-    border-bottom: 1px solid rgba(255,255,255,.1) !important;
+    border-bottom: 1px solid rgba(255,255,255,.12) !important;
     border-left: none !important;
   }
   .why-title {
-    font-size: 18px !important;
+    font-size: 19px !important;
   }
   .why-desc {
     font-size: 14px !important;
+    line-height: 1.65 !important;
+    color: rgba(245,239,226,.82) !important;
+  }
+
+  /* Export section — stack on mobile */
+  .export-mobile-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+
+  /* Section titles */
+  .sec-title {
+    font-size: clamp(26px, 7.5vw, 40px) !important;
+    line-height: 1.1 !important;
+  }
+  .sec-sub {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+  }
+  .sec-tag {
+    font-size: 10px !important;
+    letter-spacing: 2px !important;
+  }
+
+  /* Process steps */
+  .step-title {
+    font-size: 15px !important;
+  }
+  .step-desc {
+    font-size: 13px !important;
     line-height: 1.6 !important;
   }
 
-  /* ── Section headings: better mobile scale ── */
-  .sec-title {
-    font-size: clamp(28px, 8vw, 40px) !important;
+  /* Grades page cards */
+  .grades-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
   }
-  .sec-sub {
+  .grade-name {
+    font-size: 18px !important;
+  }
+  .grade-desc {
+    font-size: 13px !important;
+  }
+
+  /* Founders */
+  .founder-bio {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+  }
+  .founder-name {
+    font-size: 18px !important;
+  }
+
+  /* Testimonials */
+  .testi-quote {
     font-size: 14px !important;
     line-height: 1.65 !important;
   }
 
-  /* ── Nav: cleaner mobile bar ── */
-  nav .logo {
-    font-size: 15px !important;
+  /* Footer */
+  .footer-brand {
+    font-size: 18px !important;
   }
-  nav .logo span {
-    font-size: 9px !important;
+  .footer-desc {
+    font-size: 13px !important;
+  }
+  .footer-links li a {
+    font-size: 13px !important;
+  }
+  .footer-bottom {
+    font-size: 11px !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    text-align: center !important;
+  }
+
+  /* WhatsApp float — mobile */
+  #waFloat {
+    bottom: 16px !important;
+    right: 16px !important;
+  }
+  #waFloat a {
+    font-size: 11px !important;
+    padding: 12px 16px !important;
+    gap: 8px !important;
+  }
+
+  /* Contact form */
+  .form-row {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .form-card input,
+  .form-card select,
+  .form-card textarea {
+    font-size: 16px !important; /* prevents iOS zoom */
+  }
+
+  /* Shop sidebar */
+  .sidebar-radio {
+    font-size: 15px !important;
+    padding: 8px 0 !important;
+  }
+
+  /* Country tags */
+  .country-tag {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
   }
 }
 
-/* ── Tablet: 2-col grade grid ── */
-@media (max-width: 768px) {
-  .b2b-grade-card {
-    padding: 28px 24px;
+/* Very small screens */
+@media (max-width: 380px) {
+  .hero-content h1 {
+    font-size: 30px !important;
+  }
+  .b2b-grade-code {
+    font-size: 26px !important;
+  }
+  .grades-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 </style>
@@ -631,6 +1053,7 @@
         <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
         <div class="b2b-spec-row"><span>Application</span><span>As per requirement</span></div>
       </div>
+      <div class="b2b-price-tag">Price on Request</div>
       <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
     </div>
 
@@ -644,6 +1067,7 @@
         <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
         <div class="b2b-spec-row"><span>Application</span><span>Export · Premium Retail</span></div>
       </div>
+      <div class="b2b-price-tag">Price on Request</div>
       <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
     </div>
 
@@ -658,6 +1082,7 @@
         <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
         <div class="b2b-spec-row"><span>Application</span><span>Hotels · Bakeries · Export</span></div>
       </div>
+      <div class="b2b-price-tag">Price on Request</div>
       <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
     </div>
 
@@ -672,6 +1097,7 @@
         <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
         <div class="b2b-spec-row"><span>Application</span><span>Wholesale · Retail Chains</span></div>
       </div>
+      <div class="b2b-price-tag">Price on Request</div>
       <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
     </div>
 
@@ -685,6 +1111,7 @@
         <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
         <div class="b2b-spec-row"><span>Application</span><span>Mithai · Bakery · Industrial</span></div>
       </div>
+      <div class="b2b-price-tag">Price on Request</div>
       <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
     </div>
 
@@ -698,6 +1125,7 @@
         <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
         <div class="b2b-spec-row"><span>Application</span><span>Sweets · Namkeen · Cooking</span></div>
       </div>
+      <div class="b2b-price-tag">Price on Request</div>
       <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
     </div>
 
@@ -711,6 +1139,7 @@
         <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
         <div class="b2b-spec-row"><span>Application</span><span>Mithai · Ice Cream · Topping</span></div>
       </div>
+      <div class="b2b-price-tag">Price on Request</div>
       <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
     </div>
 
@@ -724,6 +1153,7 @@
         <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
         <div class="b2b-spec-row"><span>Application</span><span>Industrial · Confectionery</span></div>
       </div>
+      <div class="b2b-price-tag">Price on Request</div>
       <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
     </div>
 
@@ -737,6 +1167,7 @@
         <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
         <div class="b2b-spec-row"><span>Application</span><span>Industrial · Value Segment</span></div>
       </div>
+      <div class="b2b-price-tag">Price on Request</div>
       <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
     </div>
 
@@ -767,7 +1198,7 @@
 
 <!-- EXPORT MARKETS — HOMEPAGE -->
 <section style="padding:60px 5%;background:var(--cream);border-top:1px solid #e8e0d0">
-  <div style="max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center">
+  <div style="max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center" class="export-mobile-grid">
     <div class="fade-up">
       <div class="sec-tag">Global Reach</div>
       <h2 class="sec-title" style="margin:12px 0 16px">Export Quality,<br><em>World Over</em></h2>
@@ -789,23 +1220,23 @@
     </div>
     <div class="fade-up stagger-2" style="text-align:center">
       <div style="background:var(--walnut);padding:40px 32px">
-        <div style="color:var(--gold2);font-size:10px;letter-spacing:3px;margin-bottom:24px">FOB MUNDRA · EXPORT READY</div>
+        <div style="color:var(--gold2);font-size:11px;letter-spacing:2.5px;margin-bottom:24px">FOB MUNDRA · EXPORT READY</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div style="border:1px solid rgba(255,255,255,.15);padding:20px 12px;text-align:center">
-            <div style="color:var(--cream);font-size:28px;font-weight:600;font-family:'Cormorant Garamond',serif">8+</div>
-            <div style="color:rgba(245,239,226,.6);font-size:11px;margin-top:4px">Countries</div>
+          <div style="border:1px solid rgba(255,255,255,.2);padding:20px 12px;text-align:center">
+            <div style="color:var(--cream);font-size:30px;font-weight:600;font-family:'Cormorant Garamond',serif;line-height:1">8+</div>
+            <div style="color:rgba(245,239,226,.82);font-size:12px;margin-top:6px;letter-spacing:.5px">Countries</div>
           </div>
-          <div style="border:1px solid rgba(255,255,255,.15);padding:20px 12px;text-align:center">
-            <div style="color:var(--cream);font-size:28px;font-weight:600;font-family:'Cormorant Garamond',serif">FOB</div>
-            <div style="color:rgba(245,239,226,.6);font-size:11px;margin-top:4px">Mundra Port</div>
+          <div style="border:1px solid rgba(255,255,255,.2);padding:20px 12px;text-align:center">
+            <div style="color:var(--cream);font-size:30px;font-weight:600;font-family:'Cormorant Garamond',serif;line-height:1">FOB</div>
+            <div style="color:rgba(245,239,226,.82);font-size:12px;margin-top:6px;letter-spacing:.5px">Mundra Port</div>
           </div>
-          <div style="border:1px solid rgba(255,255,255,.15);padding:20px 12px;text-align:center">
-            <div style="color:var(--cream);font-size:28px;font-weight:600;font-family:'Cormorant Garamond',serif">20kg</div>
-            <div style="color:rgba(245,239,226,.6);font-size:11px;margin-top:4px">Min. Order</div>
+          <div style="border:1px solid rgba(255,255,255,.2);padding:20px 12px;text-align:center">
+            <div style="color:var(--cream);font-size:30px;font-weight:600;font-family:'Cormorant Garamond',serif;line-height:1">20kg</div>
+            <div style="color:rgba(245,239,226,.82);font-size:12px;margin-top:6px;letter-spacing:.5px">Min. Order</div>
           </div>
-          <div style="border:1px solid rgba(255,255,255,.15);padding:20px 12px;text-align:center">
-            <div style="color:var(--cream);font-size:28px;font-weight:600;font-family:'Cormorant Garamond',serif">9+</div>
-            <div style="color:rgba(245,239,226,.6);font-size:11px;margin-top:4px">Grade Types</div>
+          <div style="border:1px solid rgba(255,255,255,.2);padding:20px 12px;text-align:center">
+            <div style="color:var(--cream);font-size:30px;font-weight:600;font-family:'Cormorant Garamond',serif;line-height:1">9+</div>
+            <div style="color:rgba(245,239,226,.82);font-size:12px;margin-top:6px;letter-spacing:.5px">Grade Types</div>
           </div>
         </div>
       </div>
@@ -902,7 +1333,7 @@
     </div>
     <div>
       <div class="footer-title">Stay Updated</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7;margin-bottom:16px;font-weight:300;">Get cashew market updates, seasonal pricing &amp; export news.</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.7;margin-bottom:16px;font-weight:300;font-size:13px;">Get cashew market updates, seasonal pricing &amp; export news.</p>
       <div class="footer-newsletter">
         <div class="footer-nl-row">
           <input type="email" class="footer-nl-input" placeholder="Your email address">
@@ -915,7 +1346,7 @@
           <li><a href="tel:+917568577968">+91 75685 77968</a></li>
           <li><a href="tel:+919950062186">+91 99500 62186</a></li>
           <li><a href="mailto:info@jaishreecashew.com">info@jaishreecashew.com</a></li>
-          <li style="color:rgba(255,255,255,0.3);font-size:12px;cursor:default">B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801</li>
+          <li style="color:rgba(255,255,255,0.62);font-size:13px;cursor:default">B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801</li>
         </ul>
       </div>
     </div>
@@ -1290,7 +1721,7 @@
           </div>
           <div class="form-row">
             <div class="form-group"><label>Email Address</label><input type="email" id="femail" placeholder="email@company.com"></div>
-            <div class="form-group"><label>Enquiry Type</label><select id="ftype"><option>Domestic Wholesale</option><option>Export Order</option><option>Retail Purchase</option><option>General Enquiry</option></select></div>
+            <div class="form-group"><label>Enquiry Type</label><select id="ftype"><option>Domestic Wholesale</option><option>Export Order</option><option>Sample Request</option><option>Private Label</option><option>Retail Purchase</option><option>General Enquiry</option></select></div>
           </div>
           <div class="form-row">
             <div class="form-group"><label>Grade Required</label><select id="fgrade"><option>W180 — Jumbo Whole</option><option>W210 — Extra Large Whole</option><option>W240 — Large Whole</option><option>W320 — Classic Whole</option><option>Splits — 2 Pcs</option><option>Tukdi — 4 Pcs</option><option>Small Tukdi — 6–8 Pcs</option><option>Baby Bits — 16–32 Pcs</option><option>Scorched Wholes</option><option>Mixed / Multiple Grades</option><option>Not Sure — Need Guidance</option></select></div>
@@ -1350,7 +1781,7 @@
     </div>
     <div>
       <div class="footer-title">Stay Updated</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7;margin-bottom:16px;font-weight:300;">Get cashew market updates, seasonal pricing &amp; export news.</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.7;margin-bottom:16px;font-weight:300;font-size:13px;">Get cashew market updates, seasonal pricing &amp; export news.</p>
       <div class="footer-newsletter">
         <div class="footer-nl-row">
           <input type="email" class="footer-nl-input" placeholder="Your email address">
@@ -1363,7 +1794,7 @@
           <li><a href="tel:+917568577968">+91 75685 77968</a></li>
           <li><a href="tel:+919950062186">+91 99500 62186</a></li>
           <li><a href="mailto:info@jaishreecashew.com">info@jaishreecashew.com</a></li>
-          <li style="color:rgba(255,255,255,0.3);font-size:12px;cursor:default">B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801</li>
+          <li style="color:rgba(255,255,255,0.62);font-size:13px;cursor:default">B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801</li>
         </ul>
       </div>
     </div>
