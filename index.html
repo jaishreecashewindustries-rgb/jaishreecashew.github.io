@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <!-- Hash-based routing: no server config or head scripts needed -->
 <meta name="format-detection" content="telephone=no, email=no, address=no">
-<title>Jai Shree Cashew Industries — Premium Cashew Kernels</title>
-<meta name="description" content="India's finest cashew processor. W180, W240, W320 grades. Export quality from Kaladera, Jaipur, Rajasthan.">
+<title>Jai Shree Cashew Industries — Premium Cashew Kernel Manufacturer & Bulk Supplier</title>
+<meta name="description" content="Premium cashew kernel manufacturer from Kaladera, Jaipur. W180, W210, W240, W320 export-quality grades. Factory-direct bulk supply for wholesalers, distributors & importers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -188,12 +188,325 @@
     if(typeof window.onAuthChange === 'function') window.onAuthChange(user);
   });
 </script>
+<style>
+/* ══════════════════════════════════════════════════
+   B2B REPOSITIONING + MOBILE UX — Surgical Additions
+   ══════════════════════════════════════════════════ */
+
+/* ── B2B Grade Cards ── */
+.b2b-grade-card {
+  background: #fff;
+  border: 1px solid #e8e0d0;
+  padding: 32px 28px;
+  position: relative;
+  transition: box-shadow .25s, transform .25s;
+}
+.b2b-grade-card:hover {
+  box-shadow: 0 8px 40px rgba(0,0,0,.1);
+  transform: translateY(-3px);
+}
+.b2b-grade-badge {
+  position: absolute;
+  top: -1px;
+  right: 24px;
+  background: var(--gold2, #c9922f);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  padding: 5px 12px;
+}
+.b2b-grade-code {
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 38px;
+  font-weight: 500;
+  color: var(--walnut, #3b2f1e);
+  line-height: 1;
+  margin-bottom: 6px;
+  letter-spacing: -1px;
+}
+.b2b-grade-name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--walnut, #3b2f1e);
+  margin-bottom: 4px;
+}
+.b2b-grade-spec {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--gold2, #c9922f);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.b2b-grade-divider {
+  height: 1px;
+  background: #e8e0d0;
+  margin-bottom: 20px;
+}
+.b2b-grade-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.b2b-spec-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-soft, #6b5c46);
+}
+.b2b-spec-row span:first-child {
+  font-weight: 500;
+  color: var(--walnut, #3b2f1e);
+}
+.b2b-grade-cta {
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--walnut, #3b2f1e);
+  border: 1px solid var(--walnut, #3b2f1e);
+  padding: 12px 20px;
+  text-decoration: none;
+  transition: background .2s, color .2s;
+}
+.b2b-grade-cta:hover {
+  background: var(--walnut, #3b2f1e);
+  color: #fff;
+}
+
+/* ── Industry Cards ── */
+.industry-card {
+  background: var(--cream, #f5efe2);
+  border: 1px solid #e8e0d0;
+  padding: 32px 20px;
+  text-align: center;
+  transition: box-shadow .2s;
+}
+.industry-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,.08);
+}
+.industry-icon {
+  font-size: 32px;
+  margin-bottom: 14px;
+}
+.industry-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--walnut, #3b2f1e);
+  letter-spacing: .5px;
+  line-height: 1.4;
+}
+
+/* ── Why Buyers Cards ── */
+.why-card {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+@media(min-width:768px) {
+  .why-card {
+    border-bottom: none;
+    border-left: 2px solid rgba(255,255,255,.15);
+    padding: 8px 24px;
+  }
+}
+.why-num {
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--gold2, #c9922f);
+  margin-bottom: 10px;
+}
+.why-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--cream, #f5efe2);
+  margin-bottom: 10px;
+}
+.why-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(245,239,226,.65);
+  font-weight: 300;
+}
+
+/* ══════════════════════════════════════════════════
+   MOBILE-FIRST B2B UX IMPROVEMENTS
+   ══════════════════════════════════════════════════ */
+
+/* ── Announcement bar — smaller, cleaner on mobile ── */
+@media (max-width: 640px) {
+  .ann-bar {
+    font-size: 9px !important;
+    letter-spacing: 1px !important;
+    padding: 8px 12px !important;
+  }
+
+  /* ── Hero: cleaner text zone, readable hierarchy ── */
+  .hero-content {
+    padding: 0 20px 60px !important;
+    max-width: 100% !important;
+  }
+  .hero-badge {
+    font-size: 9px !important;
+    letter-spacing: 1.5px !important;
+    margin-bottom: 16px !important;
+  }
+  .hero-content h1 {
+    font-size: clamp(36px, 10vw, 56px) !important;
+    line-height: 1.1 !important;
+    margin-bottom: 16px !important;
+  }
+  .hero-sub {
+    font-size: 14px !important;
+    line-height: 1.65 !important;
+    max-width: 100% !important;
+    margin-bottom: 20px !important;
+    opacity: .9 !important;
+  }
+  .hero-trust {
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 24px !important;
+  }
+  .hero-trust-item {
+    font-size: 9px !important;
+    padding: 6px 12px !important;
+    letter-spacing: 1px !important;
+  }
+  .hero-btns {
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: flex-start !important;
+  }
+  .hero-btns .btn-gold,
+  .hero-btns .btn-outline {
+    font-size: 11px !important;
+    padding: 16px 28px !important;
+    letter-spacing: 1.5px !important;
+    width: 100% !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── Stats: cleaner 2x2 grid ── */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1px !important;
+  }
+  .stat-item {
+    padding: 28px 16px !important;
+  }
+  .stat-num {
+    font-size: 36px !important;
+    margin-bottom: 6px !important;
+  }
+  .stat-label {
+    font-size: 11px !important;
+    letter-spacing: .5px !important;
+  }
+
+  /* ── Trust strip: stacked, readable ── */
+  .trust-strip-inner {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+  .trust-item {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(0,0,0,.06) !important;
+    padding: 16px 20px !important;
+    flex-direction: row !important;
+    text-align: left !important;
+    gap: 14px !important;
+  }
+  .trust-label {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+  .trust-label strong {
+    display: block !important;
+    font-size: 13px !important;
+  }
+
+  /* ── B2B Grade cards mobile ── */
+  .b2b-grade-card {
+    padding: 28px 22px !important;
+  }
+  .b2b-grade-code {
+    font-size: 32px !important;
+  }
+  .b2b-grade-name {
+    font-size: 16px !important;
+  }
+  .b2b-spec-row {
+    font-size: 13px !important;
+    padding: 2px 0 !important;
+  }
+  .b2b-grade-cta {
+    font-size: 11px !important;
+    padding: 15px !important;
+  }
+
+  /* ── Industries: 2-col grid on mobile ── */
+  .industry-card {
+    padding: 24px 16px !important;
+  }
+  .industry-icon {
+    font-size: 28px !important;
+    margin-bottom: 10px !important;
+  }
+  .industry-name {
+    font-size: 12px !important;
+  }
+
+  /* ── Why cards: clean stacked list ── */
+  .why-card {
+    padding: 20px 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,.1) !important;
+    border-left: none !important;
+  }
+  .why-title {
+    font-size: 18px !important;
+  }
+  .why-desc {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+
+  /* ── Section headings: better mobile scale ── */
+  .sec-title {
+    font-size: clamp(28px, 8vw, 40px) !important;
+  }
+  .sec-sub {
+    font-size: 14px !important;
+    line-height: 1.65 !important;
+  }
+
+  /* ── Nav: cleaner mobile bar ── */
+  nav .logo {
+    font-size: 15px !important;
+  }
+  nav .logo span {
+    font-size: 9px !important;
+  }
+}
+
+/* ── Tablet: 2-col grade grid ── */
+@media (max-width: 768px) {
+  .b2b-grade-card {
+    padding: 28px 24px;
+  }
+}
+</style>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <!-- Announcement Bar -->
-<div class="ann-bar">✦ EXPORT QUALITY CASHEW KERNELS FROM KALADERA, JAIPUR ✦ W180 · W240 · W320 ✦ BULK & WHOLESALE ENQUIRIES WELCOME ✦</div>
+<div class="ann-bar">✦ PREMIUM CASHEW KERNEL MANUFACTURER · KALADERA, JAIPUR ✦ W180 · W210 · W240 · W320 ✦ FACTORY-DIRECT BULK SUPPLY FOR WHOLESALERS & EXPORTERS ✦</div>
 
 <!-- Navbar -->
 <nav>
@@ -201,10 +514,10 @@
     <a href="#home" class="logo">Jai Shree Cashew<span>Industries · Est. 2016</span></a>
     <ul class="nav-links">
       <li><a href="#" onclick="showPage('home');return false;" class="nav-page-link active" data-page="home">HOME</a></li>
-      <li><a href="#" onclick="showPage('shop');return false;" class="nav-page-link" data-page="shop">SHOP</a></li>
       <li><a href="#" onclick="showPage('grades');return false;" class="nav-page-link" data-page="grades">GRADES</a></li>
+      <li><a href="#" onclick="showPage('shop');return false;" class="nav-page-link" data-page="shop">ORDER</a></li>
       <li><a href="#" onclick="showPage('about');return false;" class="nav-page-link" data-page="about">ABOUT</a></li>
-      <li><a href="#" onclick="showPage('contact');return false;" class="nav-cta nav-page-link" data-page="contact">ENQUIRE NOW</a></li>
+      <li><a href="#" onclick="showPage('contact');return false;" class="nav-cta nav-page-link" data-page="contact">BULK ENQUIRY</a></li>
     </ul>
     <div class="nav-icons">
       <!-- Search -->
@@ -244,8 +557,8 @@
     <a class="mob-secondary" href="#" onclick="showPage('returns');toggleMobile();return false;">Return Policy</a>
     <a class="mob-cta" href="#" onclick="showPage('contact');toggleMobile();return false;">✦ &nbsp;GET A QUOTE</a>
     <div class="mob-contact">
-      📍 RIICO Industrial Area, Kaladera, Jaipur<br>
-      📞 +91 75685 77968 &nbsp;·&nbsp; GSTIN: 08ADJPP5115H1ZH
+      📍 B-1 RIICO Industrial Area, Kaladera, Jaipur<br>
+      📞 +91 75685 77968  ·  +91 99500 62186 &nbsp;·&nbsp; GSTIN: 08ADJPP5115H1ZH
     </div>
   </div>
 </div>
@@ -270,18 +583,18 @@
 
   <!-- Content — anchored bottom-left, text-safe zone -->
   <div class="hero-content">
-    <div class="hero-badge">EST. 2016 · KALADERA, JAIPUR</div>
-    <h1>India's Finest<br><em>Cashew Kernels</em></h1>
-    <p class="hero-sub">Premium W180 · W240 · W320 grades processed with international standards. Trusted by 500+ buyers across India and beyond.</p>
+    <div class="hero-badge">MANUFACTURER · KALADERA, JAIPUR · EST. 2016</div>
+    <h1>Premium Cashew<br><em>Kernel Manufacturer</em></h1>
+    <p class="hero-sub">Leading cashew kernel manufacturer from Jaipur — factory-direct W180 · W210 · W240 · W320 · Splits · Tukdi · Scorched Wholes &amp; more. Supplying 2000+ wholesalers, distributors, importers &amp; private label buyers across India and 8+ export markets.</p>
     <div class="hero-trust">
       <div class="hero-trust-item">FSSAI Certified</div>
       <div class="hero-trust-item">Vacuum Packed</div>
-      <div class="hero-trust-item">Export Quality</div>
-      <div class="hero-trust-item">Free Delivery ₹2000+</div>
+      <div class="hero-trust-item">Export Ready · FOB Mundra</div>
+      <div class="hero-trust-item">Factory Direct</div>
     </div>
     <div class="hero-btns">
-      <a href="#" onclick="showPage('shop');return false;" class="btn-gold">SHOP NOW →</a>
-      <a href="#" onclick="showPage('contact');return false;" class="btn-outline">GET BULK QUOTE</a>
+      <a href="#" onclick="showPage('contact');return false;" class="btn-gold">REQUEST BULK QUOTE →</a>
+      <a href="#" onclick="showPage('grades');return false;" class="btn-outline">VIEW KERNEL GRADES</a>
     </div>
   </div>
 
@@ -293,63 +606,220 @@
 <!-- STATS -->
 <div class="stats">
   <div class="stats-grid">
-    <div class="stat-item fade-up"><div class="stat-num">12+</div><div class="stat-label">Years of Excellence</div></div>
-    <div class="stat-item fade-up stagger-1"><div class="stat-num">50+</div><div class="stat-label">Cashew Grades</div></div>
-    <div class="stat-item fade-up stagger-2"><div class="stat-num">500+</div><div class="stat-label">Happy Clients</div></div>
-    <div class="stat-item fade-up stagger-3"><div class="stat-num">8</div><div class="stat-label">Export Countries</div></div>
+    <div class="stat-item fade-up"><div class="stat-num">12+</div><div class="stat-label">Year Processing Best Quality Cashew Kernels</div></div>
+    <div class="stat-item fade-up stagger-1"><div class="stat-num">2000+</div><div class="stat-label">Wholesalers &amp; Distributors Served</div></div>
+    <div class="stat-item fade-up stagger-2"><div class="stat-num">8+</div><div class="stat-label">Export Countries</div></div>
+    <div class="stat-item fade-up stagger-3"><div class="stat-num">20 KG</div><div class="stat-label">Min. Bulk Supply</div></div>
   </div>
 </div>
 
 <!-- TRUST STRIP -->
 <div class="trust-strip">
   <div class="trust-strip-inner">
-    <div class="trust-item"><div class="trust-icon">🏅</div><div class="trust-label"><strong>FSSAI Certified</strong>Lic. No. 1203500000XXXXX</div></div>
-    <div class="trust-item"><div class="trust-icon">🌍</div><div class="trust-label"><strong>Export Quality</strong>FOB Mundra Ready</div></div>
+    <div class="trust-item"><div class="trust-icon">🏅</div><div class="trust-label"><strong>FSSAI Certified</strong>Food Safety Compliant</div></div>
+    <div class="trust-item"><div class="trust-icon">🌍</div><div class="trust-label"><strong>Export Ready</strong>FOB Mundra · 8+ Markets</div></div>
+    <div class="trust-item"><div class="trust-icon">🏭</div><div class="trust-label"><strong>RIICO Facility</strong>Kaladera, Jaipur</div></div>
     <div class="trust-item"><div class="trust-icon">📦</div><div class="trust-label"><strong>Vacuum Packed</strong>12-Month Shelf Life</div></div>
-    <div class="trust-item"><div class="trust-icon">🚚</div><div class="trust-label"><strong>Free Delivery</strong>On Orders ₹2000+</div></div>
-    <div class="trust-item"><div class="trust-icon">🌿</div><div class="trust-label"><strong>100% Natural</strong>No Preservatives</div></div>
+    <div class="trust-item"><div class="trust-icon">🌿</div><div class="trust-label"><strong>Factory Direct</strong>No Middlemen</div></div>
   </div>
 </div>
 
-<!-- FEATURED PRODUCTS ON HOME -->
-<section style="padding:60px 5%;">
-  <div style="text-align:center;margin-bottom:40px">
-    <div class="sec-tag fade-up">Our Products</div>
-    <h2 class="sec-title fade-up">Featured <em>Selections</em></h2>
+<!-- KERNEL GRADES SHOWCASE — B2B SPEC FOCUSED -->
+<section style="padding:80px 5%;background:var(--cream)">
+  <div style="text-align:center;margin-bottom:50px">
+    <div class="sec-tag fade-up">Factory-Direct Supply</div>
+    <h2 class="sec-title fade-up">Our Kernel <em>Grades</em></h2>
     <div class="divider fade-up" style="margin:20px auto"></div>
+    <p class="sec-sub fade-up" style="max-width:580px;margin:0 auto">Export-quality whole &amp; processed cashew kernels from our RIICO facility, Kaladera. All grades available for bulk orders, private label, and FOB export. Min. order 20 kg.</p>
   </div>
-  <div class="products-grid" id="featuredProductsGrid"></div>
-  <div style="text-align:center;margin-top:40px">
-    <a href="#" onclick="showPage('shop');return false;" class="btn-gold">VIEW ALL PRODUCTS</a>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:1200px;margin:0 auto">
+
+    <div class="b2b-grade-card fade-up">
+      <div class="b2b-grade-badge">PREMIUM</div>
+      <div class="b2b-grade-code">W180</div>
+      <div class="b2b-grade-name">Jumbo Whole</div>
+      <div class="b2b-grade-spec">180 kernels/lb · Largest grade</div>
+      <div class="b2b-grade-divider"></div>
+      <div class="b2b-grade-specs">
+        <div class="b2b-spec-row"><span>Packaging</span><span>Vacuum Tin / Poly</span></div>
+        <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
+        <div class="b2b-spec-row"><span>Application</span><span>As per requirement</span></div>
+      </div>
+      <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
+    </div>
+
+    <div class="b2b-grade-card fade-up stagger-1">
+      <div class="b2b-grade-code">W210</div>
+      <div class="b2b-grade-name">Extra Large Whole</div>
+      <div class="b2b-grade-spec">210 kernels/lb · Premium export</div>
+      <div class="b2b-grade-divider"></div>
+      <div class="b2b-grade-specs">
+        <div class="b2b-spec-row"><span>Packaging</span><span>Vacuum Tin / Poly</span></div>
+        <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
+        <div class="b2b-spec-row"><span>Application</span><span>Export · Premium Retail</span></div>
+      </div>
+      <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
+    </div>
+
+    <div class="b2b-grade-card fade-up stagger-2">
+      <div class="b2b-grade-badge">BESTSELLER</div>
+      <div class="b2b-grade-code">W240</div>
+      <div class="b2b-grade-name">Large Whole</div>
+      <div class="b2b-grade-spec">240 kernels/lb · Hotel &amp; bakery</div>
+      <div class="b2b-grade-divider"></div>
+      <div class="b2b-grade-specs">
+        <div class="b2b-spec-row"><span>Packaging</span><span>Vacuum Tin / Poly</span></div>
+        <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
+        <div class="b2b-spec-row"><span>Application</span><span>Hotels · Bakeries · Export</span></div>
+      </div>
+      <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
+    </div>
+
+    <div class="b2b-grade-card fade-up stagger-3">
+      <div class="b2b-grade-badge">HIGH VOLUME</div>
+      <div class="b2b-grade-code">W320</div>
+      <div class="b2b-grade-name">Classic Whole</div>
+      <div class="b2b-grade-spec">320 kernels/lb · Industry standard</div>
+      <div class="b2b-grade-divider"></div>
+      <div class="b2b-grade-specs">
+        <div class="b2b-spec-row"><span>Packaging</span><span>Vacuum Tin / 25kg Bag</span></div>
+        <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
+        <div class="b2b-spec-row"><span>Application</span><span>Wholesale · Retail Chains</span></div>
+      </div>
+      <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
+    </div>
+
+    <div class="b2b-grade-card fade-up">
+      <div class="b2b-grade-code" style="font-size:28px">Splits</div>
+      <div class="b2b-grade-name">Split Kernels</div>
+      <div class="b2b-grade-spec">2 pcs · Broken halves</div>
+      <div class="b2b-grade-divider"></div>
+      <div class="b2b-grade-specs">
+        <div class="b2b-spec-row"><span>Packaging</span><span>Vacuum Poly Bag</span></div>
+        <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
+        <div class="b2b-spec-row"><span>Application</span><span>Mithai · Bakery · Industrial</span></div>
+      </div>
+      <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
+    </div>
+
+    <div class="b2b-grade-card fade-up stagger-1">
+      <div class="b2b-grade-code" style="font-size:24px">Tukdi</div>
+      <div class="b2b-grade-name">Tukdi — 4 Pieces</div>
+      <div class="b2b-grade-spec">4 pcs · Quarter pieces</div>
+      <div class="b2b-grade-divider"></div>
+      <div class="b2b-grade-specs">
+        <div class="b2b-spec-row"><span>Packaging</span><span>Vacuum Poly Bag</span></div>
+        <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
+        <div class="b2b-spec-row"><span>Application</span><span>Sweets · Namkeen · Cooking</span></div>
+      </div>
+      <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
+    </div>
+
+    <div class="b2b-grade-card fade-up stagger-2">
+      <div class="b2b-grade-code" style="font-size:20px">Small Tukdi</div>
+      <div class="b2b-grade-name">Small Tukdi</div>
+      <div class="b2b-grade-spec">6–8 pcs · Fine pieces</div>
+      <div class="b2b-grade-divider"></div>
+      <div class="b2b-grade-specs">
+        <div class="b2b-spec-row"><span>Packaging</span><span>Vacuum Poly Bag</span></div>
+        <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
+        <div class="b2b-spec-row"><span>Application</span><span>Mithai · Ice Cream · Topping</span></div>
+      </div>
+      <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
+    </div>
+
+    <div class="b2b-grade-card fade-up stagger-3">
+      <div class="b2b-grade-code" style="font-size:20px">Baby Bits</div>
+      <div class="b2b-grade-name">Baby Bits</div>
+      <div class="b2b-grade-spec">16–32 pcs · Finest bits</div>
+      <div class="b2b-grade-divider"></div>
+      <div class="b2b-grade-specs">
+        <div class="b2b-spec-row"><span>Packaging</span><span>Vacuum Poly Bag</span></div>
+        <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
+        <div class="b2b-spec-row"><span>Application</span><span>Industrial · Confectionery</span></div>
+      </div>
+      <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
+    </div>
+
+    <div class="b2b-grade-card fade-up">
+      <div class="b2b-grade-code" style="font-size:20px">Scorched</div>
+      <div class="b2b-grade-name">Scorched Wholes</div>
+      <div class="b2b-grade-spec">Whole · Heat-processed grade</div>
+      <div class="b2b-grade-divider"></div>
+      <div class="b2b-grade-specs">
+        <div class="b2b-spec-row"><span>Packaging</span><span>Poly Bag</span></div>
+        <div class="b2b-spec-row"><span>MOQ Bulk</span><span>20 kg</span></div>
+        <div class="b2b-spec-row"><span>Application</span><span>Industrial · Value Segment</span></div>
+      </div>
+      <a href="#" onclick="showPage('contact');return false;" class="b2b-grade-cta">REQUEST QUOTE →</a>
+    </div>
+
+  </div>
+  <div style="text-align:center;margin-top:48px">
+    <a href="#" onclick="showPage('grades');return false;" class="btn-gold">VIEW ALL GRADES &amp; SPECIFICATIONS</a>
   </div>
 </section>
 
-<!-- GRADES PREVIEW ON HOME -->
-<section style="padding:60px 5%;background:var(--walnut)">
-  <div style="text-align:center;margin-bottom:40px">
-    <div class="sec-tag fade-up" style="color:var(--gold2)">Our Grades</div>
-    <h2 class="sec-title fade-up" style="color:var(--cream)">Premium <em>Grades</em></h2>
+<!-- INDUSTRIES SERVED -->
+<section style="padding:80px 5%;background:#fff">
+  <div style="text-align:center;margin-bottom:50px">
+    <div class="sec-tag fade-up">Who We Supply</div>
+    <h2 class="sec-title fade-up">Industries <em>We Serve</em></h2>
     <div class="divider fade-up" style="margin:20px auto"></div>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:960px;margin:0 auto">
-    <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:32px 24px;text-align:center;cursor:pointer" onclick="showPage('grades')">
-      <div style="color:var(--gold2);font-size:11px;letter-spacing:2px;margin-bottom:8px">GRADE · W180</div>
-      <div style="color:var(--cream);font-size:20px;font-weight:600;margin-bottom:12px">Jumbo Whole</div>
-      <p style="color:rgba(245,239,226,.7);font-size:13px;line-height:1.6">180 kernels/lb — luxury confectionery grade</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;max-width:960px;margin:0 auto">
+    <div class="industry-card fade-up"><div class="industry-icon">🏪</div><div class="industry-name">Wholesalers &amp; Distributors</div></div>
+    <div class="industry-card fade-up stagger-1"><div class="industry-icon">🚢</div><div class="industry-name">Importers &amp; Exporters</div></div>
+    <div class="industry-card fade-up stagger-2"><div class="industry-icon">🏨</div><div class="industry-name">Hotels &amp; Hospitality</div></div>
+    <div class="industry-card fade-up stagger-3"><div class="industry-icon">🍰</div><div class="industry-name">Bakeries &amp; Confectionery</div></div>
+    <div class="industry-card fade-up stagger-4"><div class="industry-icon">🏷️</div><div class="industry-name">Private Label Brands</div></div>
+    <div class="industry-card fade-up"><div class="industry-icon">🏭</div><div class="industry-name">Food Manufacturers</div></div>
+    <div class="industry-card fade-up stagger-1"><div class="industry-icon">🛒</div><div class="industry-name">Retail Chains</div></div>
+    <div class="industry-card fade-up stagger-2"><div class="industry-icon">🎁</div><div class="industry-name">Gift &amp; Hamper Brands</div></div>
+  </div>
+</section>
+
+<!-- WHY BUYERS CHOOSE US -->
+<section style="padding:80px 5%;background:var(--walnut)">
+  <div style="text-align:center;margin-bottom:50px">
+    <div class="sec-tag fade-up" style="color:var(--gold2)">Our Advantage</div>
+    <h2 class="sec-title fade-up" style="color:var(--cream)">Why Buyers <em>Choose Us</em></h2>
+    <div class="divider fade-up" style="margin:20px auto"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;max-width:1000px;margin:0 auto">
+    <div class="why-card fade-up">
+      <div class="why-num">01</div>
+      <div class="why-title">Factory-Direct Pricing</div>
+      <p class="why-desc">No intermediaries. You deal directly with our processing unit — ensuring the best price and transparent supply chain.</p>
     </div>
-    <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:32px 24px;text-align:center;cursor:pointer" onclick="showPage('grades')">
-      <div style="color:var(--gold2);font-size:11px;letter-spacing:2px;margin-bottom:8px">GRADE · W240</div>
-      <div style="color:var(--cream);font-size:20px;font-weight:600;margin-bottom:12px">Large Whole</div>
-      <p style="color:rgba(245,239,226,.7);font-size:13px;line-height:1.6">Premium hotel and bakery grade</p>
+    <div class="why-card fade-up stagger-1">
+      <div class="why-num">02</div>
+      <div class="why-title">Consistent Grading & QC</div>
+      <p class="why-desc">Precision grading by trained specialists ensures every shipment meets your exact size, moisture, and color specifications.</p>
     </div>
-    <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:32px 24px;text-align:center;cursor:pointer" onclick="showPage('grades')">
-      <div style="color:var(--gold2);font-size:11px;letter-spacing:2px;margin-bottom:8px">GRADE · W320</div>
-      <div style="color:var(--cream);font-size:20px;font-weight:600;margin-bottom:12px">Classic Whole</div>
-      <p style="color:rgba(245,239,226,.7);font-size:13px;line-height:1.6">Industry standard retail and bulk export</p>
+    <div class="why-card fade-up stagger-2">
+      <div class="why-num">03</div>
+      <div class="why-title">Export-Ready Packaging</div>
+      <p class="why-desc">Vacuum-sealed tin and poly bag packing meeting international standards. FOB Mundra shipments available.</p>
+    </div>
+    <div class="why-card fade-up stagger-3">
+      <div class="why-num">04</div>
+      <div class="why-title">Reliable Supply Volume</div>
+      <p class="why-desc">12+ years of consistent manufacturing capacity. We maintain ready stock across all major grades year-round.</p>
+    </div>
+    <div class="why-card fade-up stagger-4">
+      <div class="why-num">05</div>
+      <div class="why-title">Private Label Support</div>
+      <p class="why-desc">Custom packaging and branding available for your label. Minimum quantities apply — contact us for details.</p>
+    </div>
+    <div class="why-card fade-up">
+      <div class="why-num">06</div>
+      <div class="why-title">FSSAI Certified Facility</div>
+      <p class="why-desc">Our RIICO Industrial Area facility operates under full food safety compliance — audit-ready for any buyer requirements.</p>
     </div>
   </div>
-  <div style="text-align:center;margin-top:40px">
-    <a href="#" onclick="showPage('grades');return false;" style="color:var(--gold2);font-size:11px;letter-spacing:2px;border:1px solid var(--gold2);padding:14px 32px;display:inline-block">EXPLORE ALL GRADES</a>
+  <div style="text-align:center;margin-top:48px">
+    <a href="#" onclick="showPage('contact');return false;" style="color:var(--gold2);font-size:11px;letter-spacing:2px;border:1px solid var(--gold2);padding:16px 40px;display:inline-block">BECOME A BUYER →</a>
   </div>
 </section>
 
@@ -358,7 +828,7 @@
   <div class="footer-grid">
     <div>
       <div class="footer-brand">Jai Shree Cashew <span>Industries</span></div>
-      <p class="footer-desc">India's premium cashew kernel processor and exporter from Kaladera, Jaipur, Rajasthan. Serving 500+ domestic and international buyers since 2016.</p>
+      <p class="footer-desc">Premium cashew kernel manufacturer and bulk supplier from Kaladera, Jaipur, Rajasthan. Factory-direct supply for wholesalers, distributors, importers &amp; private label buyers since 2016.</p>
       <div class="footer-social">
         <a href="https://wa.me/917568577968" target="_blank" title="WhatsApp">💬</a>
         <a href="mailto:info@jaishreecashew.com" title="Email">✉</a>
@@ -410,14 +880,15 @@
         <div class="footer-title" style="margin-bottom:12px">Contact</div>
         <ul class="footer-links">
           <li><a href="tel:+917568577968">+91 75685 77968</a></li>
+          <li><a href="tel:+919950062186">+91 99500 62186</a></li>
           <li><a href="mailto:info@jaishreecashew.com">info@jaishreecashew.com</a></li>
-          <li style="color:rgba(255,255,255,0.3);font-size:12px;cursor:default">G1-160 RIICO, Kaladera, Jaipur</li>
+          <li style="color:rgba(255,255,255,0.3);font-size:12px;cursor:default">B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801</li>
         </ul>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2025 Jai Shree Cashew Industries. All rights reserved.</span>
+    <span>© 2026 Jai Shree Cashew Industries. All rights reserved.</span>
     <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH · Kaladera, Jaipur — 303801</span>
   </div>
 </footer>
@@ -426,10 +897,10 @@
 <div id="page-grades" class="page-section">
 <!-- SIGNATURE GRADES -->
 <section id="grades" class="grades">
-  <div class="sec-tag fade-up">Our Signature Grades</div>
-  <h2 class="sec-title fade-up">The Gold Standard in<br><em>Cashew Kernels</em></h2>
+  <div class="sec-tag fade-up">Manufacturing Standards</div>
+  <h2 class="sec-title fade-up">Export-Quality Kernel<br><em>Grade Specifications</em></h2>
   <div class="divider fade-up"></div>
-  <p class="sec-sub fade-up">Each grade is carefully processed, graded, and quality-checked at our RIICO facility in Kaladera, ensuring international export standards.</p>
+  <p class="sec-sub fade-up">All grades are precision-processed at our RIICO Industrial Area facility in Kaladera, Jaipur — meeting international food safety and export standards. Available for bulk orders, private label, and FOB Mundra shipments.</p>
   <div class="grades-grid">
     <div class="grade-card fade-up">
       <div class="grade-badge">PREMIUM</div>
@@ -464,23 +935,23 @@
 
 <!-- SHOP PROMO STRIP -->
 <div class="shop-promo-strip">
-  <div class="shop-promo-item">🚚 Free Delivery on orders ₹2000+</div>
+  <div class="shop-promo-item">🏭 Factory-Direct from Kaladera, Jaipur</div>
   <div class="shop-promo-sep">✦</div>
   <div class="shop-promo-item">✅ FSSAI Certified · Vacuum Packed</div>
   <div class="shop-promo-sep">✦</div>
-  <div class="shop-promo-item">🏭 Direct from Kaladera Factory</div>
+  <div class="shop-promo-item">📦 Bulk Orders Welcome · MOQ 25kg+</div>
   <div class="shop-promo-sep">✦</div>
-  <div class="shop-promo-item">⭐ 500+ Happy Customers</div>
+  <div class="shop-promo-item">🌍 Export Ready · FOB Mundra</div>
 </div>
 
 <!-- SHOP HERO BANNER -->
 <div class="shop-hero-banner">
   <div class="shop-hero-content">
-    <div class="shop-hero-tag">EXPORT QUALITY · EST. 2016</div>
-    <h1 class="shop-hero-title">Premium <em>Cashew Kernels</em><br>from Kaladera, Jaipur</h1>
-    <p class="shop-hero-sub">W180 · W240 · W320 · Roasted — Direct from our RIICO facility. Best prices guaranteed.</p>
+    <div class="shop-hero-tag">MANUFACTURER · EST. 2016 · RIICO KALADERA</div>
+    <h1 class="shop-hero-title">Premium <em>Cashew Kernels</em><br>Factory-Direct Supply</h1>
+    <p class="shop-hero-sub">W180 · W210 · W240 · W320 · Splits · Tukdi · Small Tukdi · Baby Bits · Scorched Wholes — Export-quality grades from our Kaladera processing unit. Wholesale, bulk, and private label orders welcome. Min. order 20 kg.</p>
     <div class="shop-hero-btns">
-      <button class="shop-hero-btn-primary" onclick="document.getElementById('shopGrid').scrollIntoView({behavior:'smooth'})">SHOP NOW</button>
+      <button class="shop-hero-btn-primary" onclick="document.getElementById('shopGrid').scrollIntoView({behavior:'smooth'})">BROWSE GRADES</button>
       <a href="https://wa.me/917568577968?text=Hello%2C+I+want+bulk+cashew+pricing." target="_blank" class="shop-hero-btn-outline">💬 BULK ENQUIRY</a>
     </div>
   </div>
@@ -581,12 +1052,12 @@
 <!-- PROCESS -->
 <section id="process" class="process">
   <div style="text-align:center">
-    <div class="sec-tag fade-up">Farm to Table</div>
-    <h2 class="sec-title fade-up" style="text-align:center">Our <em>Process</em></h2>
+    <div class="sec-tag fade-up">Manufacturing Process</div>
+    <h2 class="sec-title fade-up" style="text-align:center">From Raw Nut to<br><em>Export-Grade Kernel</em></h2>
     <div class="divider fade-up" style="margin:24px auto"></div>
   </div>
   <div class="process-steps">
-    <div class="step fade-up"><div class="step-num">01</div><div class="step-body"><div class="step-title">RCN Sourcing</div><p class="step-desc">Direct procurement from West Africa, Vietnam & Gulf — KOR 46–50 quality</p></div></div>
+    <div class="step fade-up"><div class="step-num">01</div><div class="step-body"><div class="step-title">RCN Sourcing</div><p class="step-desc">Direct procurement from West Africa</p></div></div>
     <div class="step fade-up stagger-1"><div class="step-num">02</div><div class="step-body"><div class="step-title">Steam Treatment</div><p class="step-desc">Precise steam process at our Kaladera facility for optimal kernel release</p></div></div>
     <div class="step fade-up stagger-2"><div class="step-num">03</div><div class="step-body"><div class="step-title">Shelling & Peeling</div><p class="step-desc">Expert cutting team ensures whole kernel integrity across all grades</p></div></div>
     <div class="step fade-up stagger-3"><div class="step-num">04</div><div class="step-body"><div class="step-title">Grading & QC</div><p class="step-desc">Precision grading by our trained team — W180 through splits & pieces</p></div></div>
@@ -738,11 +1209,11 @@
       <p>India's premium cashew processor. Reach us for wholesale pricing, export quotes, or general enquiries.</p>
       <div class="contact-detail">
         <span class="contact-icon">📍</span>
-        <div><div class="contact-label">Address</div><div class="contact-val">G1-160, RIICO Industrial Area<br>Kaladera, Jaipur — Rajasthan</div></div>
+        <div><div class="contact-label">Address</div><div class="contact-val">Factory: B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801<br>Office: 41, Barah Ji Ki Gali, Gangauri Bazar, Jaipur</div></div>
       </div>
       <div class="contact-detail">
         <span class="contact-icon">📞</span>
-        <div><div class="contact-label">Phone / WhatsApp</div><div class="contact-val"><a href="tel:+917568577968" class="brand-link">+91 75685 77968</a> (Jitesh)<br><a href="tel:+919950062186" class="brand-link">+91 99500 62186</a> / <a href="tel:+919829038440" class="brand-link">+91 98290 38440</a> (Praveen)</div></div>
+        <div><div class="contact-label">Phone / WhatsApp</div><div class="contact-val"><a href="tel:+917568577968" class="brand-link">+91 75685 77968</a> · <a href="tel:+919950062186" class="brand-link">+91 99500 62186</a> / <a href="tel:+919829038440" class="brand-link">+91 98290 38440</a> (Praveen)</div></div>
       </div>
       <div class="contact-detail">
         <span class="contact-icon">✉️</span>
@@ -782,7 +1253,7 @@
   <div class="footer-grid">
     <div>
       <div class="footer-brand">Jai Shree Cashew <span>Industries</span></div>
-      <p class="footer-desc">India's premium cashew kernel processor and exporter from Kaladera, Jaipur, Rajasthan. Serving 500+ domestic and international buyers since 2016.</p>
+      <p class="footer-desc">Premium cashew kernel manufacturer and bulk supplier from Kaladera, Jaipur, Rajasthan. Factory-direct supply for wholesalers, distributors, importers &amp; private label buyers since 2016.</p>
       <div class="footer-social">
         <a href="https://wa.me/917568577968" target="_blank" title="WhatsApp">💬</a>
         <a href="mailto:info@jaishreecashew.com" title="Email">✉</a>
@@ -834,14 +1305,15 @@
         <div class="footer-title" style="margin-bottom:12px">Contact</div>
         <ul class="footer-links">
           <li><a href="tel:+917568577968">+91 75685 77968</a></li>
+          <li><a href="tel:+919950062186">+91 99500 62186</a></li>
           <li><a href="mailto:info@jaishreecashew.com">info@jaishreecashew.com</a></li>
-          <li style="color:rgba(255,255,255,0.3);font-size:12px;cursor:default">G1-160 RIICO, Kaladera, Jaipur</li>
+          <li style="color:rgba(255,255,255,0.3);font-size:12px;cursor:default">B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801</li>
         </ul>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2025 Jai Shree Cashew Industries. All rights reserved.</span>
+    <span>© 2026 Jai Shree Cashew Industries. All rights reserved.</span>
     <span class="footer-gstin">GSTIN: 08ADJPP5115H1ZH · Kaladera, Jaipur — 303801</span>
   </div>
 </footer>
@@ -862,7 +1334,7 @@
   <div class="policy-body">
     <div class="policy-section">
       <h2>1. Introduction</h2>
-      <p>Jai Shree Cashew Industries ("we", "our", or "us"), located at G1-160, RIICO Industrial Area, Kaladera, Jaipur, Rajasthan — 303801, is committed to protecting the privacy of our customers, website visitors, and business partners. This Privacy Policy explains how we collect, use, store, and safeguard your personal information when you visit our website or engage with our services.</p>
+      <p>Jai Shree Cashew Industries ("we", "our", or "us"), located at B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera, Jaipur — 303801, is committed to protecting the privacy of our customers, website visitors, and business partners. This Privacy Policy explains how we collect, use, store, and safeguard your personal information when you visit our website or engage with our services.</p>
       <p>By using our website or placing an order with us, you agree to the collection and use of information as described in this policy.</p>
     </div>
     <div class="policy-section">
@@ -920,7 +1392,7 @@
       <h2>9. Contact Us</h2>
       <p>For privacy-related questions or concerns:<br>
       <strong>Jai Shree Cashew Industries</strong><br>
-      G1-160, RIICO Industrial Area, Kaladera, Jaipur — 303801, Rajasthan<br>
+      B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera, Jaipur — 303801, Rajasthan<br>
       <a href="tel:+917568577968" class="brand-link">+91 75685 77968</a> &nbsp;·&nbsp; <a href="mailto:info@jaishreecashew.com" class="brand-link">info@jaishreecashew.com</a></p>
     </div>
   </div>
@@ -1049,7 +1521,7 @@
       <p><strong>Jitesh Pansari</strong> — Managing Director<br>
       <a href="tel:+917568577968" class="brand-link">+91 75685 77968</a> (WhatsApp preferred)<br>
       <a href="mailto:info@jaishreecashew.com" class="brand-link">info@jaishreecashew.com</a><br>
-      G1-160, RIICO Industrial Area, Kaladera, Jaipur — 303801</p>
+      B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801</p>
     </div>
   </div>
 </div>
@@ -1282,7 +1754,7 @@
           <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3556.2!2d75.5666!3d27.0066!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjfCsDAwJzIzLjgiTiA3NcKwMzMnNTkuOCJF!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           <div style="margin-top:14px;padding:16px;background:var(--cream);font-size:13px;line-height:1.8;color:var(--walnut);">
             <strong>Jai Shree Cashew Industries (Jai Shree Agro)</strong><br>
-            G1-160, RIICO Industrial Area, Kaladera, Jaipur — 303801, Rajasthan, India<br>
+            B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera, Jaipur — 303801, Rajasthan, India<br>
             <span style="color:var(--text-soft);">📞 +91 75685 77968 (Jitesh) &nbsp;|&nbsp; +91 99500 62186 (Praveen)</span>
           </div>
         </div>
