@@ -63,7 +63,7 @@ nav{
   transition:box-shadow var(--transition);
 }
 nav.scrolled{box-shadow:var(--shadow-md)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;height:80px;gap:20px}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:88px;gap:24px}
 
 /* Logo */
 .logo{display:flex!important;align-items:center!important;gap:10px!important;text-decoration:none!important;flex-shrink:0}
