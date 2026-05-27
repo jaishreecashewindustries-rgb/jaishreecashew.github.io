@@ -950,6 +950,11 @@ nav .logo span {
       <li><a href="#" onclick="showPage('contact');return false;" class="nav-cta nav-page-link" data-page="contact">BULK ENQUIRY</a></li>
     </ul>
     <div class="nav-icons">
+      <!-- Account / Admin trigger -->
+      <button class="nav-icon-btn" id="navAccountBtn" onclick="handleNavAccount()" title="Account / Admin" style="background:none;border:1px solid rgba(27,46,75,.2);padding:7px 14px;font-size:11px;letter-spacing:1.5px;color:#1B2E4B;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s" onmouseover="this.style.background='#1B2E4B';this.style.color='#E2C06A'" onmouseout="this.style.background='none';this.style.color='#1B2E4B'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        <span id="navAccountLabel">LOGIN</span>
+      </button>
       <button class="hamburger" onclick="toggleMobile()"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -2830,19 +2835,141 @@ nav .logo span {
     <div class="admin-tab-content" id="admintab-gallery">
       <div class="admin-table-wrap" style="padding:24px">
         <div class="admin-table-header" style="padding:0 0 20px;border-bottom:1px solid var(--border)">
-          <div class="admin-table-title">Gallery Images</div>
-          <button class="admin-add-product-btn" onclick="document.getElementById('galleryUploadInput').click()">+ UPLOAD IMAGES</button>
+          <div class="admin-table-title">Website Photos</div>
+          <button class="admin-add-product-btn" onclick="document.getElementById('galleryUploadInput').click()">+ UPLOAD TO GALLERY</button>
         </div>
         <input type="file" id="galleryUploadInput" accept="image/*" multiple style="display:none" onchange="handleGalleryUpload(this)">
-        <div class="admin-upload-zone" onclick="document.getElementById('galleryUploadInput').click()" style="margin-top:20px">
-          <div style="font-size:32px;color:var(--border)">+</div>
-          <p><strong>Click to upload</strong> or drag images here</p>
-          <p style="font-size:11px;margin-top:4px;color:var(--text-muted)">JPG, PNG, WEBP · Multiple files supported</p>
+
+        <!-- WEBSITE PHOTO SLOTS — Fixed positions -->
+        <div style="margin:24px 0 8px;font-size:10px;letter-spacing:2px;color:var(--text-soft);font-weight:700;text-transform:uppercase">📍 Required Website Photos — Upload Karein</div>
+        <p style="font-size:12.5px;color:var(--text-soft);margin-bottom:20px;line-height:1.7">Ye photos website par specific jagah use hoti hain. Har slot ke saath <strong>AI prompt</strong> diya gaya hai — ChatGPT / Midjourney / Google se bana ke download karein, ya khud ki real photos upload karein.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-bottom:36px">
+
+          <!-- Slot 1: Hero Video -->
+          <div style="border:2px dashed #1B2E4B;padding:20px;background:#F8FAFE">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#1B2E4B;font-weight:700;margin-bottom:6px">🎬 HERO VIDEO (Desktop)</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/hero-video.mp4</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>📸 Real Photo:</strong> Factory se cashews girte hue ka slow-motion video ya high-quality photo. Landscape orientation. Dark/moody background.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Resolution: 1920×1080 minimum · MP4 format</div>
+          </div>
+
+          <!-- Slot 2: Hero Video Mobile -->
+          <div style="border:2px dashed #C9A84C;padding:20px;background:#FFFDF5">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#C9A84C;font-weight:700;margin-bottom:6px">📱 HERO VIDEO (Mobile)</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/hero-video-mobile.mp4</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>📸 Real Photo:</strong> Same cashew video, portrait format (9:16). Mobile screen ke liye vertical crop karein. Ya naya vertical video shoot karein factory se.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Resolution: 1080×1920 · Portrait/Vertical MP4</div>
+          </div>
+
+          <!-- Slot 3: Founder Jitesh -->
+          <div style="border:2px dashed #1B2E4B;padding:20px;background:#F8FAFE">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#1B2E4B;font-weight:700;margin-bottom:6px">👤 FOUNDER — JITESH PANSARI</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/founder-jitesh.webp</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>📸 Real Photo:</strong> Jitesh bhai ki professional photo — formal dress, light background ya factory background. Square ya portrait crop. Clear face, good lighting.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Size: 400×400px square preferred · WEBP/JPG</div>
+          </div>
+
+          <!-- Slot 4: Founder Praveen -->
+          <div style="border:2px dashed #1B2E4B;padding:20px;background:#F8FAFE">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#1B2E4B;font-weight:700;margin-bottom:6px">👤 FOUNDER — PRAVEEN PANSARI</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/founder-praveen.webp</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>📸 Real Photo:</strong> Praveen bhai ki photo — same style. Factory ya office background. Confident pose, clear lighting.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Size: 400×400px square preferred · WEBP/JPG</div>
+          </div>
+
+          <!-- Slot 5: Gallery 1 — Grading -->
+          <div style="border:2px dashed #2ecc71;padding:20px;background:#F5FFF8">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#27ae60;font-weight:700;margin-bottom:6px">🏭 GALLERY — GRADING SECTION</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/gallery-1.webp</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>📸 Real Photo:</strong> Grading section ki photo — workers cashew kernels sort karte hue. Trays, grading machine ya hand-sorting visible ho. Overhead ya side angle.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Landscape preferred · Minimum 800×600px</div>
+          </div>
+
+          <!-- Slot 6: Gallery 2 — Packaging -->
+          <div style="border:2px dashed #2ecc71;padding:20px;background:#F5FFF8">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#27ae60;font-weight:700;margin-bottom:6px">📦 GALLERY — PACKAGING SECTION</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/gallery-2.webp</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>📸 Real Photo:</strong> Packing area — vacuum tin ya poly bags mein packing hote cashews. Sealed bags/tins clearly visible. Clean, organized factory floor.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Landscape preferred · Minimum 800×600px</div>
+          </div>
+
+          <!-- Slot 7: Gallery Production Floor -->
+          <div style="border:2px dashed #2ecc71;padding:20px;background:#F5FFF8">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#27ae60;font-weight:700;margin-bottom:6px">🏗️ GALLERY — PRODUCTION FLOOR</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/gallery-production.webp</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>📸 Real Photo:</strong> Factory floor ka wide shot — cutting section, machines, workers. Busy production environment. RIICO facility interior clearly visible.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Wide landscape · Minimum 1200×700px</div>
+          </div>
+
+          <!-- Slot 8: Gallery Tree / Farm -->
+          <div style="border:2px dashed #3498db;padding:20px;background:#F0F8FF">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#2980b9;font-weight:700;margin-bottom:6px">🌳 GALLERY — CASHEW FARM / TREE</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/gallery-tree.webp</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>🤖 AI Prompt:</strong> "Cashew nut tree with raw cashew nuts hanging, lush green farm, West Africa or India, bright natural daylight, professional food photography, no people" — Midjourney / Adobe Firefly / Bing Image Creator mein use karein.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Landscape · Minimum 800×600px</div>
+          </div>
+
+          <!-- Slot 9: Export / Hero Export -->
+          <div style="border:2px dashed #3498db;padding:20px;background:#F0F8FF">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#2980b9;font-weight:700;margin-bottom:6px">🚢 EXPORT PAGE — HERO IMAGE</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/hero-export.webp</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>🤖 AI Prompt:</strong> "Premium cashew kernels in a bowl with export shipping boxes in background, professional product photography, dark moody lighting, luxury feel, high resolution" — ChatGPT / Midjourney use karein.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Landscape · Minimum 900×600px</div>
+          </div>
+
+          <!-- Slot 10: Hero Main (fallback) -->
+          <div style="border:2px dashed #3498db;padding:20px;background:#F0F8FF">
+            <div style="font-size:11px;letter-spacing:1.5px;color:#2980b9;font-weight:700;margin-bottom:6px">🏠 HERO FALLBACK IMAGE</div>
+            <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/hero-main.webp</code></div>
+            <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
+              <strong>📸 Real Photo:</strong> Factory entrance ya production floor ka best shot. Agar hero video load nahi ho toh ye poster image dikhhegi. High quality, dark tone preferred.
+            </div>
+            <div style="font-size:11px;color:#7a8a9a">Landscape · 1920×1080px preferred</div>
+          </div>
+
+        </div><!-- end photo slots grid -->
+
+        <!-- Color legend -->
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px;padding:14px;background:var(--bg2);font-size:12px;color:var(--text-soft)">
+          <span><span style="color:#1B2E4B;font-weight:700">◼ Navy border</span> = Zaruri / Most important</span>
+          <span><span style="color:#27ae60;font-weight:700">◼ Green border</span> = Factory photos (real photos chahiye)</span>
+          <span><span style="color:#2980b9;font-weight:700">◼ Blue border</span> = AI se bana sakte hain</span>
+          <span><span style="color:#C9A84C;font-weight:700">◼ Gold border</span> = Mobile specific</span>
         </div>
-        <div id="galleryUploadProgress" style="display:none;padding:12px 0;font-size:13px;color:var(--gold);letter-spacing:1px">Uploading...</div>
-        <div class="admin-gallery-grid" id="adminGalleryGrid">
-          <div class="admin-loading">Loading gallery...</div>
+
+        <!-- Generic gallery upload section -->
+        <div style="border-top:1px solid var(--border);padding-top:24px">
+          <div style="font-size:10px;letter-spacing:2px;color:var(--text-soft);font-weight:700;margin-bottom:16px;text-transform:uppercase">📂 Additional Gallery Images (Homepage Gallery Strip)</div>
+          <div class="admin-upload-zone" onclick="document.getElementById('galleryUploadInput').click()" style="margin-bottom:16px">
+            <div style="font-size:32px;color:var(--border)">+</div>
+            <p><strong>Click to upload</strong> extra gallery images</p>
+            <p style="font-size:11px;margin-top:4px;color:var(--text-muted)">JPG, PNG, WEBP · Multiple files supported · These show in the homepage photo strip</p>
+          </div>
+          <div id="galleryUploadProgress" style="display:none;padding:12px 0;font-size:13px;color:var(--gold);letter-spacing:1px">Uploading...</div>
+          <div class="admin-gallery-grid" id="adminGalleryGrid">
+            <div class="admin-loading">Loading gallery...</div>
+          </div>
         </div>
+
       </div>
     </div>
 

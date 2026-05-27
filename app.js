@@ -652,14 +652,33 @@ function switchDashTab(tab, el) {
 window.onAuthChange = function(user) {
   const loginBtn = $('loginNavBtn');
   const userBtn = $('userNavBtn');
-  if(!loginBtn || !userBtn) return;
+  // New unified nav button
+  const navLabel = $('navAccountLabel');
+  if(navLabel) {
+    if(user) {
+      const name = (user.displayName || user.email || '').split(' ')[0].split('@')[0];
+      navLabel.textContent = user.email === window.ADMIN_EMAIL ? '⚙ ADMIN' : ('HI, ' + name.toUpperCase());
+    } else {
+      navLabel.textContent = 'LOGIN';
+    }
+  }
+  if(!loginBtn || !userBtn) {
+    // Only new button present — handle redirect auto-open
+    if(user) {
+      const wasRedirect = sessionStorage.getItem('jsc_google_redirect');
+      if(wasRedirect) {
+        sessionStorage.removeItem('jsc_google_redirect');
+        if(user.email === window.ADMIN_EMAIL) openAdmin(); else openDashboard();
+      }
+    }
+    return;
+  }
   if(user) {
     loginBtn.style.display = 'none';
     userBtn.style.display = 'flex';
     const initials = (user.displayName || user.email).charAt(0).toUpperCase();
     safeSet('userAvatarNav', initials);
     safeSet('userNameNav', (user.displayName || 'Account').split(' ')[0]);
-    // If coming from redirect, auto-open dashboard
     const wasRedirect = sessionStorage.getItem('jsc_google_redirect');
     if(wasRedirect) {
       sessionStorage.removeItem('jsc_google_redirect');
@@ -670,6 +689,14 @@ window.onAuthChange = function(user) {
     userBtn.style.display = 'none';
   }
 };
+
+// ── NEW NAV ACCOUNT BUTTON HANDLER ──
+function handleNavAccount() {
+  const user = window._currentUser;
+  if(!user) { openAuth(); return; }
+  if(user.email === window.ADMIN_EMAIL) openAdmin();
+  else openDashboard();
+}
 
 // ── AUTH MODAL ──
 function openAuth() { const ao=$('authOverlay'); if(ao) ao.classList.add('open'); }
