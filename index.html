@@ -935,16 +935,16 @@ nav .logo span {
 <!-- Navbar -->
 <nav>
   <div class="nav-inner">
-    <a href="#home" class="logo" onclick="showPage('home');return false;" style="display:flex;flex-direction:column;align-items:center;text-decoration:none;gap:2px;min-width:120px">
-      <img src="images/logo.png" alt="Jai Shree Cashew Industries" id="nav-logo-img"
-        style="height:42px;width:auto;display:block;object-fit:contain"
-        onerror="this.style.display='none';document.getElementById('nav-logo-fallback').style.display='flex'">
-      <!-- Fallback: shown only if logo.png fails -->
-      <div id="nav-logo-fallback" style="display:none;width:42px;height:42px;background:#1B2E4B;align-items:center;justify-content:center;border-radius:4px">
-        <span style="color:#E2C06A;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;line-height:1">J</span>
+    <a href="#home" class="logo" onclick="showPage('home');return false;" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;gap:2px;min-width:90px;padding:2px 0">
+      <img src="https://jaishreecashewindustries-rgb.github.io/cashewpro/images/logo.png"
+        alt="Jai Shree Cashew Industries" id="nav-logo-img"
+        style="height:36px;width:auto;display:block;object-fit:contain"
+        onerror="this.style.display='none';document.getElementById('nav-logo-fb').style.display='flex'">
+      <div id="nav-logo-fb" style="display:none;width:36px;height:36px;background:#1B2E4B;align-items:center;justify-content:center">
+        <span style="color:#E2C06A;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700">J</span>
       </div>
-      <span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:#1B2E4B;letter-spacing:.5px;white-space:nowrap;line-height:1.2;text-align:center">Jai Shree Cashew</span>
-      <span style="font-size:7.5px;letter-spacing:2px;color:var(--gold2);text-transform:uppercase;font-weight:600;white-space:nowrap">Industries · Est. 2016</span>
+      <span style="font-family:'Cormorant Garamond',serif;font-size:12.5px;font-weight:700;color:#1B2E4B;white-space:nowrap;text-align:center;line-height:1.2">Jai Shree Cashew</span>
+      <span style="font-size:7px;letter-spacing:1.8px;color:var(--gold2);text-transform:uppercase;font-weight:600;white-space:nowrap">Industries · Est. 2016</span>
     </a>
     <ul class="nav-links">
       <li><a href="#" onclick="showPage('home');return false;" class="nav-page-link active" data-page="home">HOME</a></li>
@@ -954,9 +954,8 @@ nav .logo span {
       <li><a href="#" onclick="showPage('contact');return false;" class="nav-cta nav-page-link" data-page="contact">BULK ENQUIRY</a></li>
     </ul>
     <div class="nav-icons">
-      <!-- LOGIN / ADMIN button — always visible desktop + mobile -->
-      <button id="navAccountBtn" onclick="handleNavAccount()" title="Login / Admin"
-        style="background:#1B2E4B;border:none;padding:8px 16px;font-size:10.5px;letter-spacing:1.5px;color:#E2C06A;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">
+      <button id="navAccountBtn" onclick="handleNavAccount()"
+        style="background:#1B2E4B;border:none;padding:8px 14px;font-size:10.5px;letter-spacing:1.2px;color:#E2C06A;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;transition:.2s">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
         <span id="navAccountLabel">LOGIN</span>
       </button>
@@ -994,27 +993,21 @@ nav .logo span {
 <section id="home" class="hero">
 
   <!-- Video background — edge-to-edge, cover fill -->
-  <video class="hero-video"
-    autoplay muted loop playsinline
-    preload="auto"
-    id="heroVideo">
+  <video class="hero-video" autoplay muted loop playsinline preload="auto" id="heroVid">
     <source src="images/hero-video-mobile.mp4" type="video/mp4" media="(max-width:768px)">
     <source src="images/hero-video.mp4" type="video/mp4">
     <source src="images/hero-video-2.mp4" type="video/mp4">
   </video>
-  <!-- Preload poster image separately — shown until video plays -->
-  <div id="heroVideoPoster" style="position:absolute;inset:0;background-image:url('images/hero-poster.jpg');background-size:cover;background-position:center;z-index:1;transition:opacity .8s"></div>
+  <div id="heroPoster" style="position:absolute;inset:0;background:#0d1b2a url('images/hero-poster.jpg') center/cover;z-index:1;transition:opacity .8s ease"></div>
   <script>
     (function(){
-      var v = document.getElementById('heroVideo');
-      var p = document.getElementById('heroVideoPoster');
+      var v=document.getElementById('heroVid'),p=document.getElementById('heroPoster');
       if(!v||!p) return;
-      function hidePoster(){ p.style.opacity='0'; setTimeout(function(){p.style.display='none';},900); }
-      if(v.readyState >= 3) { hidePoster(); return; }
-      v.addEventListener('canplay', hidePoster, {once:true});
-      v.addEventListener('playing', hidePoster, {once:true});
-      // Fallback — hide after 3s regardless
-      setTimeout(hidePoster, 3000);
+      function hide(){p.style.opacity='0';setTimeout(function(){if(p)p.style.display='none';},900);}
+      if(v.readyState>=3){hide();return;}
+      v.addEventListener('canplay',hide,{once:true});
+      v.addEventListener('playing',hide,{once:true});
+      setTimeout(hide,3500);
     })();
   </script>
 
@@ -1073,7 +1066,10 @@ nav .logo span {
 </div>
 
 <!-- KERNEL GRADES SHOWCASE — B2B SPEC FOCUSED -->
-<section style="padding:60px 5% 52px;background:#F8FAFE">
+<section style="padding:80px 5%;background:#F8FAFE">
+  <div style="text-align:center;margin-bottom:50px">
+    <div class="sec-tag fade-up">Factory-Direct Supply</div>
+    <h2 class="sec-title fade-up">Our Kernel <em>Grades</em></h2>
     <div class="divider fade-up" style="margin:20px auto"></div>
     <p class="sec-sub fade-up" style="max-width:580px;margin:0 auto">Export-quality whole &amp; processed cashew kernels from our RIICO facility, Kaladera. All grades available for bulk orders, private label, and FOB export. Min. order 20 kg.</p>
   </div>
@@ -1215,28 +1211,26 @@ nav .logo span {
 </section>
 
 <!-- INDUSTRIES SERVED -->
-<section style="padding:52px 5%">
-  <div style="text-align:center;margin-bottom:36px">
+<section style="padding:80px 5%;background:#fff">
+  <div style="text-align:center;margin-bottom:50px">
     <div class="sec-tag fade-up">Who We Supply</div>
     <h2 class="sec-title fade-up">Industries <em>We Serve</em></h2>
     <div class="divider fade-up" style="margin:20px auto"></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;max-width:960px;margin:0 auto">
-    <!-- EMOJI SET SELECTOR: Set A=current(plain), Set B=food-trade(active), Set C=minimal-luxury -->
-    <!-- SET B ACTIVE — To change: swap emoji values below -->
-    <div class="industry-card fade-up"><div class="industry-icon">🏪</div><div class="industry-name">Wholesalers &amp; Distributors</div></div>
-    <div class="industry-card fade-up stagger-1"><div class="industry-icon">🌍</div><div class="industry-name">Importers &amp; Exporters</div></div>
-    <div class="industry-card fade-up stagger-2"><div class="industry-icon">🏨</div><div class="industry-name">Hotels &amp; Hospitality</div></div>
-    <div class="industry-card fade-up stagger-3"><div class="industry-icon">🍮</div><div class="industry-name">Bakeries &amp; Confectionery</div></div>
-    <div class="industry-card fade-up stagger-4"><div class="industry-icon">📦</div><div class="industry-name">Private Label Brands</div></div>
-    <div class="industry-card fade-up"><div class="industry-icon">🏭</div><div class="industry-name">Food Manufacturers</div></div>
-    <div class="industry-card fade-up stagger-1"><div class="industry-icon">🛒</div><div class="industry-name">Retail Chains</div></div>
+    <div class="industry-card fade-up"><div class="industry-icon">🏬</div><div class="industry-name">Wholesalers &amp; Distributors</div></div>
+    <div class="industry-card fade-up stagger-1"><div class="industry-icon">✈️</div><div class="industry-name">Importers &amp; Exporters</div></div>
+    <div class="industry-card fade-up stagger-2"><div class="industry-icon">🏩</div><div class="industry-name">Hotels &amp; Hospitality</div></div>
+    <div class="industry-card fade-up stagger-3"><div class="industry-icon">🧁</div><div class="industry-name">Bakeries &amp; Confectionery</div></div>
+    <div class="industry-card fade-up stagger-4"><div class="industry-icon">🎀</div><div class="industry-name">Private Label Brands</div></div>
+    <div class="industry-card fade-up"><div class="industry-icon">🏗️</div><div class="industry-name">Food Manufacturers</div></div>
+    <div class="industry-card fade-up stagger-1"><div class="industry-icon">🛍️</div><div class="industry-name">Retail Chains</div></div>
     <div class="industry-card fade-up stagger-2"><div class="industry-icon">🎁</div><div class="industry-name">Gift &amp; Hamper Brands</div></div>
   </div>
 </section>
 
 <!-- EXPORT MARKETS — HOMEPAGE -->
-<section style="padding:48px 5%;background:#F8FAFE;border-top:1px solid #e8e0d0">
+<section style="padding:60px 5%;background:#F8FAFE;border-top:1px solid #e8e0d0">
   <div style="max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center" class="export-mobile-grid">
     <div class="fade-up">
       <div class="sec-tag">Global Reach</div>
@@ -1284,7 +1278,7 @@ nav .logo span {
 </section>
 
 <!-- WHY BUYERS CHOOSE US -->
-<section style="padding:56px 5%;background:#1B2E4B">
+<section style="padding:80px 5%;background:#1B2E4B">
   <div style="text-align:center;margin-bottom:50px">
     <div class="sec-tag fade-up" style="color:var(--gold2)">Our Advantage</div>
     <h2 class="sec-title fade-up" style="color:var(--bg2)">Why Buy <em>From Us</em></h2>
@@ -1853,53 +1847,50 @@ nav .logo span {
     <!-- Write a Review CTA -->
     <div style="text-align:center;margin-top:32px;padding:0 5%">
       <p style="font-size:13px;color:#7a8a9a;margin-bottom:14px;letter-spacing:.3px">Happy with our cashews? Share your experience.</p>
-      <button onclick="openReviewModal()" style="display:inline-flex;align-items:center;gap:9px;background:#1B2E4B;border:none;color:#E2C06A;padding:13px 28px;font-size:11px;letter-spacing:2px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s" onmouseover="this.style.background='#C9A84C';this.style.color='#1B2E4B'" onmouseout="this.style.background='#1B2E4B';this.style.color='#E2C06A'">✍ WRITE A REVIEW</button>
+      <button onclick="openReviewModal()" style="display:inline-flex;align-items:center;gap:8px;background:#1B2E4B;border:none;color:#E2C06A;padding:13px 28px;font-size:11px;letter-spacing:2px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">✍ WRITE A REVIEW</button>
     </div>
 
   </div><!-- end slider-wrap -->
 </section>
 
-<!-- ── REVIEW MODAL ── -->
-<div id="reviewModal" style="display:none;position:fixed;inset:0;background:rgba(13,27,42,.7);z-index:6000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)" onclick="if(event.target===this)closeReviewModal()">
-  <div style="background:#fff;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:32px;position:relative">
-    <button onclick="closeReviewModal()" style="position:absolute;top:14px;right:14px;background:#f0f0f0;border:none;width:30px;height:30px;font-size:18px;cursor:pointer;color:#666;display:flex;align-items:center;justify-content:center;border-radius:50%">✕</button>
-    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1B2E4B;margin-bottom:6px">Write a Review</div>
-    <div style="font-size:12px;color:#7a8a9a;margin-bottom:24px;letter-spacing:.3px">Jai Shree Cashew Industries · Your feedback helps other buyers</div>
-
-    <!-- Star Rating -->
+<!-- REVIEW MODAL -->
+<div id="reviewModal" style="display:none;position:fixed;inset:0;background:rgba(13,27,42,.72);z-index:6000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeReviewModal()">
+  <div style="background:#fff;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:30px;position:relative">
+    <button onclick="closeReviewModal()" style="position:absolute;top:12px;right:12px;background:#f0f0f0;border:none;width:28px;height:28px;font-size:16px;cursor:pointer;color:#555;border-radius:50%;display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1B2E4B;margin-bottom:4px">Write a Review</div>
+    <div style="font-size:12px;color:#7a8a9a;margin-bottom:22px">Jai Shree Cashew Industries · Your review helps other buyers</div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:7px">Rating *</div>
+      <div id="rmStars" style="display:flex;gap:5px">
+        <span onclick="setRmStar(1)" style="font-size:30px;color:#ddd;cursor:pointer;user-select:none;transition:.1s">★</span>
+        <span onclick="setRmStar(2)" style="font-size:30px;color:#ddd;cursor:pointer;user-select:none;transition:.1s">★</span>
+        <span onclick="setRmStar(3)" style="font-size:30px;color:#ddd;cursor:pointer;user-select:none;transition:.1s">★</span>
+        <span onclick="setRmStar(4)" style="font-size:30px;color:#ddd;cursor:pointer;user-select:none;transition:.1s">★</span>
+        <span onclick="setRmStar(5)" style="font-size:30px;color:#ddd;cursor:pointer;user-select:none;transition:.1s">★</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <label style="display:block;font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:4px">Name *</label>
+        <input id="rm-name" type="text" placeholder="Your full name" style="width:100%;border:1px solid #E2E8F0;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="display:block;font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:4px">City / Company</label>
+        <input id="rm-loc" type="text" placeholder="e.g. Jaipur or ABC Co." style="width:100%;border:1px solid #E2E8F0;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="display:block;font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:4px">Review Title</label>
+      <input id="rm-title" type="text" placeholder="e.g. Best W320 supplier in Rajasthan" style="width:100%;border:1px solid #E2E8F0;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box">
+    </div>
     <div style="margin-bottom:18px">
-      <div style="font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:8px">Your Rating *</div>
-      <div id="reviewStarRow" style="display:flex;gap:6px;cursor:pointer">
-        <span data-star="1" onclick="setReviewStar(1)" style="font-size:28px;color:#ddd;transition:.1s;user-select:none">★</span>
-        <span data-star="2" onclick="setReviewStar(2)" style="font-size:28px;color:#ddd;transition:.1s;user-select:none">★</span>
-        <span data-star="3" onclick="setReviewStar(3)" style="font-size:28px;color:#ddd;transition:.1s;user-select:none">★</span>
-        <span data-star="4" onclick="setReviewStar(4)" style="font-size:28px;color:#ddd;transition:.1s;user-select:none">★</span>
-        <span data-star="5" onclick="setReviewStar(5)" style="font-size:28px;color:#ddd;transition:.1s;user-select:none">★</span>
-      </div>
+      <label style="display:block;font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:4px">Your Review *</label>
+      <textarea id="rm-text" rows="4" placeholder="Share your experience — quality, packaging, delivery..." style="width:100%;border:1px solid #E2E8F0;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-      <div>
-        <label style="display:block;font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:5px">Your Name *</label>
-        <input type="text" id="rm-name" placeholder="Full Name" style="width:100%;border:1px solid #E2E8F0;padding:10px 12px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box">
-      </div>
-      <div>
-        <label style="display:block;font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:5px">City / Company</label>
-        <input type="text" id="rm-loc" placeholder="e.g. Jaipur or ABC Traders" style="width:100%;border:1px solid #E2E8F0;padding:10px 12px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box">
-      </div>
-    </div>
-    <div style="margin-bottom:14px">
-      <label style="display:block;font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:5px">Review Title</label>
-      <input type="text" id="rm-title" placeholder="e.g. Best W320 supplier in India" style="width:100%;border:1px solid #E2E8F0;padding:10px 12px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box">
-    </div>
-    <div style="margin-bottom:20px">
-      <label style="display:block;font-size:10px;letter-spacing:1px;color:#5A6A7A;font-weight:700;text-transform:uppercase;margin-bottom:5px">Your Review *</label>
-      <textarea id="rm-text" rows="4" placeholder="Tell other buyers about the quality, packaging, delivery..." style="width:100%;border:1px solid #E2E8F0;padding:10px 12px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
-    </div>
-    <div id="rm-error" style="display:none;color:#e74c3c;font-size:12.5px;margin-bottom:12px;padding:8px 12px;background:#fff5f5;border-left:3px solid #e74c3c"></div>
-    <div id="rm-success" style="display:none;color:#27ae60;font-size:13px;margin-bottom:12px;padding:12px;background:#f0fff4;border-left:3px solid #27ae60">✓ Review submitted! It will appear after admin approval. Thank you.</div>
-    <button onclick="submitHomepageReview()" id="rm-submit-btn" style="width:100%;background:#1B2E4B;color:#E2C06A;border:none;padding:14px;font-size:11.5px;letter-spacing:2px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s">SUBMIT REVIEW</button>
-    <div style="font-size:11px;color:#aaa;text-align:center;margin-top:12px">Reviews are moderated and published after approval.</div>
+    <div id="rm-err" style="display:none;color:#c0392b;font-size:12px;margin-bottom:10px;padding:8px 12px;background:#fdf0ed;border-left:3px solid #c0392b"></div>
+    <div id="rm-ok" style="display:none;color:#27ae60;font-size:13px;margin-bottom:10px;padding:10px 12px;background:#f0fff4;border-left:3px solid #27ae60">✓ Review submitted! Will appear after admin approval. Thank you.</div>
+    <button id="rm-btn" onclick="submitHomeReview()" style="width:100%;background:#1B2E4B;color:#E2C06A;border:none;padding:14px;font-size:11px;letter-spacing:2px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">SUBMIT REVIEW</button>
+    <p style="font-size:11px;color:#aaa;text-align:center;margin-top:10px">Reviews are moderated before appearing on the website.</p>
   </div>
 </div>
 
@@ -2007,7 +1998,7 @@ nav .logo span {
         <div><div class="contact-label">Email</div><div class="contact-val">info@jaishreecashew.com</div></div>
       </div>
       <div class="contact-detail">
-        <span class="contact-icon">🏷️</span>
+        <span class="contact-icon">📦</span>
         <div><div class="contact-label">GSTIN</div><div class="contact-val">08ADJPP5115H1ZH</div></div>
       </div>
     </div>
@@ -2991,7 +2982,7 @@ nav .logo span {
 
           <!-- Slot 9: Export / Hero Export -->
           <div style="border:2px dashed #3498db;padding:20px;background:#F0F8FF">
-            <div style="font-size:11px;letter-spacing:1.5px;color:#2980b9;font-weight:700;margin-bottom:6px">🚢 EXPORT PAGE — HERO IMAGE</div>
+            <div style="font-size:11px;letter-spacing:1.5px;color:#2980b9;font-weight:700;margin-bottom:6px">🌍 EXPORT PAGE — HERO IMAGE</div>
             <div style="font-size:11.5px;color:#5A6A7A;line-height:1.6;margin-bottom:12px">File: <code style="background:#eee;padding:2px 6px;font-size:11px">images/hero-export.webp</code></div>
             <div style="background:#1B2E4B;color:#E2C06A;padding:12px;font-size:11.5px;line-height:1.7;margin-bottom:12px;border-left:3px solid #C9A84C">
               <strong>🤖 AI Prompt:</strong> "Premium cashew kernels in a bowl with export shipping boxes in background, professional product photography, dark moody lighting, luxury feel, high resolution" — ChatGPT / Midjourney use karein.
@@ -3134,42 +3125,24 @@ nav .logo span {
     <button class="admin-form-save-btn" onclick="saveProduct()">SAVE PRODUCT</button>
   </div>
 </div>
-<!-- WHATSAPP FLOATING BUTTON — 4 STYLES, change wa-style="1/2/3/4" to switch -->
+<!-- WHATSAPP FLOATING BUTTON
+     ★ STYLE SELECTOR: Change WA_STYLE number below (1/2/3/4)
+     1 = Rectangle "WHATSAPP" (classic green)
+     2 = Round circle icon only (minimal)
+     3 = Pill "Chat with us" (SVP-style) ← DEFAULT
+     4 = Navy+Gold "BULK ENQUIRY" (brand match)
+-->
 <div id="waFloat" style="position:fixed;bottom:24px;right:24px;z-index:9999">
-
-  <!-- STYLE 1: Rectangle with text (current classic) — set wa-style="1" -->
-  <a id="wa-btn-1" href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+bulk+cashew+pricing." target="_blank"
-    style="display:none;align-items:center;gap:10px;background:#25D366;color:#fff;padding:14px 22px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:1px;box-shadow:0 4px 20px rgba(37,211,102,.4)">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    WHATSAPP
-  </a>
-
-  <!-- STYLE 2: Round circle icon only (minimal) — set wa-style="2" -->
-  <a id="wa-btn-2" href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+bulk+cashew+pricing." target="_blank"
-    style="display:none;width:56px;height:56px;border-radius:50%;background:#25D366;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.5);text-decoration:none">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-  </a>
-
-  <!-- STYLE 3: Pill with "Chat with us" text — SVP style — set wa-style="3" -->
-  <a id="wa-btn-3" href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+bulk+cashew+pricing." target="_blank"
-    style="display:none;align-items:center;gap:10px;background:#25D366;color:#fff;padding:12px 20px;border-radius:50px;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.5px;box-shadow:0 4px 20px rgba(37,211,102,.45)">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    Chat with us
-  </a>
-
-  <!-- STYLE 4: Dark navy with gold text (matches brand) — set wa-style="4" -->
-  <a id="wa-btn-4" href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+bulk+cashew+pricing." target="_blank"
-    style="display:none;align-items:center;gap:10px;background:#1B2E4B;color:#E2C06A;padding:13px 22px;text-decoration:none;font-size:11.5px;font-weight:700;letter-spacing:1.5px;box-shadow:0 4px 20px rgba(27,46,75,.4);border-left:3px solid #C9A84C">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    BULK ENQUIRY
-  </a>
+  <a id="wa1" href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+bulk+cashew+pricing." target="_blank" style="display:none;align-items:center;gap:10px;background:#25D366;color:#fff;padding:14px 22px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:1px;box-shadow:0 4px 20px rgba(37,211,102,.4)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> WHATSAPP</a>
+  <a id="wa2" href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+bulk+cashew+pricing." target="_blank" style="display:none;width:58px;height:58px;border-radius:50%;background:#25D366;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.45);text-decoration:none"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+  <a id="wa3" href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+bulk+cashew+pricing." target="_blank" style="display:none;align-items:center;gap:10px;background:#25D366;color:#fff;padding:12px 20px;border-radius:50px;text-decoration:none;font-size:13px;font-weight:700;box-shadow:0 4px 20px rgba(37,211,102,.45)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Chat with us</a>
+  <a id="wa4" href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+bulk+cashew+pricing." target="_blank" style="display:none;align-items:center;gap:10px;background:#1B2E4B;color:#E2C06A;padding:13px 22px;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:1.5px;box-shadow:0 4px 20px rgba(27,46,75,.4);border-left:3px solid #C9A84C"><svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> BULK ENQUIRY</a>
 </div>
 <script>
-// ── WA STYLE SWITCHER — change number (1/2/3/4) to switch style ──
 (function(){
-  var WA_STYLE = 3; // ← CHANGE THIS: 1=Rectangle, 2=Round icon, 3=Pill (SVP), 4=Dark navy
-  var btn = document.getElementById('wa-btn-'+WA_STYLE);
-  if(btn) btn.style.display = 'flex';
+  var WA_STYLE=3; // ← CHANGE: 1=Rectangle 2=Circle 3=Pill(SVP) 4=NavyGold
+  var b=document.getElementById('wa'+WA_STYLE);
+  if(b) b.style.display='flex';
 })();
 </script>
 <script src="app.js"></script>

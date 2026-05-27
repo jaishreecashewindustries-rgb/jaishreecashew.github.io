@@ -1594,81 +1594,6 @@ async function submitReview() {
   setTimeout(()=>{ if(success) success.style.display='none'; }, 5000);
 }
 
-// ══ HOMEPAGE REVIEW MODAL ══
-let _rmRating = 0;
-
-function openReviewModal() {
-  const m = $('reviewModal');
-  if(m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-  _rmRating = 0;
-  updateReviewStars(0);
-  ['rm-name','rm-loc','rm-title','rm-text'].forEach(id => { const el=$(id); if(el) el.value=''; });
-  const err = $('rm-error'); if(err) err.style.display='none';
-  const suc = $('rm-success'); if(suc) suc.style.display='none';
-  const btn = $('rm-submit-btn'); if(btn) { btn.disabled=false; btn.textContent='SUBMIT REVIEW'; }
-}
-
-function closeReviewModal() {
-  const m = $('reviewModal');
-  if(m) { m.style.display = 'none'; document.body.style.overflow = ''; }
-}
-
-function setReviewStar(n) {
-  _rmRating = n;
-  updateReviewStars(n);
-}
-
-function updateReviewStars(n) {
-  const row = $('reviewStarRow');
-  if(!row) return;
-  row.querySelectorAll('span').forEach((s, i) => {
-    s.style.color = i < n ? '#C9A84C' : '#ddd';
-  });
-}
-
-async function submitHomepageReview() {
-  const name = ($('rm-name')||{}).value?.trim()||'';
-  const loc  = ($('rm-loc')||{}).value?.trim()||'';
-  const title= ($('rm-title')||{}).value?.trim()||'';
-  const text = ($('rm-text')||{}).value?.trim()||'';
-  const err  = $('rm-error');
-  const suc  = $('rm-success');
-  const btn  = $('rm-submit-btn');
-
-  if(!_rmRating) { if(err){err.textContent='Please select a star rating.';err.style.display='block';} return; }
-  if(!name)      { if(err){err.textContent='Please enter your name.';err.style.display='block';} return; }
-  if(!text)      { if(err){err.textContent='Please write your review.';err.style.display='block';} return; }
-  if(err) err.style.display='none';
-
-  if(btn) { btn.disabled=true; btn.textContent='SUBMITTING...'; }
-
-  const review = {
-    id: 'hr'+Date.now(),
-    source: 'homepage',
-    productId: null,
-    productName: 'General',
-    name, location:loc, rating:_rmRating, title, text,
-    date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
-    createdAt: window._serverTimestamp ? window._serverTimestamp() : new Date(),
-    verified: !!window._currentUser,
-    userId: window._currentUser ? window._currentUser.uid : null,
-    userEmail: window._currentUser ? window._currentUser.email : null,
-    helpful: 0,
-    pending: true,
-    approved: false
-  };
-
-  try {
-    if(window._db && window._addDoc && window._collection) {
-      await window._addDoc(window._collection(window._db, 'reviews'), review);
-    }
-  } catch(e) { console.warn('Firestore review save failed:', e); }
-
-  if(suc) suc.style.display = 'block';
-  if(btn) { btn.disabled=false; btn.textContent='SUBMITTED ✓'; }
-  setTimeout(() => { closeReviewModal(); }, 3000);
-}
-
 // ══ SORT PRODUCTS ══
 function sortProducts(val) {
   if(val==='price-asc') PRODUCTS.sort((a,b) => a.price-b.price);
@@ -2211,10 +2136,10 @@ function _renderAdminReviewsData(all) {
   container.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
     <thead><tr><th>SOURCE</th><th>REVIEWER</th><th>RATING</th><th>REVIEW</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr></thead>
     <tbody>${filtered.map(r=>`<tr>
-      <td><span style="font-size:10px;padding:3px 8px;background:${r.source==='homepage'?'#e8f4f8':'#f0f0f0'};color:${r.source==='homepage'?'#1B2E4B':'#555'};font-weight:600">${r.source==='homepage'?'🏠 HOMEPAGE':'📦 '+(r.productName||'Product')}</span></td>
+      <td><span style="font-size:10px;padding:2px 7px;background:${r.source==='homepage'?'#e8f4fd':'#f0f0f0'};color:#1B2E4B;font-weight:600">${r.source==='homepage'?'🏠 Homepage':'📦 '+(r.productName||'Product')}</span></td>
       <td><strong>${r.name}</strong><br><span style="font-size:11px;color:var(--text-soft)">${r.location||''}</span></td>
-      <td style="color:#f5a623">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</td>
-      <td style="font-size:12px"><strong>${r.title||''}</strong>${r.title?'<br>':''}<span style="color:var(--text-soft)">${(r.text||'').substring(0,60)}${(r.text||'').length>60?'...':''}</span></td>
+      <td style="color:#C9A84C;font-size:15px">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</td>
+      <td style="font-size:12px"><strong>${r.title||''}</strong>${r.title?'<br>':''}<span style="color:var(--text-soft)">${(r.text||'').substring(0,55)}${(r.text||'').length>55?'...':''}</span></td>
       <td style="font-size:11px">${r.date||''}</td>
       <td><span style="font-size:10px;padding:3px 8px;background:${r.pending&&!r.approved?'#fff3cd':'#d4edda'};color:${r.pending&&!r.approved?'#856404':'#155724'}">${r.pending&&!r.approved?'PENDING':'APPROVED'}</span></td>
       <td>
@@ -2597,3 +2522,57 @@ function _renderShopGrid() {
   }).join('');
 }
 
+// ══ HOMEPAGE REVIEW MODAL ══
+var _rmRating = 0;
+
+function openReviewModal() {
+  var m = document.getElementById('reviewModal');
+  if(m) { m.style.display='flex'; document.body.style.overflow='hidden'; }
+  _rmRating=0; updateRmStars(0);
+  ['rm-name','rm-loc','rm-title','rm-text'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var err=document.getElementById('rm-err'); if(err)err.style.display='none';
+  var ok=document.getElementById('rm-ok'); if(ok)ok.style.display='none';
+  var btn=document.getElementById('rm-btn'); if(btn){btn.disabled=false;btn.textContent='SUBMIT REVIEW';}
+}
+function closeReviewModal() {
+  var m = document.getElementById('reviewModal');
+  if(m) { m.style.display='none'; document.body.style.overflow=''; }
+}
+function setRmStar(n) { _rmRating=n; updateRmStars(n); }
+function updateRmStars(n) {
+  var row=document.getElementById('rmStars'); if(!row) return;
+  var stars=row.querySelectorAll('span');
+  stars.forEach(function(s,i){ s.style.color=i<n?'#C9A84C':'#ddd'; });
+}
+async function submitHomeReview() {
+  var name=(document.getElementById('rm-name')||{}).value||'';
+  var loc=(document.getElementById('rm-loc')||{}).value||'';
+  var title=(document.getElementById('rm-title')||{}).value||'';
+  var text=(document.getElementById('rm-text')||{}).value||'';
+  name=name.trim(); text=text.trim();
+  var err=document.getElementById('rm-err');
+  var ok=document.getElementById('rm-ok');
+  var btn=document.getElementById('rm-btn');
+  if(!_rmRating){if(err){err.textContent='Please select a star rating.';err.style.display='block';}return;}
+  if(!name){if(err){err.textContent='Please enter your name.';err.style.display='block';}return;}
+  if(!text){if(err){err.textContent='Please write your review.';err.style.display='block';}return;}
+  if(err)err.style.display='none';
+  if(btn){btn.disabled=true;btn.textContent='Submitting...';}
+  var review={
+    id:'hr'+Date.now(), source:'homepage', productId:null, productName:'General',
+    name:name, location:loc.trim(), rating:_rmRating, title:title.trim(), text:text,
+    date:new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+    createdAt: window._serverTimestamp ? window._serverTimestamp() : new Date(),
+    verified:!!window._currentUser,
+    userId:window._currentUser?window._currentUser.uid:null,
+    userEmail:window._currentUser?window._currentUser.email:null,
+    helpful:0, pending:true, approved:false
+  };
+  try {
+    if(window._db&&window._addDoc&&window._collection)
+      await window._addDoc(window._collection(window._db,'reviews'),review);
+  } catch(e){ console.warn('Review save failed:',e); }
+  if(ok)ok.style.display='block';
+  if(btn){btn.disabled=false;btn.textContent='SUBMITTED ✓';}
+  setTimeout(function(){closeReviewModal();},3000);
+}
