@@ -9,7 +9,6 @@
 <meta name="description" content="Premium cashew kernel manufacturer from Kaladera, Jaipur. W180, W210, W240, W320 export-quality grades. Factory-direct bulk supply for wholesalers, distributors & importers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -515,25 +514,12 @@
     <ul class="nav-links">
       <li><a href="#" onclick="showPage('home');return false;" class="nav-page-link active" data-page="home">HOME</a></li>
       <li><a href="#" onclick="showPage('grades');return false;" class="nav-page-link" data-page="grades">GRADES</a></li>
-      <li><a href="#" onclick="showPage('shop');return false;" class="nav-page-link" data-page="shop">ORDER</a></li>
+      <li><a href="#" onclick="showPage('shop');return false;" class="nav-page-link" data-page="shop">CATALOGUE</a></li>
       <li><a href="#" onclick="showPage('about');return false;" class="nav-page-link" data-page="about">ABOUT</a></li>
       <li><a href="#" onclick="showPage('contact');return false;" class="nav-cta nav-page-link" data-page="contact">BULK ENQUIRY</a></li>
     </ul>
     <div class="nav-icons">
-      <!-- Search -->
-      <div class="nav-search-wrap" id="navSearchWrap">
-        <input type="text" class="nav-search-input" id="navSearchInput" placeholder="Search cashews..." oninput="navSearch(this.value)" onblur="setTimeout(()=>closeNavSearch(),200)">
-        <button class="nav-search-btn" onclick="document.getElementById('navSearchInput').focus()">🔍</button>
-        <div class="search-results-dropdown" id="searchDropdown"></div>
-      </div>
-      <div id="authNavArea">
-        <button class="user-btn" onclick="openAuth()" id="loginNavBtn" style="display:flex">LOGIN</button>
-        <button class="user-btn" id="userNavBtn" style="display:none">
-          <div class="user-avatar-placeholder" id="userAvatarNav">?</div>
-          <span id="userNameNav">Account</span>
-        </button>
-      </div>
-      <button class="nav-icon-btn" onclick="openCart()">🛒<span class="cart-badge" id="cartBadge">0</span></button>
+      <a href="https://wa.me/917568577968" target="_blank" style="display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:1px;color:var(--walnut);text-decoration:none;font-weight:500;border:1px solid var(--walnut);padding:8px 16px;">💬 WHATSAPP</a>
       <button class="hamburger" onclick="toggleMobile()"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -545,8 +531,8 @@
   <div class="mobile-menu-inner">
     <div class="mobile-logo">Jai Shree <em>Cashew</em></div>
     <a class="mob-link" href="#" onclick="showPage('home');toggleMobile();return false;">Home</a>
-    <a class="mob-link" href="#" onclick="showPage('shop');toggleMobile();return false;">Shop</a>
     <a class="mob-link" href="#" onclick="showPage('grades');toggleMobile();return false;">Grades</a>
+    <a class="mob-link" href="#" onclick="showPage('shop');toggleMobile();return false;">Catalogue</a>
     <a class="mob-link" href="#" onclick="showPage('about');toggleMobile();return false;">About</a>
     <div class="mob-divider"></div>
     <a class="mob-secondary" href="#" onclick="showPage('contact');toggleMobile();return false;">Bulk Order Enquiry</a>
@@ -585,7 +571,7 @@
   <div class="hero-content">
     <div class="hero-badge">MANUFACTURER · KALADERA, JAIPUR · EST. 2016</div>
     <h1>Premium Cashew<br><em>Kernel Manufacturer</em></h1>
-    <p class="hero-sub">Leading cashew kernel manufacturer from Jaipur — factory-direct W180 · W210 · W240 · W320 · Splits · Tukdi · Scorched Wholes &amp; more. Supplying 2000+ wholesalers, distributors, importers &amp; private label buyers across India and 8+ export markets.</p>
+    <p class="hero-sub">Factory-direct export-quality cashew kernels from Jaipur.<br>W180 · W210 · W240 · W320 · Splits · Tukdi &amp; more. MOQ 20 kg.</p>
     <div class="hero-trust">
       <div class="hero-trust-item">FSSAI Certified</div>
       <div class="hero-trust-item">Vacuum Packed</div>
@@ -779,6 +765,54 @@
   </div>
 </section>
 
+<!-- EXPORT MARKETS — HOMEPAGE -->
+<section style="padding:60px 5%;background:var(--cream);border-top:1px solid #e8e0d0">
+  <div style="max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center">
+    <div class="fade-up">
+      <div class="sec-tag">Global Reach</div>
+      <h2 class="sec-title" style="margin:12px 0 16px">Export Quality,<br><em>World Over</em></h2>
+      <div class="divider" style="margin-bottom:20px"></div>
+      <p class="sec-sub" style="margin-bottom:28px">Our kernels meet international import standards and ship FOB Mundra to buyers across 8+ countries.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <div class="country-tag"><span class="country-flag">🇦🇪</span>UAE / Dubai</div>
+        <div class="country-tag"><span class="country-flag">🇺🇸</span>USA</div>
+        <div class="country-tag"><span class="country-flag">🇬🇧</span>United Kingdom</div>
+        <div class="country-tag"><span class="country-flag">🇩🇪</span>Germany</div>
+        <div class="country-tag"><span class="country-flag">🇸🇬</span>Singapore</div>
+        <div class="country-tag"><span class="country-flag">🇦🇺</span>Australia</div>
+        <div class="country-tag"><span class="country-flag">🇸🇦</span>Saudi Arabia</div>
+        <div class="country-tag"><span class="country-flag">🇨🇦</span>Canada</div>
+      </div>
+      <div style="margin-top:28px">
+        <a href="#" onclick="showPage('contact');return false;" class="btn-gold">REQUEST EXPORT QUOTE →</a>
+      </div>
+    </div>
+    <div class="fade-up stagger-2" style="text-align:center">
+      <div style="background:var(--walnut);padding:40px 32px">
+        <div style="color:var(--gold2);font-size:10px;letter-spacing:3px;margin-bottom:24px">FOB MUNDRA · EXPORT READY</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="border:1px solid rgba(255,255,255,.15);padding:20px 12px;text-align:center">
+            <div style="color:var(--cream);font-size:28px;font-weight:600;font-family:'Cormorant Garamond',serif">8+</div>
+            <div style="color:rgba(245,239,226,.6);font-size:11px;margin-top:4px">Countries</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.15);padding:20px 12px;text-align:center">
+            <div style="color:var(--cream);font-size:28px;font-weight:600;font-family:'Cormorant Garamond',serif">FOB</div>
+            <div style="color:rgba(245,239,226,.6);font-size:11px;margin-top:4px">Mundra Port</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.15);padding:20px 12px;text-align:center">
+            <div style="color:var(--cream);font-size:28px;font-weight:600;font-family:'Cormorant Garamond',serif">20kg</div>
+            <div style="color:rgba(245,239,226,.6);font-size:11px;margin-top:4px">Min. Order</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.15);padding:20px 12px;text-align:center">
+            <div style="color:var(--cream);font-size:28px;font-weight:600;font-family:'Cormorant Garamond',serif">9+</div>
+            <div style="color:rgba(245,239,226,.6);font-size:11px;margin-top:4px">Grade Types</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- WHY BUYERS CHOOSE US -->
 <section style="padding:80px 5%;background:var(--walnut)">
   <div style="text-align:center;margin-bottom:50px">
@@ -844,10 +878,10 @@
       <div class="footer-title">Products</div>
       <ul class="footer-links">
         <li><a href="#" onclick="showPage('shop');return false;">W180 Jumbo Whole</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">W210 Extra Large Whole</a></li>
         <li><a href="#" onclick="showPage('shop');return false;">W240 Large Whole</a></li>
         <li><a href="#" onclick="showPage('shop');return false;">W320 Classic Whole</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">Roasted Cashews</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">Cashew Pieces</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">Splits · Tukdi · Baby Bits</a></li>
         <li><a href="#" onclick="showPage('grades');return false;">All Grades →</a></li>
       </ul>
     </div>
@@ -864,7 +898,6 @@
       <ul class="footer-links">
         <li><a href="#" onclick="showPage('privacy');return false;">Privacy Policy</a></li>
         <li><a href="#" onclick="showPage('terms');return false;">Terms &amp; Conditions</a></li>
-        <li><a href="#" onclick="showPage('returns');return false;">Return &amp; Refund Policy</a></li>
       </ul>
     </div>
     <div>
@@ -900,7 +933,7 @@
   <div class="sec-tag fade-up">Manufacturing Standards</div>
   <h2 class="sec-title fade-up">Export-Quality Kernel<br><em>Grade Specifications</em></h2>
   <div class="divider fade-up"></div>
-  <p class="sec-sub fade-up">All grades are precision-processed at our RIICO Industrial Area facility in Kaladera, Jaipur — meeting international food safety and export standards. Available for bulk orders, private label, and FOB Mundra shipments.</p>
+  <p class="sec-sub fade-up">All grades are precision-processed at our B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area facility in Kaladera, Jaipur — meeting international food safety and export standards. Available for bulk orders, private label, and FOB Mundra shipments. MOQ 20 kg.</p>
   <div class="grades-grid">
     <div class="grade-card fade-up">
       <div class="grade-badge">PREMIUM</div>
@@ -908,25 +941,78 @@
       <div class="grade-info">
         <div class="grade-tag">Grade · W180</div>
         <div class="grade-name">Jumbo Whole</div>
-        <p class="grade-desc">The rarest and largest whole cashew kernels. 180 kernels per pound — reserved for luxury confectionery and premium gifting.</p>
+        <p class="grade-desc">180 kernels/lb — largest whole grade. Reserved for luxury confectionery, premium gifting, and high-end export buyers.</p>
       </div>
     </div>
     <div class="grade-card fade-up stagger-1">
+      <img src="images/hero-w180.webp" alt="W210 Cashew" class="grade-img">
+      <div class="grade-info">
+        <div class="grade-tag">Grade · W210</div>
+        <div class="grade-name">Extra Large Whole</div>
+        <p class="grade-desc">210 kernels/lb — premium export grade. Uniform size and whiteness. Preferred by international buyers and premium retail chains.</p>
+      </div>
+    </div>
+    <div class="grade-card fade-up stagger-2">
+      <div class="grade-badge" style="background:var(--gold2)">BESTSELLER</div>
       <img src="images/hero-w240.webp" alt="W240 Cashew" class="grade-img">
       <div class="grade-info">
         <div class="grade-tag">Grade · W240</div>
         <div class="grade-name">Large Whole</div>
-        <p class="grade-desc">Generous whole kernels, perfectly uniform. The preferred choice of premium hotels, bakeries, and specialty food brands.</p>
+        <p class="grade-desc">240 kernels/lb — the preferred hotel and bakery grade. Perfect uniformity for high-volume buyers and specialty food brands.</p>
       </div>
     </div>
-    <div class="grade-card fade-up stagger-2">
+    <div class="grade-card fade-up">
+      <div class="grade-badge" style="background:#6b8e6b">HIGH VOLUME</div>
       <img src="images/hero-w320.webp" alt="W320 Cashew" class="grade-img">
       <div class="grade-info">
         <div class="grade-tag">Grade · W320</div>
         <div class="grade-name">Classic Whole</div>
-        <p class="grade-desc">Our highest volume grade — the industry standard. Consistent quality that satisfies both domestic retail and international bulk buyers.</p>
+        <p class="grade-desc">320 kernels/lb — industry standard. The most traded cashew grade. Consistent quality for domestic wholesale and bulk export.</p>
       </div>
     </div>
+    <div class="grade-card fade-up stagger-1">
+      <img src="images/hero-w320.webp" alt="Splits" class="grade-img">
+      <div class="grade-info">
+        <div class="grade-tag">Grade · Splits</div>
+        <div class="grade-name">Split Kernels — 2 Pcs</div>
+        <p class="grade-desc">Whole kernel broken into 2 halves. Same premium quality at lower price. Ideal for mithai, bakery, and industrial food processing.</p>
+      </div>
+    </div>
+    <div class="grade-card fade-up stagger-2">
+      <img src="images/hero-w320.webp" alt="Tukdi" class="grade-img">
+      <div class="grade-info">
+        <div class="grade-tag">Grade · Tukdi</div>
+        <div class="grade-name">Tukdi — 4 Pcs</div>
+        <p class="grade-desc">Quarter-size pieces. Widely used in sweets, namkeen, and cooking applications. High-volume availability at competitive pricing.</p>
+      </div>
+    </div>
+    <div class="grade-card fade-up">
+      <img src="images/hero-w320.webp" alt="Small Tukdi" class="grade-img">
+      <div class="grade-info">
+        <div class="grade-tag">Grade · Small Tukdi</div>
+        <div class="grade-name">Small Tukdi — 6–8 Pcs</div>
+        <p class="grade-desc">Fine-size cashew pieces. Perfect for ice cream toppings, barfi, halwa, and garnish applications across food manufacturing.</p>
+      </div>
+    </div>
+    <div class="grade-card fade-up stagger-1">
+      <img src="images/hero-w320.webp" alt="Baby Bits" class="grade-img">
+      <div class="grade-info">
+        <div class="grade-tag">Grade · Baby Bits</div>
+        <div class="grade-name">Baby Bits — 16–32 Pcs</div>
+        <p class="grade-desc">Finest cashew bits. Preferred by confectionery manufacturers, chocolate makers, and industrial bulk buyers at volume pricing.</p>
+      </div>
+    </div>
+    <div class="grade-card fade-up stagger-2">
+      <img src="images/hero-w320.webp" alt="Scorched Wholes" class="grade-img">
+      <div class="grade-info">
+        <div class="grade-tag">Grade · Scorched</div>
+        <div class="grade-name">Scorched Wholes</div>
+        <p class="grade-desc">Heat-processed whole kernels. Value segment grade for industrial use, budget retail, and bulk food manufacturing requirements.</p>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:48px">
+    <a href="#" onclick="showPage('contact');return false;" class="btn-gold">REQUEST GRADE PRICING →</a>
   </div>
 </section>
 
@@ -939,7 +1025,7 @@
   <div class="shop-promo-sep">✦</div>
   <div class="shop-promo-item">✅ FSSAI Certified · Vacuum Packed</div>
   <div class="shop-promo-sep">✦</div>
-  <div class="shop-promo-item">📦 Bulk Orders Welcome · MOQ 25kg+</div>
+  <div class="shop-promo-item">📦 Bulk Orders Welcome · MOQ 20 kg</div>
   <div class="shop-promo-sep">✦</div>
   <div class="shop-promo-item">🌍 Export Ready · FOB Mundra</div>
 </div>
@@ -949,10 +1035,10 @@
   <div class="shop-hero-content">
     <div class="shop-hero-tag">MANUFACTURER · EST. 2016 · RIICO KALADERA</div>
     <h1 class="shop-hero-title">Premium <em>Cashew Kernels</em><br>Factory-Direct Supply</h1>
-    <p class="shop-hero-sub">W180 · W210 · W240 · W320 · Splits · Tukdi · Small Tukdi · Baby Bits · Scorched Wholes — Export-quality grades from our Kaladera processing unit. Wholesale, bulk, and private label orders welcome. Min. order 20 kg.</p>
+    <p class="shop-hero-sub">All grades available for bulk orders, private label &amp; FOB export. Min. order 20 kg. Contact us for current pricing.</p>
     <div class="shop-hero-btns">
-      <button class="shop-hero-btn-primary" onclick="document.getElementById('shopGrid').scrollIntoView({behavior:'smooth'})">BROWSE GRADES</button>
-      <a href="https://wa.me/917568577968?text=Hello%2C+I+want+bulk+cashew+pricing." target="_blank" class="shop-hero-btn-outline">💬 BULK ENQUIRY</a>
+      <a href="#" onclick="showPage('contact');return false;" class="shop-hero-btn-primary">REQUEST BULK QUOTE</a>
+      <a href="https://wa.me/917568577968?text=Hello%2C+I+want+bulk+cashew+pricing." target="_blank" class="shop-hero-btn-outline">💬 WHATSAPP US</a>
     </div>
   </div>
   <div class="shop-hero-badges">
@@ -965,44 +1051,27 @@
 <!-- MAIN SHOP LAYOUT -->
 <div class="shop-layout" id="shopGrid">
 
-  <!-- LEFT SIDEBAR -->
+  <!-- LEFT SIDEBAR — B2B version -->
   <aside class="shop-sidebar">
     <div class="sidebar-section">
-      <div class="sidebar-title">🔍 Search</div>
-      <input type="text" class="sidebar-search" id="sidebarSearch" placeholder="Search cashews..." oninput="shopSearch(this.value)">
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-title">📂 Category</div>
-      <label class="sidebar-radio active" id="scat-all" onclick="sidebarCat('all',this)"><input type="radio" name="scat" checked> All Products <span class="sidebar-count" id="scnt-all"></span></label>
-      <label class="sidebar-radio" id="scat-whole" onclick="sidebarCat('whole',this)"><input type="radio" name="scat"> Whole Kernel <span class="sidebar-count" id="scnt-whole"></span></label>
-      <label class="sidebar-radio" id="scat-processed" onclick="sidebarCat('processed',this)"><input type="radio" name="scat"> Processed / Roasted <span class="sidebar-count" id="scnt-processed"></span></label>
+      <div class="sidebar-title">📂 Filter by Grade Type</div>
+      <label class="sidebar-radio active" id="scat-all" onclick="sidebarCat('all',this)"><input type="radio" name="scat" checked> All Grades <span class="sidebar-count" id="scnt-all"></span></label>
+      <label class="sidebar-radio" id="scat-whole" onclick="sidebarCat('whole',this)"><input type="radio" name="scat"> Whole Kernels <span class="sidebar-count" id="scnt-whole"></span></label>
+      <label class="sidebar-radio" id="scat-processed" onclick="sidebarCat('processed',this)"><input type="radio" name="scat"> Splits &amp; Pieces <span class="sidebar-count" id="scnt-processed"></span></label>
       <label class="sidebar-radio" id="scat-raw" onclick="sidebarCat('raw',this)"><input type="radio" name="scat"> Raw / RCN <span class="sidebar-count" id="scnt-raw"></span></label>
     </div>
-    <div class="sidebar-section">
-      <div class="sidebar-title">💰 Price Range</div>
-      <div class="sidebar-price-row">
-        <input type="number" id="priceMin" class="sidebar-price-input" placeholder="Min ₹" min="0" oninput="applyPriceFilter()">
-        <span style="color:var(--text-soft)">—</span>
-        <input type="number" id="priceMax" class="sidebar-price-input" placeholder="Max ₹" oninput="applyPriceFilter()">
-      </div>
-      <div class="sidebar-price-presets">
-        <button class="sidebar-preset" onclick="setPricePreset(0,500)">Under ₹500</button>
-        <button class="sidebar-preset" onclick="setPricePreset(500,1000)">₹500–1000</button>
-        <button class="sidebar-preset" onclick="setPricePreset(1000,99999)">₹1000+</button>
-      </div>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-title">🏷️ Special</div>
-      <label class="sidebar-check"><input type="checkbox" id="chk-sale" onchange="applySpecialFilter()"> On Sale only</label>
-      <label class="sidebar-check"><input type="checkbox" id="chk-instock" onchange="applySpecialFilter()"> In Stock only</label>
-      <label class="sidebar-check"><input type="checkbox" id="chk-featured" onchange="applySpecialFilter()"> Featured only</label>
-    </div>
-    <button class="sidebar-reset-btn" onclick="resetShopFilters()">↺ RESET ALL FILTERS</button>
+    <button class="sidebar-reset-btn" onclick="resetShopFilters()">↺ RESET FILTER</button>
     <div class="sidebar-trust">
-      <div class="sidebar-trust-item">🔒 Secure Razorpay Checkout</div>
-      <div class="sidebar-trust-item">📦 Vacuum Packed · Fresh</div>
-      <div class="sidebar-trust-item">🇮🇳 FSSAI Certified</div>
-      <div class="sidebar-trust-item">↩️ Easy Returns</div>
+      <div class="sidebar-trust-item">🏭 Factory Direct Supply</div>
+      <div class="sidebar-trust-item">📦 Vacuum Packed · All Grades</div>
+      <div class="sidebar-trust-item">🇮🇳 FSSAI Certified Facility</div>
+      <div class="sidebar-trust-item">🚚 Pan India Delivery</div>
+      <div class="sidebar-trust-item">🌍 FOB Mundra Export Ready</div>
+    </div>
+    <div style="margin-top:20px;padding:20px;background:var(--walnut);text-align:center">
+      <div style="color:var(--gold2);font-size:10px;letter-spacing:2px;margin-bottom:8px">BULK ENQUIRY</div>
+      <div style="color:var(--cream);font-size:12px;line-height:1.6;margin-bottom:14px">For pricing &amp; availability, contact our sales team directly.</div>
+      <a href="#" onclick="showPage('contact');return false;" style="display:block;color:var(--gold2);border:1px solid var(--gold2);font-size:10px;letter-spacing:2px;padding:10px;text-decoration:none">GET QUOTE →</a>
     </div>
   </aside>
 
@@ -1016,9 +1085,8 @@
       <div class="shop-toolbar-right">
         <select class="products-sort" onchange="sortProducts(this.value)" id="shopSortSelect">
           <option value="default">Sort: Featured</option>
-          <option value="price-asc">Price: Low → High</option>
-          <option value="price-desc">Price: High → Low</option>
-          <option value="discount">Biggest Discount</option>
+          <option value="price-asc">Grade: Small → Large</option>
+          <option value="price-desc">Grade: Large → Small</option>
         </select>
         <div class="view-toggle">
           <button class="view-btn active" id="viewGrid" onclick="setViewMode('grid',this)" title="Grid">⊞</button>
@@ -1029,25 +1097,14 @@
     <div class="products-grid" id="productsGrid"></div>
     <div id="shopNoResults" style="display:none;text-align:center;padding:80px 20px">
       <div style="font-size:48px;margin-bottom:16px">🔍</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--walnut);margin-bottom:8px">No products found</div>
-      <p style="font-size:14px;color:var(--text-soft);margin-bottom:20px">Try adjusting your filters</p>
-      <button class="btn-gold" onclick="resetShopFilters()">Reset Filters</button>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--walnut);margin-bottom:8px">No grades found</div>
+      <p style="font-size:14px;color:var(--text-soft);margin-bottom:20px">Try resetting the filter</p>
+      <button class="btn-gold" onclick="resetShopFilters()">Reset Filter</button>
     </div>
   </div>
 </div>
 
-<!-- Recently Viewed -->
-<div class="recently-viewed" id="recentlyViewedWrap" style="display:none">
-  <div class="recently-viewed-title">Recently Viewed</div>
-  <div class="recently-viewed-grid" id="recentlyViewedGrid"></div>
-</div>
-
 <section id="products" style="display:none"></section>
-<!-- Recently Viewed -->
-<div class="recently-viewed" id="recentlyViewedWrap" style="display:none">
-  <div class="recently-viewed-title">Recently Viewed</div>
-  <div class="recently-viewed-grid" id="recentlyViewedGrid"></div>
-</div>
 
 <!-- PROCESS -->
 <section id="process" class="process">
@@ -1117,7 +1174,7 @@
       </div>
       <div class="founder-name">Praveen Pansari</div>
       <div class="founder-title">Co-Founder & Director</div>
-      <p class="founder-bio">Praveen drives the operational backbone of Jai Shree Cashew — overseeing factory management, quality control, and wholesale distribution. His hands-on approach and commitment to consistency ensures every batch meets the high standards that 500+ clients trust and rely on.</p>
+      <p class="founder-bio">Praveen drives the operational backbone of Jai Shree Cashew — overseeing factory management, quality control, and wholesale distribution. His hands-on approach and commitment to consistency ensures every batch meets the high standards that 2000+ clients trust and rely on.</p>
       <div class="founder-sig">Praveen Pansari</div>
     </div>
   </div>
@@ -1130,7 +1187,7 @@
       <div class="sec-tag">Our Facility</div>
       <h2 class="sec-title">World-Class Processing<br><em>at Kaladera</em></h2>
       <div class="divider"></div>
-      <p class="sec-sub">Our RIICO Industrial Area facility in Kaladera, Jaipur spans a modern processing unit with dedicated cutting, grading, and packing sections — built for scale and precision.</p>
+      <p class="sec-sub">Our processing unit at B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801 spans dedicated cutting, grading, and packing sections built for scale, consistency, and export compliance.</p>
       <div class="factory-features">
         <div class="factory-feat"><div class="feat-icon">🏭</div><div class="feat-title">Modern Processing Unit</div><p class="feat-desc">State-of-the-art machinery for consistent output</p></div>
         <div class="factory-feat"><div class="feat-icon">🌡️</div><div class="feat-title">Steam Technology</div><p class="feat-desc">Precision steam process for maximum whole yield</p></div>
@@ -1148,7 +1205,7 @@
 <section class="testimonials">
   <div style="text-align:center">
     <div class="sec-tag fade-up">Client Testimonials</div>
-    <h2 class="sec-title fade-up">Trusted by <em>500+ Buyers</em></h2>
+    <h2 class="sec-title fade-up">Trusted by <em>2000+ Buyers</em></h2>
     <div class="divider fade-up" style="margin:24px auto"></div>
   </div>
   <div class="testi-grid">
@@ -1206,7 +1263,7 @@
   <div class="contact-layout">
     <div class="fade-up">
       <h3>Jai Shree Cashew Industries</h3>
-      <p>India's premium cashew processor. Reach us for wholesale pricing, export quotes, or general enquiries.</p>
+      <p>Leading cashew kernel manufacturer from Jaipur. Contact our sales team for bulk pricing, export quotes, private label enquiries, or grade specifications.</p>
       <div class="contact-detail">
         <span class="contact-icon">📍</span>
         <div><div class="contact-label">Address</div><div class="contact-val">Factory: B-1, Shri Tiruapti Udyog Vihar, RIICO Industrial Area, Kaladera — 303801<br>Office: 41, Barah Ji Ki Gali, Gangauri Bazar, Jaipur</div></div>
@@ -1236,7 +1293,7 @@
             <div class="form-group"><label>Enquiry Type</label><select id="ftype"><option>Domestic Wholesale</option><option>Export Order</option><option>Retail Purchase</option><option>General Enquiry</option></select></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>Grade Required</label><select id="fgrade"><option>W180</option><option>W240</option>W320<option>W320</option><option>Mixed / Multiple</option><option>Pieces / Splits</option></select></div>
+            <div class="form-group"><label>Grade Required</label><select id="fgrade"><option>W180 — Jumbo Whole</option><option>W210 — Extra Large Whole</option><option>W240 — Large Whole</option><option>W320 — Classic Whole</option><option>Splits — 2 Pcs</option><option>Tukdi — 4 Pcs</option><option>Small Tukdi — 6–8 Pcs</option><option>Baby Bits — 16–32 Pcs</option><option>Scorched Wholes</option><option>Mixed / Multiple Grades</option><option>Not Sure — Need Guidance</option></select></div>
             <div class="form-group"><label>Quantity (kg)</label><input type="text" id="fqty" placeholder="e.g. 500 kg / 1 MT"></div>
           </div>
           <div class="form-group"><label>Message</label><textarea id="fmsg" placeholder="Tell us more about your requirement..."></textarea></div>
@@ -1269,10 +1326,10 @@
       <div class="footer-title">Products</div>
       <ul class="footer-links">
         <li><a href="#" onclick="showPage('shop');return false;">W180 Jumbo Whole</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">W210 Extra Large Whole</a></li>
         <li><a href="#" onclick="showPage('shop');return false;">W240 Large Whole</a></li>
         <li><a href="#" onclick="showPage('shop');return false;">W320 Classic Whole</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">Roasted Cashews</a></li>
-        <li><a href="#" onclick="showPage('shop');return false;">Cashew Pieces</a></li>
+        <li><a href="#" onclick="showPage('shop');return false;">Splits · Tukdi · Baby Bits</a></li>
         <li><a href="#" onclick="showPage('grades');return false;">All Grades →</a></li>
       </ul>
     </div>
@@ -1289,7 +1346,6 @@
       <ul class="footer-links">
         <li><a href="#" onclick="showPage('privacy');return false;">Privacy Policy</a></li>
         <li><a href="#" onclick="showPage('terms');return false;">Terms &amp; Conditions</a></li>
-        <li><a href="#" onclick="showPage('returns');return false;">Return &amp; Refund Policy</a></li>
       </ul>
     </div>
     <div>
@@ -1814,9 +1870,6 @@
   <button style="background:var(--gold);color:var(--walnut);border:none;padding:14px 16px;font-size:16px;cursor:pointer" onclick="openCart()">🛒</button>
 </div>
 
-<!-- WHATSAPP -->
-<a href="https://wa.me/917568577968?text=Hello%2C%20I%20am%20interested%20in%20your%20premium%20cashew%20products." class="wa-btn" target="_blank" title="Chat on WhatsApp">💬</a>
-
 
 
 <!-- ── AUTH MODAL ── -->
@@ -2207,6 +2260,19 @@
     </div>
     <button class="admin-form-save-btn" onclick="saveProduct()">SAVE PRODUCT</button>
   </div>
+</div>
+<!-- WHATSAPP FLOATING BUTTON -->
+<div style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:8px" id="waFloat">
+  <div id="waTooltip" style="display:none;background:var(--walnut);color:var(--cream);font-size:11px;padding:8px 14px;white-space:nowrap;letter-spacing:.5px">
+    +91 75685 77968 · +91 99500 62186
+  </div>
+  <a href="https://wa.me/917568577968?text=Hello%2C+I+am+interested+in+bulk+cashew+pricing." target="_blank"
+    style="display:flex;align-items:center;gap:10px;background:#25D366;color:#fff;padding:14px 20px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:1px;box-shadow:0 4px 20px rgba(37,211,102,.35)"
+    onmouseenter="document.getElementById('waTooltip').style.display='block'"
+    onmouseleave="document.getElementById('waTooltip').style.display='none'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    WHATSAPP
+  </a>
 </div>
 <script src="app.js"></script>
 </body>
