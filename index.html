@@ -987,10 +987,21 @@ nav .logo span {
 
   <!-- Video background — edge-to-edge, cover fill -->
   <video class="hero-video" autoplay muted loop playsinline preload="auto" id="heroVid">
-    <source src="images/hero-video-mobile.mp4" type="video/mp4" media="(max-width:768px)">
-    <source src="images/hero-video.mp4" type="video/mp4">
-    <source src="images/hero-video-2.mp4" type="video/mp4">
+    <source id="heroVidSrc" src="images/hero-video.mp4" type="video/mp4">
   </video>
+  <script>
+    (function(){
+      var v = document.getElementById('heroVid');
+      var s = document.getElementById('heroVidSrc');
+      if(!v || !s) return;
+      // Use mobile video if screen width <= 768
+      var isMobile = window.innerWidth <= 768;
+      if(isMobile) {
+        s.src = 'images/hero-video-mobile.mp4';
+      }
+      v.load();
+    })();
+  </script>
   <div id="heroPoster" style="position:absolute;inset:0;background:#0d1b2a url('images/hero-poster.jpg') center/cover;z-index:1;transition:opacity .8s ease"></div>
   <script>
     (function(){

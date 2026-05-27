@@ -834,31 +834,25 @@ a[href^="tel"]:hover{color:var(--gold)!important}
 
 /* ════ NAV LOGO ════ */
 .nav-logo-img{height:46px;width:auto;display:block;object-fit:contain;max-width:120px}
-.nav-firm-name{font-family:"Cormorant Garamond",serif;font-size:14.5px;font-weight:700;color:#1B2E4B;white-space:nowrap;text-align:center;line-height:1.2;letter-spacing:.4px}
+.nav-firm-name{font-family:"Cormorant Garamond",serif;font-size:15px;font-weight:700;color:#1B2E4B;white-space:nowrap;text-align:center;line-height:1.2;letter-spacing:.4px}
 
-/* ════ MOBILE HERO BRAND — centered above hero text ════ */
-.hero-mobile-brand{display:none;flex-direction:column;align-items:center;justify-content:center;padding:0 20px 24px;position:relative;z-index:10}
+/* ════ MOBILE: Hide navbar logo, show hero brand ════ */
 @media(max-width:768px){
-  /* Hide logo from navbar on mobile */
-  .logo .nav-logo-img{height:34px!important;max-width:90px!important}
-  .logo .nav-firm-name{font-size:11px!important;letter-spacing:.3px!important}
-  /* Show mobile hero brand */
-  .hero-mobile-brand{display:flex!important}
-  /* Hero content — push down on mobile so brand shows above */
-  .hero-content{padding-top:0!important}
-  /* Nav height mobile */
-  .nav-inner{height:64px!important}
-}
-@media(min-width:769px){
-  /* Hide mobile hero brand on desktop */
-  .hero-mobile-brand{display:none!important}
-  .nav-firm-name{font-size:14.5px}
-}
-
-@media(max-width:768px){
-  .hero{justify-content:space-between!important;padding-top:0}
-  .hero-mobile-brand{padding:32px 24px 16px!important}
-  .hero-content{padding:0 5% 48px!important;max-width:100%!important}
+  /* Hide entire logo link from navbar on mobile */
+  nav .logo{display:none!important}
+  /* Mobile hero brand — centered at top of hero */
+  .hero-mobile-brand{display:flex!important;flex-direction:column;align-items:center;padding:48px 20px 20px;position:relative;z-index:10}
+  /* Hero layout: brand on top, content at bottom */
+  .hero{flex-direction:column;justify-content:space-between!important;align-items:stretch}
+  .hero-content{padding:0 5% max(44px,env(safe-area-inset-bottom,44px))!important;max-width:100%!important}
   .hero-scroll{display:none!important}
+  /* Login btn + hamburger only on mobile nav */
+  .nav-inner{height:60px!important;gap:8px!important}
+  #navAccountBtn{padding:7px 12px!important;font-size:10px!important}
 }
-
+/* ════ DESKTOP: Show navbar logo, hide hero brand ════ */
+@media(min-width:769px){
+  nav .logo{display:flex!important}
+  .hero-mobile-brand{display:none!important}
+  .hero{align-items:flex-end}
+}
